@@ -1,35 +1,30 @@
-import express, { Application, Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const app: Application = express();
-const PORT: string = process.env.PORT!;
+require("dotenv").config();
+const express = require("express");
+const app = express();
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const PORT = process.env.PORT;
 
 // cross domain
 app.use(cors());
+// Middleware for parsing form data
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(express.json());
+app.use(cors({ origin: process.env.DEV_SERVER_PATH }));
 
 // connect to the database
-mongoose.connect(
-  process.env.DB_CONNECTION as string
-  //     , {
-  //   useNewUrlParser: true,
-  //   useUnifiedTopology: true,
-  // }
-);
+mongoose.connect(process.env.DB_CONNECTION);
 const db = mongoose.connection;
-// check if the connection to the database is successful or not
-db.on("error", (error) => console.error(error));
+// check if the connection to the database is seccess or not
+db.on("error", (error: Error) => console.error(error));
 db.once("open", () => console.log("Connected to database"));
 
 //Account System
-import accountRoute from "@route/accountRoute";
+const accountRoute = require("./route/accountRoute");
 app.use("/account", accountRoute);
 
 app.listen(PORT, () => {

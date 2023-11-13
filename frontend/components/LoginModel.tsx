@@ -16,8 +16,10 @@ const LoginModal = () => {
       email: emailRef.current!.value,
       password: passwordRef.current!.value,
     };
+    console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "/account/login");
+    console.log(user);
     axios
-      .post(process.env.REACT_APP_DEV_API_PATH + "/account/login", user)
+      .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "/account/login", user)
       .then((res) => {
         if (res.status === 200) {
           console.log(res.data);
@@ -35,10 +37,23 @@ const LoginModal = () => {
         }
       })
       .catch((err) => {
-        if (err.response.status === 401) {
-          resultRef.current!.innerText = err.response.data;
+        console.log(err);
+        if (err.response) {
+          if (err.response.status === 404) {
+            resultRef.current!.innerText = err.response.data;
+          } else {
+            resultRef.current!.innerText = "Invalid email / password";
+          }
+        } else if (err.request) {
+          // The request was made but no response was received
+          console.log(err.request);
+          resultRef.current!.innerText =
+            "No response from server. Please try again later.";
         } else {
-          resultRef.current!.innerText = "Invalid email / password";
+          // Something happened in setting up the request and triggered an Error
+          console.log("Error", err.message);
+          resultRef.current!.innerText =
+            "Something went wrong. Please try again later.";
         }
       });
   };
