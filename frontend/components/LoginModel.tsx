@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
+import { Input, Button, Card, CardBody } from "@nextui-org/react";
 
 const LoginModal = () => {
   //useref for email and password
@@ -90,45 +90,38 @@ const LoginModal = () => {
   //   };
 
   return (
-    <div className="modalContainer">
-      {/* <button
-        type="button"
-        className="btn-close"
-        onClick={() => setShowModal(false)}
-      ></button> */}
+    // <Card>
+    <div className="p-8 w-[350px]">
+      <form className="flex flex-col gap-4 items-center" onSubmit={onSubmit}>
+        <Input
+          // isRequired
+          type="email"
+          variant={"underlined"}
+          label="Email"
+          ref={emailRef}
+          // className="pb-4"
+        />
 
-      <form onSubmit={onSubmit}>
-        <div className="form-floating ">
-          <input
-            type="email"
-            name="email"
-            className="form-control floating"
-            id="floatingEmail"
-            placeholder="email"
-            ref={emailRef}
-          />
-          <label htmlFor="floatingEmail">Email address</label>
-        </div>
+        <Input
+          // isRequired
+          type="password"
+          variant={"underlined"}
+          label="Password"
+          ref={passwordRef}
+          // className="pb-4"
+        />
 
-        <div className="form-floating mb-3">
-          <input
-            type="password"
-            name="password"
-            className="form-control floating"
-            id="floatingPassword"
-            placeholder="password"
-            ref={passwordRef}
-          />
-          <label htmlFor="floatingPassword">Password</label>
-        </div>
+        <Button variant="faded" type="submit" size="md" className="">
+          Login
+        </Button>
 
-        <div className="buttonContainer d-grid">
+        {/* <div className="buttonContainer d-grid">
           <input
             type="submit"
             value="Login"
             className="btn btn-outline-warning"
           />
-        </div>
+        </div> */}
       </form>
       <div className="d-grid gap-1 pt-2">
         {/* <button className="btn btn-light" onClick={handleForgotPassword}>
