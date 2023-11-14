@@ -19,22 +19,17 @@ pass
 ## Installation
 
 1. #### Setup Environment
-   Windows
    ```
-   ./setup.bat
-   ```
-   Linux/MacOS
-   ```
-   source ./setup.sh
+   yarn i
    ```
 
 ## Possible Script
 
-### `yarn dev`
+### `yarn run dev`
 
-run this command in ./fronend to start the frontend
+run this command in ./csci2720 to start the frontend and backend concurrently
 
 ## Requirements
 
-- node version >=18.17.0
+- node version >=v21.1.0
 - yarn

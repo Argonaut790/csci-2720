@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
+import { Input, Button, Card, CardBody } from "@nextui-org/react";
 
 const LoginModal = () => {
   //useref for email and password
@@ -16,8 +16,10 @@ const LoginModal = () => {
       email: emailRef.current!.value,
       password: passwordRef.current!.value,
     };
+    console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "/account/login");
+    console.log(user);
     axios
-      .post(process.env.REACT_APP_DEV_API_PATH + "/account/login", user)
+      .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "/account/login", user)
       .then((res) => {
         if (res.status === 200) {
           console.log(res.data);
@@ -35,10 +37,23 @@ const LoginModal = () => {
         }
       })
       .catch((err) => {
-        if (err.response.status === 401) {
-          resultRef.current!.innerText = err.response.data;
+        console.log(err);
+        if (err.response) {
+          if (err.response.status === 404) {
+            resultRef.current!.innerText = err.response.data;
+          } else {
+            resultRef.current!.innerText = "Invalid email / password";
+          }
+        } else if (err.request) {
+          // The request was made but no response was received
+          console.log(err.request);
+          resultRef.current!.innerText =
+            "No response from server. Please try again later.";
         } else {
-          resultRef.current!.innerText = "Invalid email / password";
+          // Something happened in setting up the request and triggered an Error
+          console.log("Error", err.message);
+          resultRef.current!.innerText =
+            "Something went wrong. Please try again later.";
         }
       });
   };
@@ -90,45 +105,38 @@ const LoginModal = () => {
   //   };
 
   return (
-    <div className="modalContainer">
-      {/* <button
-        type="button"
-        className="btn-close"
-        onClick={() => setShowModal(false)}
-      ></button> */}
+    // <Card>
+    <div className="p-8 w-[350px]">
+      <form className="flex flex-col gap-4 items-center" onSubmit={onSubmit}>
+        <Input
+          // isRequired
+          type="email"
+          variant={"underlined"}
+          label="Email"
+          ref={emailRef}
+          // className="pb-4"
+        />
 
-      <form onSubmit={onSubmit}>
-        <div className="form-floating ">
-          <input
-            type="email"
-            name="email"
-            className="form-control floating"
-            id="floatingEmail"
-            placeholder="email"
-            ref={emailRef}
-          />
-          <label htmlFor="floatingEmail">Email address</label>
-        </div>
+        <Input
+          // isRequired
+          type="password"
+          variant={"underlined"}
+          label="Password"
+          ref={passwordRef}
+          // className="pb-4"
+        />
 
-        <div className="form-floating mb-3">
-          <input
-            type="password"
-            name="password"
-            className="form-control floating"
-            id="floatingPassword"
-            placeholder="password"
-            ref={passwordRef}
-          />
-          <label htmlFor="floatingPassword">Password</label>
-        </div>
+        <Button variant="faded" type="submit" size="md" className="">
+          Login
+        </Button>
 
-        <div className="buttonContainer d-grid">
+        {/* <div className="buttonContainer d-grid">
           <input
             type="submit"
             value="Login"
             className="btn btn-outline-warning"
           />
-        </div>
+        </div> */}
       </form>
       <div className="d-grid gap-1 pt-2">
         {/* <button className="btn btn-light" onClick={handleForgotPassword}>
