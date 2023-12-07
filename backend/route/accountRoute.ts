@@ -36,8 +36,6 @@ router.post("/login", upload.array(), async (req: Request, res: Response) => {
         userId: user.userId,
         username: user.username,
         isAdmin: user.isAdmin,
-        isPrivate: user.isPrivate,
-        userAvatar: user.avatar,
       });
       // }
     } else {
@@ -62,7 +60,7 @@ router.post("/signup", upload.array(), async (req, res) => {
   if (registeredUser.length) {
     return res
       .status(400)
-      .json(
+      .send(
         "This email has been registered. Please click 'Forgot Password' if you cannot login."
       );
   }

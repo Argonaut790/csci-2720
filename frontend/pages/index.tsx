@@ -8,12 +8,15 @@ import { GithubIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import LoginModel from "@/components/LoginModel";
 import UserSystem from "@/components/UserSystem";
+import { useUserSystem } from "@/contexts/UserSystemContext";
 
 export default function IndexPage() {
+  const { loggedIn } = useUserSystem();
   return (
     <DefaultLayout>
       <section className="h-full flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        <UserSystem />
+        {loggedIn ? <div>Hello</div> : <UserSystem />}
+
         {/* <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Make&nbsp;</h1>
           <h1 className={title({ color: "violet" })}>beautiful&nbsp;</h1>
