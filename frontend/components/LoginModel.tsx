@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import axios from "axios";
 import { Input, Button, Card, CardBody } from "@nextui-org/react";
+import { useUserSystem } from "@/contexts/UserSystemContext";
 
 const LoginModal = () => {
   //useref for email and password
@@ -10,6 +11,7 @@ const LoginModal = () => {
 
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
+  const { toggleSignUpModalOn, toggleForgotPasswordModalOn } = useUserSystem();
 
   const login = () => {
     const user = {
@@ -125,7 +127,15 @@ const LoginModal = () => {
           ref={passwordRef}
           // className="pb-4"
         />
-
+        <div className="w-full opacity-80">
+          Don't have an account?{" "}
+          <span
+            className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
+            onClick={() => toggleSignUpModalOn()}
+          >
+            Sign Up here
+          </span>
+        </div>
         <Button variant="faded" type="submit" size="md" className="">
           Login
         </Button>

@@ -1,54 +1,40 @@
 import React, { useState, useRef, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
+import { Input, Button, Card, CardBody } from "@nextui-org/react";
+import { useUserSystem } from "@/contexts/UserSystemContext";
 
 // interface SignUpModalProps {
 //   setShowModal: (show: boolean) => void;
 // }
 
 const SignUpModal: React.FC = () => {
-  const [username, setUserName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const { toggleLoginModalOn } = useUserSystem();
+  const userNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const resultRef = useRef<HTMLSpanElement>(null);
+
   // const captchaRef = useRef<ReCAPTCHA>(null);
 
   const createAccount = () => {
     const user = {
-      username: username,
-      email: email,
-      password: password,
-      isGoogleSign: false,
+      username: userNameRef.current!.value,
+      email: emailRef.current!.value,
+      password: passwordRef.current!.value,
+      confirm_password: confirmPasswordRef.current!.value,
     };
 
     axios
-      .post(process.env.REACT_APP_DEV_API_PATH + "/account", user)
+      .post(process.env.REACT_APP_DEV_API_PATH + "/account/signup", user)
       .then((res) => {
         if (res.status === 200) {
-          document.getElementById("result")!.innerText =
-            "User was registered successfully! Please check your email";
+          resultRef.current!.innerText = "Registered successfully! ";
         }
       })
       .catch((err) => {
-        document.getElementById("result")!.innerText = err.response.data;
+        resultRef.current!.innerText = err.response.data;
       });
-
-    setUserName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-  };
-
-  const onChangeUsername = (e: ChangeEvent<HTMLInputElement>) => {
-    setUserName(e.target.value);
-  };
-  const onChangeEmail = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-  const onChangePassword = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-  const onChangeConfirmPassword = (e: ChangeEvent<HTMLInputElement>) => {
-    setConfirmPassword(e.target.value);
   };
 
   const onSubmit = (e: FormEvent) => {
@@ -62,7 +48,12 @@ const SignUpModal: React.FC = () => {
     let isConfirmPasswordInvalid = false;
     let isUsernameLengthInvalid = false;
 
-    document.getElementById("result")!.innerText = "";
+    const email = emailRef.current!.value;
+    const username = userNameRef.current!.value;
+    const password = passwordRef.current!.value;
+    const confirmPassword = confirmPasswordRef.current!.value;
+
+    resultRef.current!.innerText = "";
     // Client-side validation
     const passwordRegEx = new RegExp(
       "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
@@ -75,7 +66,7 @@ const SignUpModal: React.FC = () => {
     if (username === "") {
       isUsernameInvalid = true;
     } else if (username.length > 8) {
-      document.getElementById("result")!.innerText +=
+      resultRef.current!.innerText +=
         "- Username must be less than 9 characters\n";
       isUsernameLengthInvalid = true;
     } else {
@@ -88,13 +79,13 @@ const SignUpModal: React.FC = () => {
       isConfirmPasswordEmpty = true;
     }
     if (password !== confirmPassword) {
-      document.getElementById("result")!.innerText +=
+      resultRef.current!.innerText +=
         "- Your confirm password does not match\n";
       isPasswordInvalid = true;
       isConfirmPasswordInvalid = true;
     }
     if (!password.match(passwordRegEx)) {
-      document.getElementById("result")!.innerText +=
+      resultRef.current!.innerText +=
         "- Password must contains at least 1 upper case, 1 lower case, 1 number with the minimum length of 8 \n";
       isPasswordInvalid = true;
       isConfirmPasswordInvalid = true;
@@ -106,13 +97,13 @@ const SignUpModal: React.FC = () => {
       isEmailInvalid ||
       isUsernameInvalid
     ) {
-      document.getElementById("result")!.innerText +=
+      resultRef.current!.innerText +=
         "- Please enter your " +
         (isEmailInvalid ? "email" : "") +
         (isUsernameInvalid ? " username" : "") +
         (isPasswordEmpty ? " password" : "") +
         (isConfirmPasswordEmpty ? " and confirm your password " : "");
-      document.getElementById("result")!.innerText += "\n";
+      resultRef.current!.innerText += "\n";
     }
 
     if (
@@ -128,75 +119,74 @@ const SignUpModal: React.FC = () => {
     }
 
     // Add "is-invalid" class to input fields that match the syntax
-    document.getElementById("floatingEmail")!.className = isEmailInvalid
-      ? "form-control floating is-invalid"
-      : "form-control floating";
-    document.getElementById("floatingUsername")!.className =
-      isUsernameInvalid || isUsernameLengthInvalid
-        ? "form-control floating is-invalid"
-        : "form-control floating";
-    document.getElementById("floatingPassword")!.className = isPasswordInvalid
-      ? "form-control floating is-invalid"
-      : "form-control floating";
-    document.getElementById("floatingConfirmPassword")!.className =
-      isConfirmPasswordInvalid
-        ? "form-control floating is-invalid"
-        : "form-control floating";
+    // document.getElementById("floatingEmail")!.className = isEmailInvalid
+    //   ? "form-control floating is-invalid"
+    //   : "form-control floating";
+    // document.getElementById("floatingUsername")!.className =
+    //   isUsernameInvalid || isUsernameLengthInvalid
+    //     ? "form-control floating is-invalid"
+    //     : "form-control floating";
+    // document.getElementById("floatingPassword")!.className = isPasswordInvalid
+    //   ? "form-control floating is-invalid"
+    //   : "form-control floating";
+    // document.getElementById("floatingConfirmPassword")!.className =
+    //   isConfirmPasswordInvalid
+    //     ? "form-control floating is-invalid"
+    //     : "form-control floating";
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <div className="form-floating mb-3">
-        <input
+    <div className="p-8 w-[350px]">
+      <form onSubmit={onSubmit} className="flex flex-col gap-4 items-center">
+        <Input
+          // isRequired
           type="email"
-          className="form-control"
-          id="floatingEmail"
-          placeholder="name@example.com"
-          value={email}
-          onChange={onChangeEmail}
+          variant={"underlined"}
+          label="Email"
+          ref={emailRef}
+          // className="pb-4"
         />
-        <label htmlFor="floatingEmail">Email address</label>
-      </div>
-      <div className="form-floating mb-3">
-        <input
+        <Input
+          // isRequired
           type="text"
-          className="form-control"
-          id="floatingUsername"
-          placeholder="Username"
-          value={username}
-          onChange={onChangeUsername}
+          variant={"underlined"}
+          label="Username"
+          ref={userNameRef}
+          // className="pb-4"
         />
-        <label htmlFor="floatingUsername">Username</label>
-      </div>
-      <div className="form-floating mb-3">
-        <input
+        <Input
+          // isRequired
           type="password"
-          className="form-control"
-          id="floatingPassword"
-          placeholder="Password"
-          value={password}
-          onChange={onChangePassword}
+          variant={"underlined"}
+          label="Password"
+          ref={passwordRef}
+          // className="pb-4"
         />
-        <label htmlFor="floatingPassword">Password</label>
-      </div>
-      <div className="form-floating mb-3">
-        <input
+        <Input
+          // isRequired
           type="password"
-          className="form-control"
-          id="floatingConfirmPassword"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={onChangeConfirmPassword}
+          variant={"underlined"}
+          label="Confirm Password"
+          ref={confirmPasswordRef}
+          // className="pb-4"
         />
-        <label htmlFor="floatingConfirmPassword">Confirm Password</label>
-      </div>
-      <div className="d-grid gap-2 mt-3">
-        <button className="btn btn-primary" type="submit">
+        <div className="w-full opacity-80">
+          Already have an account?{" "}
+          <span
+            className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
+            onClick={() => toggleLoginModalOn()}
+          >
+            Login here
+          </span>
+        </div>
+        <Button variant="faded" type="submit" size="md" className="">
           Sign Up
-        </button>
+        </Button>
+      </form>
+      <div className="d-grid gap-1 pt-2">
+        <span id="result" ref={resultRef}></span>
       </div>
-      <p id="result" className="mt-3"></p>
-    </form>
+    </div>
   );
 };
 export default SignUpModal;
