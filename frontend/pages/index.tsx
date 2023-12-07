@@ -9,13 +9,15 @@ import DefaultLayout from "@/layouts/default";
 import LoginModel from "@/components/LoginModel";
 import UserSystem from "@/components/UserSystem";
 import { useUserSystem } from "@/contexts/UserSystemContext";
+import DynamicContent from "@/components/DynamicContent";
 
 export default function IndexPage() {
   const { loggedIn } = useUserSystem();
+
   return (
     <DefaultLayout>
-      <section className="h-full flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        {loggedIn ? <div>Hello</div> : <UserSystem />}
+      <section className="h-full py-8 md:py-10 w-full">
+        {loggedIn ? <DynamicContent /> : <UserSystem />}
 
         {/* <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Make&nbsp;</h1>
