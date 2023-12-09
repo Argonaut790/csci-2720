@@ -9,7 +9,8 @@ var upload = multer();
 // Login
 router.post("/login", upload.array(), async (req: Request, res: Response) => {
   const user = await Account.findOne({ email: req.body.email });
-
+  console.log(req.body)
+  console.log(user)
   if (!user) {
     res.status(400);
     res.send("Wrong email / password");
@@ -43,10 +44,18 @@ router.post("/login", upload.array(), async (req: Request, res: Response) => {
     }
   }
 });
+// Test api
+router.get("/",(req, res)=>{
+  res.send("Hello world")
+})
+
+
 
 // Sign up
 router.post("/signup", upload.array(), async (req, res) => {
   // Server-side validation
+ 
+
   const emailRegEx =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -73,8 +82,12 @@ router.post("/signup", upload.array(), async (req, res) => {
 
   try {
     const saveduser = await account.save();
+    console.log("the ac is saved")
     res.status(200).json(saveduser);
+
   } catch (err) {
+    console.log("the ac is not saved")
+    
     res
       .status(401)
       .json("Unknown error, please try again or sign up with another method.");

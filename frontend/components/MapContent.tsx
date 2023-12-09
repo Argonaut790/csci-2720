@@ -21,7 +21,7 @@ const MapContent = () => {
         "https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}@2x.png?key=mPq3AnroIXXtCPXyx40m",
         {
           minZoom: 11,
-          maxZoom: 15,
+          maxZoom: 20,
           attribution:
             '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
         }
@@ -45,11 +45,11 @@ const MapContent = () => {
             placeholder="22.419373049191574"
             value="22.419373049191574"
             labelPlacement="outside"
-            // endContent={
-            //   <div className="pointer-events-none flex items-center">
-            //     <span className="text-default-400 text-small">$</span>
-            //   </div>
-            // }
+          // endContent={
+          //   <div className="pointer-events-none flex items-center">
+          //     <span className="text-default-400 text-small">$</span>
+          //   </div>
+          // }
           />
           <Input
             type="number"
@@ -57,11 +57,11 @@ const MapContent = () => {
             placeholder="114.20637130715477"
             value="114.20637130715477"
             labelPlacement="outside"
-            // endContent={
-            //   <div className="pointer-events-none flex items-center">
-            //     <span className="text-default-400 text-small">$</span>
-            //   </div>
-            // }
+          // endContent={
+          //   <div className="pointer-events-none flex items-center">
+          //     <span className="text-default-400 text-small">$</span>
+          //   </div>
+          // }
           />
         </div>
       </div>

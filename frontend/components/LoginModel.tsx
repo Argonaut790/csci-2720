@@ -25,8 +25,9 @@ const LoginModal = () => {
     axios
       .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login", user)
       .then((res) => {
+        console.log("sucess in login")
         if (res.status === 200) {
-          console.log(res.data);
+          console.log("res.status");
           //   resultRef.innerText = "Logged in successfully!";
           // turn resultref's inner text to logged in successfully
           resultRef.current!.innerText = "Logged in successfully!";
@@ -40,7 +41,8 @@ const LoginModal = () => {
         }
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
+
         if (err.response) {
           if (err.response.status === 404) {
             resultRef.current!.innerText = err.response.data;
@@ -68,8 +70,6 @@ const LoginModal = () => {
     const email = emailRef.current!.value;
     const password = passwordRef.current!.value;
 
-    console.log(email);
-    console.log(password);
 
     e.preventDefault();
     resultRef.current!.innerText = "";
@@ -90,6 +90,7 @@ const LoginModal = () => {
     }
 
     if (email !== "" && password !== "") {
+
       login();
     }
 
@@ -117,7 +118,9 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Email"
           ref={emailRef}
-          // className="pb-4"
+          value="brandon@gamil.com
+          "
+        // className="pb-4"
         />
 
         <Input
@@ -126,7 +129,8 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Password"
           ref={passwordRef}
-          // className="pb-4"
+          value="123456Ab"
+        // className="pb-4"
         />
         <div className="w-full opacity-80">
           Don't have an account?{" "}

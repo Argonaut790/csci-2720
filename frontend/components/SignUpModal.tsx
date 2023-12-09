@@ -18,34 +18,42 @@ const SignUpModal: React.FC = () => {
   // const captchaRef = useRef<ReCAPTCHA>(null);
 
   const createAccount = () => {
+
+    console.log("ac is creating ")
     const user = {
       username: userNameRef.current!.value,
       email: emailRef.current!.value,
       password: passwordRef.current!.value,
       confirm_password: confirmPasswordRef.current!.value,
     };
+    console.log(user)
     axios
       .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/signup", user)
       .then((res) => {
+
         if (res.status === 200) {
           resultRef.current!.innerText = "Registered successfully! ";
           setTimeout(() => {
             toggleLoginModalOn();
           }, 1000);
+
         }
+
       })
       .catch((err) => {
         if (err.response) {
           resultRef.current!.innerText = err.response.data;
         } else {
           resultRef.current!.innerText = "There is something went wrong.";
+
         }
-      });
+      })
+
   };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-
+    console.log("on submit is clicked")
     let isEmailInvalid = false;
     let isUsernameInvalid = false;
     let isPasswordInvalid = false;
@@ -56,6 +64,9 @@ const SignUpModal: React.FC = () => {
     const username = userNameRef.current!.value;
     const password = passwordRef.current!.value;
     const confirmPassword = confirmPasswordRef.current!.value;
+
+
+    createAccount();
 
     resultRef.current!.innerText = "";
     // Client-side validation
@@ -148,15 +159,18 @@ const SignUpModal: React.FC = () => {
           variant={"underlined"}
           label="Email"
           ref={emailRef}
-          // className="pb-4"
+          value="brandon@gamil.com"
+        // className="pb-4"
         />
+
         <Input
           // isRequired
           type="text"
           variant={"underlined"}
           label="Username"
           ref={userNameRef}
-          // className="pb-4"
+          value="brandon"
+        // className="pb-4"
         />
         <Input
           // isRequired
@@ -164,7 +178,8 @@ const SignUpModal: React.FC = () => {
           variant={"underlined"}
           label="Password"
           ref={passwordRef}
-          // className="pb-4"
+          value="123456Ab"
+        // className="pb-4"
         />
         <Input
           // isRequired
@@ -172,7 +187,9 @@ const SignUpModal: React.FC = () => {
           variant={"underlined"}
           label="Confirm Password"
           ref={confirmPasswordRef}
-          // className="pb-4"
+          value="123456Ab"
+
+        // className="pb-4"
         />
         <div className="w-full opacity-80">
           Already have an account?{" "}
