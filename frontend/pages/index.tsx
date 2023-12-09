@@ -10,7 +10,7 @@ import LoginModel from "@/components/LoginModel";
 import UserSystem from "@/components/UserSystem";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import DynamicContent from "@/components/DynamicContent";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 export default function IndexPage() {
   const { loggedIn } = useUserSystem();
 
