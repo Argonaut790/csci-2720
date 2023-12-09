@@ -26,10 +26,12 @@ import {
   HeartFilledIcon,
   SearchIcon,
 } from "@/components/icons";
-
+import { useUserSystem } from "@contexts/UserSystemContext";
 import { Logo } from "@/components/icons";
 
 export const Navbar = () => {
+  const { loggedIn, logout } = useUserSystem();
+
   const searchInput = (
     <Input
       aria-label="Search"
@@ -89,6 +91,14 @@ export const Navbar = () => {
           <Link isExternal href={siteConfig.links.discord}>
             <DiscordIcon className="text-default-500" />
           </Link> */}
+          {loggedIn ? (
+            <Button className=" h-8" onClick={logout}>
+              Sign Out
+            </Button>
+          ) : (
+            ""
+          )}
+
           <Link isExternal href={siteConfig.links.github}>
             <GithubIcon className="text-default-500" />
           </Link>
@@ -110,6 +120,13 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
+        {loggedIn ? (
+          <Button className=" h-8" onClick={logout}>
+            Sign Out
+          </Button>
+        ) : (
+          ""
+        )}
         <Link isExternal href={siteConfig.links.github}>
           <GithubIcon className="text-default-500" />
         </Link>

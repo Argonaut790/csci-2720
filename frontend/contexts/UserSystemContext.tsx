@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useEffect,
+  useContext,
+  useState,
+  ReactNode,
+} from "react";
+import Cookies from "js-cookie";
 
 interface Props {
   children?: ReactNode;
@@ -10,6 +17,8 @@ interface UserSystemContextValue {
   showSignUpModal: boolean;
   showLoginModal: boolean;
   showForgotPasswordModal: boolean;
+  toggleLoggedInOn: () => void;
+  logout: () => void;
   toggleSignUpModalOn: () => void;
   toggleLoginModalOn: () => void;
   toggleForgotPasswordModalOn: () => void;
@@ -28,6 +37,24 @@ export const UserSystemProvider = ({ children }: Props) => {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+
+  // Get cookies and set loggedIn to true if cookie exists
+  // Get cookies and set loggedIn to true if cookie exists
+  useEffect(() => {
+    if (Cookies.get("loggedIn")) {
+      setLoggedIn(true);
+    }
+  }, []);
+
+  const toggleLoggedInOn = () => {
+    setLoggedIn(true);
+  };
+
+  const logout = () => {
+    console.log("logout");
+    Cookies.remove("loggedIn");
+    setLoggedIn(false);
+  };
 
   const toggleSignUpModalOn = () => {
     setShowSignUpModal(true);
@@ -59,6 +86,8 @@ export const UserSystemProvider = ({ children }: Props) => {
     showSignUpModal,
     showLoginModal,
     showForgotPasswordModal,
+    toggleLoggedInOn,
+    logout,
     toggleSignUpModalOn,
     toggleLoginModalOn,
     toggleForgotPasswordModalOn,

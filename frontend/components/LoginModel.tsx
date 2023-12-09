@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import { Input, Button, Card, CardBody } from "@nextui-org/react";
 import { useUserSystem } from "@/contexts/UserSystemContext";
+import Cookies from "js-cookie";
 
 const LoginModal = () => {
   //useref for email and password
@@ -11,17 +12,18 @@ const LoginModal = () => {
 
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
-  const { toggleSignUpModalOn, toggleForgotPasswordModalOn } = useUserSystem();
+  const { toggleSignUpModalOn, toggleForgotPasswordModalOn, toggleLoggedInOn } =
+    useUserSystem();
 
   const login = () => {
     const user = {
       email: emailRef.current!.value,
       password: passwordRef.current!.value,
     };
-    console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "/account/login");
+    console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login");
     console.log(user);
     axios
-      .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "/account/login", user)
+      .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login", user)
       .then((res) => {
         if (res.status === 200) {
           console.log(res.data);
@@ -33,9 +35,8 @@ const LoginModal = () => {
             "user",
             JSON.stringify({ userId: res.data.userId })
           );
-
-          //   navigate("/");
-          window.location.reload();
+          Cookies.set("loggedIn", "true");
+          toggleLoggedInOn();
         }
       })
       .catch((err) => {

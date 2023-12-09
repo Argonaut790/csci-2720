@@ -24,16 +24,22 @@ const SignUpModal: React.FC = () => {
       password: passwordRef.current!.value,
       confirm_password: confirmPasswordRef.current!.value,
     };
-
     axios
-      .post(process.env.REACT_APP_DEV_API_PATH + "/account/signup", user)
+      .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/signup", user)
       .then((res) => {
         if (res.status === 200) {
           resultRef.current!.innerText = "Registered successfully! ";
+          setTimeout(() => {
+            toggleLoginModalOn();
+          }, 1000);
         }
       })
       .catch((err) => {
-        resultRef.current!.innerText = err.response.data;
+        if (err.response) {
+          resultRef.current!.innerText = err.response.data;
+        } else {
+          resultRef.current!.innerText = "There is something went wrong.";
+        }
       });
   };
 
@@ -43,8 +49,6 @@ const SignUpModal: React.FC = () => {
     let isEmailInvalid = false;
     let isUsernameInvalid = false;
     let isPasswordInvalid = false;
-    let isPasswordEmpty = false;
-    let isConfirmPasswordEmpty = false;
     let isConfirmPasswordInvalid = false;
     let isUsernameLengthInvalid = false;
 
@@ -73,10 +77,10 @@ const SignUpModal: React.FC = () => {
       isUsernameInvalid = false;
     }
     if (password === "") {
-      isPasswordEmpty = true;
+      isPasswordInvalid = true;
     }
     if (confirmPassword === "") {
-      isConfirmPasswordEmpty = true;
+      isConfirmPasswordInvalid = true;
     }
     if (password !== confirmPassword) {
       resultRef.current!.innerText +=
@@ -101,8 +105,8 @@ const SignUpModal: React.FC = () => {
         "- Please enter your " +
         (isEmailInvalid ? "email" : "") +
         (isUsernameInvalid ? " username" : "") +
-        (isPasswordEmpty ? " password" : "") +
-        (isConfirmPasswordEmpty ? " and confirm your password " : "");
+        (isPasswordInvalid ? " password" : "") +
+        (isConfirmPasswordInvalid ? " and confirm your password " : "");
       resultRef.current!.innerText += "\n";
     }
 

@@ -18,7 +18,11 @@ const UserSystem = () => {
   // };
 
   return (
-    <div id="signUp" className="h-full flex items-center" key="signUp">
+    <div
+      id="signUp"
+      className="h-full flex items-center justify-center gap-4"
+      key="signUp"
+    >
       {/* <div>
         <GoogleOAuthProvider clientId={clientId}>
           <GoogleLogin
