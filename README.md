@@ -19,8 +19,17 @@ pass
 ## Installation
 
 1. #### Setup Environment
+
+   Windows:
+
    ```
-   yarn i
+   ./setup.sh
+   ```
+
+   MacOS/Linux:
+
+   ```
+   source ./setup.sh
    ```
 
 ## Possible Script
