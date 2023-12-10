@@ -145,21 +145,36 @@ const MapContent = () => {
           console.log("response is ", res.data.results)
           return res.data.results.slice(0, 10)
         })
-      console.log(nearestResult)
+      let dataArray: { address: string; coor: any[] }[] = [];
+      if (nearestResult) {
+        for (let i = 0; i < 10; i++) {
+          let onLocation = nearestResult[i]['lat-long']
+          let greenIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+          nearestLocationRef.current[i] = L.marker(onLocation, { icon: greenIcon }).addTo(mapRef.current)
 
-      for (let i = 0; i < 10; i++) {
-        let onLocation = nearestResult[i]['lat-long']
-        let greenIcon = new L.Icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
-        });
-        nearestLocationRef.current[i] = L.marker(onLocation, { icon: greenIcon }).addTo(mapRef.current)
+          let address = nearestResult[i]['address-en']
+          let coor = nearestResult[i]['lat-long']
 
+          let data: { address: string, coor: any[] } = {
+            "address": address,
+            "coor": coor
+          }
+          dataArray.push(data)
+          console.log(data)
+
+
+        }
+
+        generateUserList(dataArray)
       }
+
 
     }
     else { console.log("double clicked") }
@@ -176,7 +191,11 @@ const MapContent = () => {
 
   const findSpecPowerStation = async () => {
 
-
+    if (nearestLocationRef) {
+      nearestLocationRef.current.forEach(marker => {
+        marker.remove();
+      });
+    }
     let url = `https://api.data.gov.hk/v1/nearest-clp-electric-vehicle-charging-stations?lat=${coordinate[0]}&long=${coordinate[1]}`
 
     let nearestResult = await axios
@@ -207,66 +226,116 @@ const MapContent = () => {
 
 
   }
+  function generateUserList(dataArray: { address: string; coor: any[] }[]) {
+    console.log("generating list")
+    let listLocat = document.getElementById("listView")
 
+    if (listLocat) {
+      // Create table
+      let table = document.createElement("table");
+
+      // Create table header
+      let thead = document.createElement("thead");
+      let headerRow = document.createElement("tr");
+      let addressHeader = document.createElement("th");
+      addressHeader.textContent = "Address";
+      let coorHeader = document.createElement("th");
+      coorHeader.textContent = "Coordinate";
+      headerRow.appendChild(addressHeader);
+      headerRow.appendChild(coorHeader);
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Create table body
+      let tbody = document.createElement("tbody");
+      dataArray.forEach(data => {
+        let row = document.createElement("tr");
+        let addressData = document.createElement("td");
+        addressData.textContent = data.address;
+        let coorData = document.createElement("td");
+        coorData.textContent = data.coor.join(", ");
+        row.appendChild(addressData);
+        row.appendChild(coorData);
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+
+      // Append table to listLocat
+      listLocat.appendChild(table);
+    }
+  }
   return (
-    <div className="w-100 mx-auto max-w-7xl overflow-hidden">
+    <div className="flex flex-col">
+      <div className="w-100 mx-auto max-w-7xl overflow-hidden">
 
-      <div className="relative">
-        {/* {loading && (
-          <div className="absolute inset-0 flex items-center justify-center z-50 bg-white bg-opacity-75">
-          <Loading />
+        <div className="relative">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center z-50 bg-white bg-opacity-75">
+              <Loading />
+            </div>
+          )}
+
+          <div className="flex flex-row justify-center">
+            <div
+              id="map"
+              className="w-[768px] h-[512px] border aspect-video rounded"
+            ></div>
+
+            <div className="px-10 flex flex-col gap-4 w-[260px] justify-center items-center">
+              <Input
+                type="number"
+                label="Latitude"
+                placeholder="22.419373049191574"
+                value="22.419373049191574"
+                labelPlacement="outside"
+              // endContent={
+              //   <div className="pointer-events-none flex items-center">
+              //     <span className="text-default-400 text-small">$</span>
+              //   </div>
+              // }
+              />
+
+
+              <Input
+                type="number"
+                label="Longtitude"
+                placeholder="114.20637130715477"
+                value="114.20637130715477"
+                labelPlacement="outside"
+              // endContent={
+              //   <div className="pointer-events-none flex items-center">
+              //     <span className="text-default-400 text-small">$</span>
+              //   </div>
+              // }
+              />
+              <div className="text-white">You are now pointing at:</div>
+              <div className="text-white">Latitude: {coordinate[0]}</div>
+              <div className="text-white">Longitude: {coordinate[1]}</div>
+              <Button variant="faded" size="md" className="" >
+                show all location
+              </Button>
+              <Button variant="faded" size="md" className="" onClick={() => findNearPowerStation()}>
+                find nearby powerstation
+              </Button>
+              <Button variant="faded" size="md" className="" onClick={() => findSpecPowerStation()}>
+                find specific location powerstation
+              </Button>
+              {/* <Button variant="faded" size="md" className="" onClick={() => findSpecPowerStation()}>
+                find specific location powerstation
+              </Button> */}
+
+            </div>
           </div>
-        )} */}
-
-        <div className="flex flex-row justify-center">
-          <div
-            id="map"
-            className="w-[768px] h-[512px] border aspect-video rounded"
-          ></div>
-
-          <div className="px-10 flex flex-col gap-4 w-[260px] justify-center items-center">
-            <Input
-              type="number"
-              label="Latitude"
-              placeholder="22.419373049191574"
-              value="22.419373049191574"
-              labelPlacement="outside"
-            // endContent={
-            //   <div className="pointer-events-none flex items-center">
-            //     <span className="text-default-400 text-small">$</span>
-            //   </div>
-            // }
-            />
 
 
-            <Input
-              type="number"
-              label="Longtitude"
-              placeholder="114.20637130715477"
-              value="114.20637130715477"
-              labelPlacement="outside"
-            // endContent={
-            //   <div className="pointer-events-none flex items-center">
-            //     <span className="text-default-400 text-small">$</span>
-            //   </div>
-            // }
-            />
-            <div className="text-white">You are now pointing at:</div>
-            <div className="text-white">Latitude: {coordinate[0]}</div>
-            <div className="text-white">Longitude: {coordinate[1]}</div>
-            <Button variant="faded" size="md" className="" onClick={() => findNearPowerStation()}>
-              find nearby powerstation
-            </Button>
-            <Button variant="faded" size="md" className="" onClick={() => findSpecPowerStation()}>
-              find specific location powerstation
-            </Button>
-
-          </div>
         </div>
 
       </div>
-
+      <div id="listView" className="h-5 text-cyan-400">
+        I am here
+      </div>
     </div>
+
   );
 };
 
