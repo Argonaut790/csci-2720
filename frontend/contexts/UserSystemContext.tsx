@@ -47,6 +47,9 @@ export const UserSystemProvider = ({ children }: Props) => {
     if (Cookies.get("loggedIn")) {
       setLoggedIn(true);
     }
+    if (Cookies.get("isAdmin")) {
+      setIsAdmin(true);
+    }
   }, []);
 
   const toggleLoggedInOn = () => {

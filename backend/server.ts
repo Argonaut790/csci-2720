@@ -27,6 +27,10 @@ db.once("open", () => console.log("Connected to database"));
 const accountRoute = require("./route/accountRoute");
 app.use("/account", accountRoute);
 
+//Data System
+const dataRoute = require("./route/dataRoute");
+app.use("/data", dataRoute);
+
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
