@@ -10,14 +10,22 @@ import LoginModel from "@/components/LoginModel";
 import UserSystem from "@/components/UserSystem";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import DynamicContent from "@/components/DynamicContent";
+import AdminAction from "@/components/AdminAction";
 
 export default function IndexPage() {
-  const { loggedIn } = useUserSystem();
+  const { loggedIn, isadmin } = useUserSystem();
 
   return (
     <DefaultLayout>
       <section className="h-full py-8 md:py-10 w-full">
-        {loggedIn ? <DynamicContent /> : <UserSystem />}
+        {loggedIn ? (
+          <>
+            <DynamicContent />
+            {isadmin ? <AdminAction /> : null}
+          </>
+        ) : (
+          <UserSystem />
+        )}
 
         {/* <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Make&nbsp;</h1>

@@ -12,16 +12,20 @@ const LoginModal = () => {
 
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
-  const { toggleSignUpModalOn, toggleForgotPasswordModalOn, toggleLoggedInOn } =
-    useUserSystem();
+  const {
+    toggleSignUpModalOn,
+    toggleForgotPasswordModalOn,
+    toggleLoggedInOn,
+    toggleIsAdminOn,
+  } = useUserSystem();
 
   const login = () => {
     const user = {
       email: emailRef.current!.value,
       password: passwordRef.current!.value,
     };
-    console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login");
-    console.log(user);
+    // console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login");
+    // console.log(user);
     axios
       .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login", user)
       .then((res) => {
@@ -31,11 +35,18 @@ const LoginModal = () => {
           // turn resultref's inner text to logged in successfully
           resultRef.current!.innerText = "Logged in successfully!";
 
-          localStorage.setItem(
-            "user",
-            JSON.stringify({ userId: res.data.userId })
-          );
+          // localStorage.setItem(
+          //   "user",
+          //   JSON.stringify({ userId: res.data.userId })
+          // );
           Cookies.set("loggedIn", "true");
+          Cookies.set("userId", res.data.userId);
+          if (res.data.isAdmin) {
+            Cookies.set("isAdmin", "true");
+            toggleIsAdminOn();
+          } else {
+            Cookies.set("isAdmin", "false");
+          }
           toggleLoggedInOn();
         }
       })

@@ -13,11 +13,13 @@ interface Props {
 
 interface UserSystemContextValue {
   loggedIn: boolean;
+  isadmin: boolean;
   user: object;
   showSignUpModal: boolean;
   showLoginModal: boolean;
   showForgotPasswordModal: boolean;
   toggleLoggedInOn: () => void;
+  toggleIsAdminOn: () => void;
   logout: () => void;
   toggleSignUpModalOn: () => void;
   toggleLoginModalOn: () => void;
@@ -33,6 +35,7 @@ export const useUserSystem = () => useContext(UserSystemContext);
 
 export const UserSystemProvider = ({ children }: Props) => {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isadmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState({});
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(true);
@@ -50,9 +53,16 @@ export const UserSystemProvider = ({ children }: Props) => {
     setLoggedIn(true);
   };
 
+  const toggleIsAdminOn = () => {
+    setIsAdmin(true);
+  };
+
   const logout = () => {
     console.log("logout");
     Cookies.remove("loggedIn");
+    Cookies.remove("userId");
+    Cookies.remove("isAdmin");
+    setIsAdmin(false);
     setLoggedIn(false);
   };
 
@@ -82,11 +92,13 @@ export const UserSystemProvider = ({ children }: Props) => {
 
   const contextValue = {
     loggedIn,
+    isadmin,
     user,
     showSignUpModal,
     showLoginModal,
     showForgotPasswordModal,
     toggleLoggedInOn,
+    toggleIsAdminOn,
     logout,
     toggleSignUpModalOn,
     toggleLoginModalOn,
