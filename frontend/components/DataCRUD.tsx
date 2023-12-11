@@ -21,12 +21,12 @@ interface data {
   "address-en": string;
   provider: string;
   type: string;
-  "lat-long": string;
+  "lat-long": number[];
 }
 
 const DataCRUD = () => {
   const [rows, setRows] = useState<data[]>([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
   const rowsPerPage = 10;
 
   const pages = Math.ceil(rows.length / rowsPerPage);
@@ -72,7 +72,7 @@ const DataCRUD = () => {
               color="secondary"
               page={page}
               total={pages}
-              onChange={(page) => setPage(page)}
+              onChange={(page: number) => setPage(page)}
             />
           </div>
         }

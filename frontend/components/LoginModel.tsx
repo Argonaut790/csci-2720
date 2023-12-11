@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import axios from "axios";
-import { Input, Button, Card, CardBody } from "@nextui-org/react";
+import { Input, Button, Card, CardBody, toggle } from "@nextui-org/react";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import Cookies from "js-cookie";
+import updateData from "@/components/UpdateData";
 
 const LoginModal = () => {
   //useref for email and password
@@ -13,6 +14,8 @@ const LoginModal = () => {
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
   const {
+    toggleLoadingOn,
+    toggleLoadingOff,
     toggleSignUpModalOn,
     toggleForgotPasswordModalOn,
     toggleLoggedInOn,
@@ -26,6 +29,8 @@ const LoginModal = () => {
     };
     // console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login");
     // console.log(user);
+
+    toggleLoadingOn();
     axios
       .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login", user)
       .then((res) => {
@@ -48,9 +53,14 @@ const LoginModal = () => {
             Cookies.set("isAdmin", "false");
           }
           toggleLoggedInOn();
+
+          // Update Data Database
+          updateData();
+          toggleLoadingOff();
         }
       })
       .catch((err) => {
+        toggleLoadingOff();
         console.log(err);
         if (err.response) {
           if (err.response.status === 404) {
