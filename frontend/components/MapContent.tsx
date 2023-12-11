@@ -35,7 +35,7 @@ const MapContent = () => {
       <div className="flex flex-row justify-center">
         <div
           id="map"
-          className="w-[768px] h-[512px] border aspect-video rounded"
+          className="w-[768px] h-[512px] border aspect-video rounded z-10"
         ></div>
 
         <div className="px-10 flex flex-col gap-4 w-[260px] justify-center items-center">

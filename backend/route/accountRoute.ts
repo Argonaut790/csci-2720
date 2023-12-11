@@ -81,6 +81,78 @@ router.post("/signup", upload.array(), async (req, res) => {
   }
 });
 
+// Get all user info
+router.get("/", async (req, res) => {
+  try {
+    const list = await Account.find();
+    res.json(list);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
+
+// Get one user info
+router.get("/:userId", async (req, res) => {
+  console.log("Gettin user info");
+  try {
+    const user = await Account.findOne({ userId: req.params.userId });
+    console.log(user);
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.json({ message: err });
+  }
+});
+
+// Update user info
+router.patch("/:userId", async (req, res) => {
+  console.log("Updating user info");
+  try {
+    const updatedUser = await Account.updateOne(
+      { userId: req.params.userId },
+      {
+        $set: {
+          username: req.body.username,
+          password: req.body.password,
+        },
+      }
+    );
+    console.log(updatedUser);
+    res.json(updatedUser);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
+
+// Delete user
+router.delete("/:userId", async (req, res) => {
+  console.log("Deleting user");
+  try {
+    const removedUser = await Account.deleteOne({ userId: req.params.userId });
+    console.log(removedUser);
+    res.json(removedUser);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
+
+// Admin Add user
+router.post("/", async (req, res) => {
+  console.log("Adding user");
+  const account = new Account({
+    username: req.body.username,
+    password: req.body.password,
+    email: req.body.email,
+  });
+
+  try {
+    const saveduser = await account.save();
+    res.json(saveduser);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
+
 // // Forgot Password
 // router.patch("/password", async (req, res) => {
 //   // Get user by email
