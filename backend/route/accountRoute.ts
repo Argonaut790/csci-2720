@@ -136,6 +136,23 @@ router.delete("/:userId", async (req, res) => {
   }
 });
 
+// Admin Add user
+router.post("/", async (req, res) => {
+  console.log("Adding user");
+  const account = new Account({
+    username: req.body.username,
+    password: req.body.password,
+    email: req.body.email,
+  });
+
+  try {
+    const saveduser = await account.save();
+    res.json(saveduser);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
+
 // // Forgot Password
 // router.patch("/password", async (req, res) => {
 //   // Get user by email

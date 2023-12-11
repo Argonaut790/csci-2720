@@ -279,114 +279,141 @@ const UserCRUD = () => {
     };
 
     return (
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        isDismissable={false}
-        placement="center"
-        motionProps={{
-          variants: {
-            enter: {
-              y: 0,
-              opacity: 1,
-              transition: {
-                duration: 0.3,
-                ease: "easeOut",
+      <>
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          isDismissable={false}
+          placement="center"
+          motionProps={{
+            variants: {
+              enter: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  duration: 0.3,
+                  ease: "easeOut",
+                },
+              },
+              exit: {
+                y: -20,
+                opacity: 0,
+                transition: {
+                  duration: 0.2,
+                  ease: "easeIn",
+                },
               },
             },
-            exit: {
-              y: -20,
-              opacity: 0,
-              transition: {
-                duration: 0.2,
-                ease: "easeIn",
-              },
-            },
-          },
-        }}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <form onSubmit={onSubmit}>
-              <ModalHeader className="flex flex-col gap-1">
-                Editing {editingData?.username} #{editingRow}
-              </ModalHeader>
-              <ModalBody>
-                <Input
-                  type="text"
-                  variant={"underlined"}
-                  label="Username"
-                  defaultValue={editingData?.username}
-                  isRequired
-                  ref={updatedUserNameRef}
-                />
-                <Input
-                  type="text"
-                  variant={"underlined"}
-                  label="Password"
-                  defaultValue={editingData?.password}
-                  isRequired
-                  ref={updatedPasswordRef}
-                />
-                <Input
-                  type="text"
-                  variant={"underlined"}
-                  label="User ID"
-                  value={editingData?.userId}
-                  className=" opacity-50"
-                  readOnly
-                  disabled
-                />
-                <Input
-                  type="text"
-                  variant={"underlined"}
-                  label="Is Admin"
-                  value={editingData?.isAdmin.toString()}
-                  className=" opacity-50"
-                  readOnly
-                  disabled
-                />
-                <Input
-                  // isRequired
-                  type="email"
-                  variant={"underlined"}
-                  label="Email"
-                  value={editingData?.email}
-                  className=" opacity-50"
-                  readOnly
-                  disabled
-                  // className="pb-4"
-                />
-                <Input
-                  type="text"
-                  variant={"underlined"}
-                  label="Timestamp"
-                  value={editingData?.timestamp}
-                  className=" opacity-50"
-                  readOnly
-                  disabled
-                />
-                <span ref={resultRef}></span>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Discard
-                </Button>
-                <Button type="submit" color="primary">
-                  Submit Change
-                </Button>
-              </ModalFooter>
-            </form>
-          )}
-        </ModalContent>
-      </Modal>
+          }}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <form onSubmit={onSubmit}>
+                <ModalHeader className="flex flex-col gap-1">
+                  Editing {editingData?.username} #{editingRow}
+                </ModalHeader>
+                <ModalBody>
+                  <Input
+                    type="text"
+                    variant={"underlined"}
+                    label="Username"
+                    defaultValue={editingData?.username}
+                    isRequired
+                    ref={updatedUserNameRef}
+                  />
+                  <Input
+                    type="text"
+                    variant={"underlined"}
+                    label="Password"
+                    defaultValue={editingData?.password}
+                    isRequired
+                    ref={updatedPasswordRef}
+                  />
+                  <Input
+                    type="text"
+                    variant={"underlined"}
+                    label="User ID"
+                    value={editingData?.userId}
+                    className=" opacity-50"
+                    readOnly
+                    disabled
+                  />
+                  <Input
+                    type="text"
+                    variant={"underlined"}
+                    label="Is Admin"
+                    value={editingData?.isAdmin.toString()}
+                    className=" opacity-50"
+                    readOnly
+                    disabled
+                  />
+                  <Input
+                    // isRequired
+                    type="email"
+                    variant={"underlined"}
+                    label="Email"
+                    value={editingData?.email}
+                    className=" opacity-50"
+                    readOnly
+                    disabled
+                    // className="pb-4"
+                  />
+                  <Input
+                    type="text"
+                    variant={"underlined"}
+                    label="Timestamp"
+                    value={editingData?.timestamp}
+                    className=" opacity-50"
+                    readOnly
+                    disabled
+                  />
+                  <span ref={resultRef}></span>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Discard
+                  </Button>
+                  <Button type="submit" color="primary">
+                    Submit Change
+                  </Button>
+                </ModalFooter>
+              </form>
+            )}
+          </ModalContent>
+        </Modal>
+      </>
     );
+  };
+
+  const AddUesr = () => {
+    axios
+      .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account")
+      .then((res) => {
+        console.log(res);
+        setUpdated((prev) => !prev);
+        return res;
+      })
+      .catch((err) => {
+        console.log(err);
+        return err;
+      });
   };
 
   return (
     <>
       <EditMask />
-      <div className="py-8">
+      <div className="flex justify-end">
+        <Button
+          color="secondary"
+          size="md"
+          variant="bordered"
+          onClick={() => AddUesr()}
+          // className="bg-gradient-to-tr from-purple-700 to-yellow-700 text-white shadow-lg"
+        >
+          + User
+        </Button>
+      </div>
+      <div className="py-4 ">
         <Table
           isStriped
           removeWrapper
