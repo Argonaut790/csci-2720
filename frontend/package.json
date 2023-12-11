@@ -8,7 +8,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@nextui-org/react": "^2.2.5",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@googlemaps/markerclusterer": "^2.5.1",
+    "@googlemaps/react-wrapper": "^1.1.35",
+    "@nextui-org/react": "^2.2.9",
     "@react-stately/data": "^3.11.0",
     "@types/node": "20.5.7",
     "@types/react": "18.2.21",
@@ -33,6 +38,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.54.10",
     "@types/js-cookie": "^3.0.6",
     "@types/leaflet": "^1.9.8",
     "concurrently": "^8.2.2"

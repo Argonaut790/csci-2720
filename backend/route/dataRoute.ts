@@ -19,11 +19,47 @@ router.get("/", async (req: Request, res: Response) => {
 //   res.json(res.data);
 // });
 
+// Get Nearest Charging Station
+router.get("/nearest", async (req: Request, res: Response) => {
+  const latitudes = req.query.lat;
+  const longitudes = req.query.lng;
+  const max = 1; // it caps at 100 with the API
+  console.log("hello");
+  console.log(
+    process.env.GOV_DATA_API +
+      "?lat=" +
+      latitudes +
+      "&long=" +
+      longitudes +
+      "&max=" +
+      max
+  );
+  axios
+    .get(
+      process.env.GOV_DATA_API +
+        "?lat=" +
+        latitudes +
+        "&long=" +
+        longitudes +
+        "&max=" +
+        max
+    )
+    .then((response: any) => {
+      console.log(response.data.results[0]);
+      res.status(200).send(response.data.results[0]);
+    })
+    .catch((err: Error) => {
+      console.log(err);
+    });
+});
+
 // Update all data
 router.patch("/", async (req: Request, res: Response) => {
   console.log("req.body");
-  const latitudes = 22.329752304376473;
-  const longitudes = 114.18571472167969;
+  // const latitudes = 22.329752304376473;
+  // const longitudes = 114.18571472167969;
+  const latitudes = req.body.latitudes;
+  const longitudes = req.body.longitudes;
   const max = 100; // it caps at 100 with the API
   console.log(
     process.env.GOV_DATA_API +
