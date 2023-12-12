@@ -4,23 +4,23 @@ import { Input, Button, Card, CardBody, toggle } from "@nextui-org/react";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import Cookies from "js-cookie";
 import updateData from "@/components/UpdateData";
+import { toast } from "react-toastify";
+import { useTheme } from "next-themes";
+import { set } from "react-hook-form";
 
 const LoginModal = () => {
   //useref for email and password
+  const { theme } = useTheme();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const resultRef = useRef<HTMLSpanElement>(null);
+  // const resultRef = useRef<HTMLSpanElement>(null);
+  const [emailResult, setEmailResult] = useState<string>("");
+  const [passwordResult, setPasswordResult] = useState<string>("");
 
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
-  const {
-    toggleLoadingOn,
-    toggleLoadingOff,
-    toggleSignUpModalOn,
-    toggleForgotPasswordModalOn,
-    toggleLoggedInOn,
-    toggleIsAdminOn,
-  } = useUserSystem();
+  const { toggleLoadingOn, toggleLoadingOff, toggleSignUpModalOn, toggleForgotPasswordModalOn, toggleLoggedInOn, toggleIsAdminOn } =
+    useUserSystem();
 
   const login = () => {
     const user = {
@@ -35,15 +35,8 @@ const LoginModal = () => {
       .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login", user)
       .then((res) => {
         if (res.status === 200) {
-          console.log(res.data);
-          //   resultRef.innerText = "Logged in successfully!";
-          // turn resultref's inner text to logged in successfully
-          resultRef.current!.innerText = "Logged in successfully!";
-
-          // localStorage.setItem(
-          //   "user",
-          //   JSON.stringify({ userId: res.data.userId })
-          // );
+          setEmailResult("");
+          setPasswordResult("");
           Cookies.set("loggedIn", "true");
           Cookies.set("userId", res.data.userId);
           if (res.data.isAdmin) {
@@ -52,7 +45,18 @@ const LoginModal = () => {
           } else {
             Cookies.set("isAdmin", "false");
           }
-          toggleLoggedInOn();
+
+          setTimeout(() => {
+            toggleLoggedInOn();
+          }, 1000);
+
+          const welcomemsg = "Login Success! Welcom, " + res.data.username;
+          toast.success(welcomemsg, {
+            position: "bottom-right",
+            autoClose: 900,
+            hideProgressBar: false,
+            theme: theme == "light" ? "light" : "dark",
+          });
 
           // Update Data Database
           updateData();
@@ -62,52 +66,41 @@ const LoginModal = () => {
       .catch((err) => {
         toggleLoadingOff();
         console.log(err);
-        if (err.response) {
-          if (err.response.status === 404) {
-            resultRef.current!.innerText = err.response.data;
-          } else {
-            resultRef.current!.innerText = "Invalid email / password";
-          }
-        } else if (err.request) {
-          // The request was made but no response was received
-          console.log(err.request);
-          resultRef.current!.innerText =
-            "No response from server. Please try again later.";
+
+        if (err.response.data === "Wrong password") {
+          setEmailResult("");
+          setPasswordResult("Please input a correct Password");
+          toast.error("Incorrect password", {
+            position: "bottom-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            theme: theme == "light" ? "light" : "dark",
+          });
         } else {
-          // Something happened in setting up the request and triggered an Error
-          console.log("Error", err.message);
-          resultRef.current!.innerText =
-            "Something went wrong. Please try again later.";
+          setEmailResult("Please input valid email");
+          setPasswordResult("Please input valid password");
+          toast.error("Incorrect Email or Password", {
+            position: "bottom-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            theme: theme == "light" ? "light" : "dark",
+          });
         }
       });
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    let isEmailInvalid = false;
-    let isPasswordInvalid = false;
+    e.preventDefault();
 
     const email = emailRef.current!.value;
     const password = passwordRef.current!.value;
-
-    console.log(email);
-    console.log(password);
-
-    e.preventDefault();
-    resultRef.current!.innerText = "";
-    if (email === "") {
-      isEmailInvalid = true;
-    } else {
-      isEmailInvalid = false;
-    }
-    if (password === "") {
-      isPasswordInvalid = true;
+    console.log(email, password);
+    if (email === null || email === "") {
+      setEmailResult("Please enter an email");
     }
 
-    if (isPasswordInvalid || isEmailInvalid) {
-      resultRef.current!.innerText +=
-        "- Please enter your " +
-        (isEmailInvalid ? "email" : "") +
-        (isPasswordInvalid ? " password" : "");
+    if (password === null || password === "") {
+      setPasswordResult("Please enter a password");
     }
 
     if (email !== "" && password !== "") {
@@ -138,6 +131,8 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Email"
           ref={emailRef}
+          onFocus={() => setEmailResult("")}
+          errorMessage={emailResult}
           // className="pb-4"
         />
 
@@ -147,18 +142,17 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Password"
           ref={passwordRef}
+          onFocus={() => setPasswordResult("")}
+          errorMessage={passwordResult}
           // className="pb-4"
         />
-        <div className="w-full opacity-80">
-          Don't have an account?{" "}
-          <span
-            className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
-            onClick={() => toggleSignUpModalOn()}
-          >
+        <div className="w-full opacity-80 flex justify-between">
+          Don&apos;t have an account?{" "}
+          <span className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold" onClick={() => toggleSignUpModalOn()}>
             Sign Up here
           </span>
         </div>
-        <Button variant="faded" type="submit" size="md" className="">
+        <Button variant="faded" type="submit" size="md" className="w-full">
           Login
         </Button>
 
@@ -174,7 +168,7 @@ const LoginModal = () => {
         {/* <button className="btn btn-light" onClick={handleForgotPassword}>
           Forgot Password?
         </button> */}
-        <span id="result" ref={resultRef}></span>
+        {/* <span id="result" ref={resultRef}></span> */}
       </div>
     </div>
   );
