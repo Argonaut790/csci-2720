@@ -19,8 +19,15 @@ const LoginModal = () => {
 
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
-  const { toggleLoadingOn, toggleLoadingOff, toggleSignUpModalOn, toggleForgotPasswordModalOn, toggleLoggedInOn, toggleIsAdminOn } =
-    useUserSystem();
+  const {
+    toggleLoadingOn,
+    toggleLoadingOff,
+    toggleSignUpModalOn,
+    toggleForgotPasswordModalOn,
+    toggleLoggedInOn,
+    toggleIsAdminOn,
+    setLoginUser,
+  } = useUserSystem();
 
   const login = () => {
     const user = {
@@ -39,6 +46,7 @@ const LoginModal = () => {
           setPasswordResult("");
           Cookies.set("loggedIn", "true");
           Cookies.set("userId", res.data.userId);
+          setLoginUser(res.data.username);
           if (res.data.isAdmin) {
             Cookies.set("isAdmin", "true");
             toggleIsAdminOn();

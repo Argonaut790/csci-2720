@@ -15,23 +15,6 @@ router.post("/login", upload.array(), async (req: Request, res: Response) => {
     res.send("Wrong email / password");
   } else {
     if (req.body.password === user.password) {
-      // Password is correct
-      // if (!user.isConfirmed) {
-      //   // account is not yet confirmed
-      //   res
-      //     .status(401)
-      //     .send(
-      //       "Your account is not verified, Please check your email / spambox."
-      //     );
-      // // } else if (!user.isActivated) {
-      // //   // account deactivated
-      // //   res
-      // //     .status(401)
-      // //     .send(
-      // //       "Your account is deactivated. Please contact the site administrator in admin@rettiwt.com"
-      // //     );
-      // } else {
-      // Login successfully
       res.status(200).json({
         userId: user.userId,
         username: user.username,

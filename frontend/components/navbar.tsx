@@ -19,18 +19,16 @@ import NextLink from "next/link";
 import clsx from "clsx";
 
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-} from "@/components/icons";
+import { TwitterIcon, GithubIcon, DiscordIcon, HeartFilledIcon, SearchIcon } from "@/components/icons";
 import { useUserSystem } from "@contexts/UserSystemContext";
 import { Logo } from "@/components/icons";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
+import axios from "axios";
+import { Cookie } from "next/font/google";
 
 export const Navbar = () => {
-  const { loggedIn, logout } = useUserSystem();
+  const { user, loggedIn, logout, getLoginUser } = useUserSystem();
 
   const searchInput = (
     <Input
@@ -46,9 +44,7 @@ export const Navbar = () => {
       }
       labelPlacement="outside"
       placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
+      startContent={<SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />}
       type="search"
     />
   );
@@ -80,10 +76,7 @@ export const Navbar = () => {
 				</div> */}
       </NavbarContent>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
+      <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="hidden sm:flex gap-2">
           {/* <Link isExternal href={siteConfig.links.twitter}>
             <TwitterIcon className="text-default-500" />
@@ -98,7 +91,7 @@ export const Navbar = () => {
           ) : (
             ""
           )}
-
+          <span>Welcome!!! {user.name ?? ""}</span>
           <Link isExternal href={siteConfig.links.github}>
             <GithubIcon className="text-default-500" />
           </Link>
@@ -117,21 +110,6 @@ export const Navbar = () => {
             Sponsor
           </Button>
         </NavbarItem> */}
-      </NavbarContent>
-
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        {loggedIn ? (
-          <Button className=" h-8" onClick={logout}>
-            Sign Out
-          </Button>
-        ) : (
-          ""
-        )}
-        <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        {/* <NavbarMenuToggle /> */}
       </NavbarContent>
 
       {/* <NavbarMenu>
