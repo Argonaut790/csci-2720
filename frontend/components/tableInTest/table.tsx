@@ -23,7 +23,9 @@ import { PlusIcon } from "./Pluslcon";
 import { VerticalDotsIcon } from "./VerticalDotslcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
-import { columns, statusOptions, data } from "./data";
+// import { columns, statusOptions, data } from "./data";
+import { columns, statusOptions } from "./data";
+
 import { capitalize } from "./utils";
 import axios from "axios";
 const statusColorMap: Record<string, ChipProps["color"]> = {
@@ -49,9 +51,16 @@ interface dataShape {
 const INITIAL_VISIBLE_COLUMNS = ["number", "location", "parkingNumber", "districtSmall", "actions"];
 
 
-type Data = typeof data[0];
+let graph = [{ "_id": { "$oid": "65794a64df76bc9b7f182716" }, "district-s-en": "Shatin", "location-en": "Hong Kong Science Park", "img": "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg", "no": "19", "district-l-en": "New Territories", "parking-no": "D042 - D052, D106 - D112", "address-en": "Hong Kong Science Park Carpark P2, B/F,\n8-10 Science Park West Avenue, Shatin, N.T.", "provider": "CLP", "type": "SemiQuick", "lat-long": [{ "$numberDouble": "22.4262580871582" }, { "$numberDouble": "114.20987701416" }], "__v": { "$numberInt": "0" } },]
+
+
+
+
+type Data = typeof graph[0];
+
+// type Data = typeof data[0];
 export default function TableInTest() {
-    const [rows, setRows] = React.useState<dataShape[]>([]);
+    // const [rows, setRows] = React.useState<dataShape[]>([]);
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -62,19 +71,24 @@ export default function TableInTest() {
         direction: "descending",
     });
 
+    const [data, setData] = React.useState<dataShape[]>([]);
+
+
     //retrieve and set data
 
 
     React.useEffect(() => {
-        axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data").then((res) => {
-            setRows(res.data);
-        });
+        const fetchData = async () => {
+            let result = await axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data")
+
+            setData(result.data)
+        }
 
 
 
 
-        // setRows(data)
-        console.log("rows", rows)
+        fetchData()
+        // console.log("rows", rows)
     }, []);
 
     const [page, setPage] = React.useState(1);
@@ -92,13 +106,23 @@ export default function TableInTest() {
 
         if (hasSearchFilter) {
             filteredUsers = filteredUsers.filter((data) =>
-                data["location-en"].toLowerCase().includes(filterValue.toLowerCase()),
+                data["location-en"].toLowerCase().includes(filterValue.toLowerCase())
+                ||
+                data["district-s-en"].toLowerCase().includes(filterValue.toLowerCase())
+                ||
+                data["district-l-en"].toLowerCase().includes(filterValue.toLowerCase()),
             );
         }
 
+
         return filteredUsers;
     }, [data, filterValue, statusFilter]);
+
+
+
+
     console.log("filetered items", filteredItems)
+
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
     const items = React.useMemo(() => {
@@ -108,51 +132,27 @@ export default function TableInTest() {
         return filteredItems.slice(start, end);
     }, [page, filteredItems, rowsPerPage]);
 
-    // 
-    // const sortedItems = React.useMemo(() => {
-    //     let sorted = [...items].sort((a: Data, b: Data) => {
-    //         let first: string | number = "";
-    //         let second: string | number = "";
-
-    //         if (sortDescriptor.column === 'number') {
-    //             first = Number(a.no);
-    //             second = Number(b.no);
-    //         } else if (sortDescriptor.column === 'lat-long') {
-    //             first = Number(a['lat-long'][0].$numberDouble);
-    //             second = Number(b['lat-long'][0].$numberDouble);
-    //         } else {
-    //             first = a[sortDescriptor.column as keyof Data] as string;
-    //             second = b[sortDescriptor.column as keyof Data] as string;
-    //         }
-
-    //         let cmp: number;
-
-    //         if (typeof first === 'number' && typeof second === 'number') {
-    //             cmp = first - second;
-    //         } else {
-    //             cmp = (first as string).localeCompare(second as string);
-    //         }
-
-    //         return sortDescriptor.direction === "descending" ? -cmp : cmp;
-    //     });
-
-    //     console.log("this is sorted", sorted)
-    //     return sorted;
-    // }, [sortDescriptor, items]);
     const sortedItems = React.useMemo(() => {
         let sorted = [...items].sort((a: Data, b: Data) => {
             let first: string | number = a[sortDescriptor.column as keyof Data] || '';
             let second: string | number = b[sortDescriptor.column as keyof Data] || '';
 
+
             if (sortDescriptor.column === 'number') {
                 first = Number(a.no);
                 second = Number(b.no);
+                console.log("first", first)
+                console.log("second", second)
             } else if (sortDescriptor.column === 'lat-long') {
                 first = Number(a['lat-long'][0].$numberDouble);
                 second = Number(b['lat-long'][0].$numberDouble);
+                console.log("first", first)
+                console.log("second", second)
             } else {
                 first = first ? first.toString() : '';
                 second = second ? second.toString() : '';
+                console.log("first", first)
+                console.log("second", second)
             }
 
             let cmp: number;
@@ -175,10 +175,10 @@ export default function TableInTest() {
     const renderCell = React.useCallback((data: dataShape, columnKey: React.Key) => {
         const cellValue = data[columnKey as keyof Data];
         //make latlong to a string
-        const latLong = data["lat-long"].map(obj => obj.$numberDouble).join(", ");
-        console.log("columnKey", columnKey)
-        console.log("columnKey type:", typeof columnKey)
+        const latLong = data["lat-long"].map((num: number) => Number(num.toPrecision(4))).join(",");
 
+        console.log("columnKey type:", typeof columnKey)
+        let isadmin = 0
         switch (columnKey) {
 
             case "number":
@@ -220,22 +220,28 @@ export default function TableInTest() {
 
 
             case "actions":
-                return (
-                    <div className="relative flex justify-end items-center gap-2">
-                        <Dropdown>
-                            <DropdownTrigger>
-                                <Button isIconOnly size="sm" variant="light">
-                                    <VerticalDotsIcon className="text-default-300" />
-                                </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu>
-                                <DropdownItem>View</DropdownItem>
-                                <DropdownItem>Edit</DropdownItem>
-                                <DropdownItem>Delete</DropdownItem>
-                            </DropdownMenu>
-                        </Dropdown>
-                    </div>
-                );
+                if (isadmin == 1) {
+                    return (
+                        <div className="relative flex justify-end items-center gap-2">
+                            <Dropdown>
+                                <DropdownTrigger>
+                                    <Button isIconOnly size="sm" variant="light">
+                                        <VerticalDotsIcon className="text-default-300" />
+                                    </Button>
+                                </DropdownTrigger>
+                                <DropdownMenu>
+                                    <DropdownItem>View</DropdownItem>
+                                    <DropdownItem>Edit</DropdownItem>
+                                    <DropdownItem>Delete</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </div>
+                    );
+                }
+                else if (isadmin == 0) {
+                    return
+                }
+
             default:
                 return cellValue;
         }
@@ -334,7 +340,7 @@ export default function TableInTest() {
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {rows.length} users</span>
+                    <span className="text-default-400 text-small">Total {data.length} users</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -355,7 +361,7 @@ export default function TableInTest() {
         visibleColumns,
         onSearchChange,
         onRowsPerPageChange,
-        rows.length,
+        data.length,
         hasSearchFilter,
     ]);
 
