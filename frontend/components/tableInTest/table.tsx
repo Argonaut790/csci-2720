@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
     Table,
     TableHeader,
@@ -17,7 +17,14 @@ import {
     Pagination,
     Selection,
     ChipProps,
-    SortDescriptor
+    SortDescriptor,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
+    Modal,
+
 } from "@nextui-org/react";
 import { PlusIcon } from "./Pluslcon";
 import { VerticalDotsIcon } from "./VerticalDotslcon";
@@ -75,6 +82,9 @@ export default function TableInTest() {
     const [useSorting, setSorting] = React.useState(false)
 
 
+    //for popup edit button
+
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     //retrieve and set data
 
 
@@ -354,8 +364,8 @@ export default function TableInTest() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" endContent={<PlusIcon />}>
-                            Add New
+                        <Button color="primary" endContent={<PlusIcon />} onPress={onOpen}>
+                            Edit
                         </Button>
                     </div>
                 </div>
@@ -414,10 +424,157 @@ export default function TableInTest() {
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+    const updatedLocationNameRef = useRef<HTMLInputElement>(null);
+    const updatedLatitudeRef = useRef<HTMLInputElement>(null);
+    const updatedLongitudeRef = useRef<HTMLInputElement>(null);
+    const updatedProviderRef = useRef<HTMLInputElement>(null);
+
+    const EditMask = () => {
+        const updatedUserNameRef = useRef<HTMLInputElement>(null);
+        const updatedPasswordRef = useRef<HTMLInputElement>(null);
+        const resultRef = useRef<HTMLSpanElement>(null);
+
+        const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+            console.log("Hello");
+            e.preventDefault();
+            const updatedLocationName = updatedLocationNameRef.current?.value;
+            const updatedLatitude = updatedLatitudeRef.current?.value;
+            const updatedLongitude = updatedLongitudeRef.current?.value;
+            const updatedProvider = updatedProviderRef.current?.value;
+            let data = {
+                newLocat: updatedLocationName,
+                newCoor: [updatedLatitude, updatedLongitude],
+                newProvider: updatedProvider
+            }
+            console.log(data)
+
+
+        };
+
+        return (
+            <>
+                <Modal
+                    isOpen={isOpen}
+                    onOpenChange={onOpenChange}
+                    isDismissable={false}
+                    placement="center"
+                    motionProps={{
+                        variants: {
+                            enter: {
+                                y: 0,
+                                opacity: 1,
+                                transition: {
+                                    duration: 0.3,
+                                    ease: "easeOut",
+                                },
+                            },
+                            exit: {
+                                y: -20,
+                                opacity: 0,
+                                transition: {
+                                    duration: 0.2,
+                                    ease: "easeIn",
+                                },
+                            },
+                        },
+                    }}
+                >
+                    <ModalContent>
+                        {(onClose) => (
+                            <form onSubmit={onSubmit}>
+                                <ModalHeader className="flex flex-col gap-1">
+                                    New Location
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Location Name"
+                                        // defaultValue={editingData?.username}
+                                        value="North Point"
+                                        isRequired
+                                        ref={updatedLocationNameRef}
+                                    />
+
+                                    <div className="flex flex-row m-1">
+                                        <Input
+                                            label="Latitude"
+                                            placeholder="0.00"
+                                            labelPlacement="outside"
+                                            className="p-1"
+                                            value="22.2855988576"
+                                            endContent={
+                                                <div className="flex items-center">
+
+                                                    <div className="pointer-events-none flex items-center">
+                                                        <span className="text-default-400 text-small">°</span>
+                                                    </div>
+                                                </div>
+                                            }
+                                            type="number"
+                                            step="0.001"
+                                            ref={updatedLatitudeRef}
+                                        />
+                                        <Input
+                                            label="Longitude"
+                                            placeholder="0.00"
+                                            labelPlacement="outside"
+                                            className="p-1"
+                                            value="114.18833258"
+                                            endContent={
+                                                <div className="flex items-center">
+                                                    <div className="pointer-events-none flex items-center">
+                                                        <span className="text-default-400 text-small">° </span>
+                                                    </div>
+                                                </div>
+                                            }
+                                            type="number"
+                                            step="0.001"
+                                            ref={updatedLongitudeRef}
+                                        />
+                                    </div>
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="provider"
+                                        value="CLP"
+                                        isRequired
+                                        ref={updatedProviderRef}
+
+                                    />
+
+                                    <span ref={resultRef}>result here</span>
+
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="danger" variant="light" onPress={onClose}>
+                                        Discard
+                                    </Button>
+                                    <Button type="submit" color="primary">
+                                        Submit Change
+                                    </Button>
 
 
 
-    return (
+                                </ModalFooter>
+
+                            </form>
+
+                        )}
+                    </ModalContent>
+                </Modal>
+            </>
+        );
+    };
+
+
+
+    return (<>
+
+
+        <EditMask />
         <Table
             aria-label="Example table with custom cells, pagination and sorting"
             isHeaderSticky
@@ -453,5 +610,6 @@ export default function TableInTest() {
                 )}
             </TableBody>
         </Table>
+    </>
     );
 }
