@@ -72,6 +72,7 @@ export default function TableInTest() {
     });
 
     const [data, setData] = React.useState<dataShape[]>([]);
+    const [useSorting, setSorting] = React.useState(false)
 
 
     //retrieve and set data
@@ -85,9 +86,8 @@ export default function TableInTest() {
         }
 
 
-
-
         fetchData()
+        console.log("i am fetch data")
         // console.log("rows", rows)
     }, []);
 
@@ -110,65 +110,85 @@ export default function TableInTest() {
                 ||
                 data["district-s-en"].toLowerCase().includes(filterValue.toLowerCase())
                 ||
-                data["district-l-en"].toLowerCase().includes(filterValue.toLowerCase()),
+                data["district-l-en"].toLowerCase().includes(filterValue.toLowerCase()) ||
+                data["provider"].toLowerCase().includes(filterValue.toLowerCase())
             );
         }
 
-
+        console.log("here is the filteredItems", filteredUsers)
         return filteredUsers;
-    }, [data, filterValue, statusFilter]);
+    }, [data, filterValue]);
 
 
+    React.useEffect(
+        () => {
+            setSorting(!useSorting)
+        }
+        , [setSortDescriptor])
+
+    const sortedItems = React.useMemo(() => {
+
+        if (useSorting) {
+
+            let sorted = [...filteredItems].sort((a: Data, b: Data) => {
+
+                let first: string | number = a[sortDescriptor.column as keyof Data] || '';
+                let second: string | number = b[sortDescriptor.column as keyof Data] || '';
 
 
-    console.log("filetered items", filteredItems)
+                if (sortDescriptor.column === 'number') {
+                    first = Number(a.no);
+                    second = Number(b.no);
+                    console.log("first", first)
+                    console.log("second", second)
+                } else if (sortDescriptor.column === 'lat-long') {
+                    first = Number(a['lat-long'][0].$numberDouble);
+                    second = Number(b['lat-long'][0].$numberDouble);
+                    console.log("first", first)
+                    console.log("second", second)
+                } else {
+                    first = first ? first.toString() : '';
+                    second = second ? second.toString() : '';
+                    console.log("first", first)
+                    console.log("second", second)
+                }
 
-    const pages = Math.ceil(filteredItems.length / rowsPerPage);
+                let cmp: number;
+
+                if (typeof first === 'number' && typeof second === 'number') {
+                    cmp = first - second;
+                } else {
+                    cmp = (first as string).localeCompare(second as string);
+                }
+
+                return sortDescriptor.direction === "descending" ? -cmp : cmp;
+
+            });
+
+            console.log("this is sorted", sorted)
+            return sorted;
+        }
+        else {
+            let unsorted = [...filteredItems]
+            console.log("unsorted", unsorted)
+            return unsorted
+        }
+
+    }, [data, sortDescriptor, filteredItems, hasSearchFilter]);
+
+
+    console.log("sortedItemsitems", sortedItems)
+
+    const pages = Math.ceil(sortedItems.length / rowsPerPage);
 
     const items = React.useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
-        return filteredItems.slice(start, end);
-    }, [page, filteredItems, rowsPerPage]);
-
-    const sortedItems = React.useMemo(() => {
-        let sorted = [...items].sort((a: Data, b: Data) => {
-            let first: string | number = a[sortDescriptor.column as keyof Data] || '';
-            let second: string | number = b[sortDescriptor.column as keyof Data] || '';
+        return sortedItems.slice(start, end);
+    }, [page, filteredItems, sortedItems, rowsPerPage]);
 
 
-            if (sortDescriptor.column === 'number') {
-                first = Number(a.no);
-                second = Number(b.no);
-                console.log("first", first)
-                console.log("second", second)
-            } else if (sortDescriptor.column === 'lat-long') {
-                first = Number(a['lat-long'][0].$numberDouble);
-                second = Number(b['lat-long'][0].$numberDouble);
-                console.log("first", first)
-                console.log("second", second)
-            } else {
-                first = first ? first.toString() : '';
-                second = second ? second.toString() : '';
-                console.log("first", first)
-                console.log("second", second)
-            }
-
-            let cmp: number;
-
-            if (typeof first === 'number' && typeof second === 'number') {
-                cmp = first - second;
-            } else {
-                cmp = (first as string).localeCompare(second as string);
-            }
-
-            return sortDescriptor.direction === "descending" ? -cmp : cmp;
-        });
-
-        console.log("this is sorted", sorted)
-        return sorted;
-    }, [sortDescriptor, items]);
 
 
 
@@ -340,7 +360,7 @@ export default function TableInTest() {
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {data.length} users</span>
+                    <span className="text-default-400 text-small">Total {data.length} locations</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -419,13 +439,13 @@ export default function TableInTest() {
                     <TableColumn
                         key={column.uid}
                         align={column.uid === "actions" ? "center" : "start"}
-                        allowsSorting={column.sortable}
+                        allowsSorting={column.uid === "number" ? true : false}
                     >
                         {column.name}
                     </TableColumn>
                 )}
             </TableHeader>
-            <TableBody emptyContent={"No users found"} items={sortedItems}>
+            <TableBody emptyContent={"No users found"} items={items}>
                 {(item) => (
                     <TableRow key={item["no"]}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
