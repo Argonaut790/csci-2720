@@ -23,59 +23,29 @@ import { PlusIcon } from "./Pluslcon";
 import { VerticalDotsIcon } from "./VerticalDotslcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
-import { columns, statusOptions, data } from "./data";
+import { columns, users, statusOptions } from "./data";
 import { capitalize } from "./utils";
-import axios from "axios";
+
 const statusColorMap: Record<string, ChipProps["color"]> = {
     active: "success",
     paused: "danger",
     vacation: "warning",
 };
 
-interface dataShape {
-    _id: { $oid: string };
-    "district-s-en": string;
-    "location-en": string;
-    img: string | null;
-    no: string;
-    "district-l-en": string;
-    "parking-no": string;
-    "address-en": string;
-    provider: string;
-    type: string;
-    "lat-long": { $numberDouble: string }[];
-    __v: { $numberInt: string };
-}
-const INITIAL_VISIBLE_COLUMNS = ["number", "location", "parkingNumber", "districtSmall", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
+type User = typeof users[0];
 
-type Data = typeof data[0];
-export default function TableInTest() {
-    const [rows, setRows] = React.useState<dataShape[]>([]);
+export default function App() {
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
     const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-        column: "no",
-        direction: "descending",
+        column: "age",
+        direction: "ascending",
     });
-
-    //retrieve and set data
-
-
-    React.useEffect(() => {
-        axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data").then((res) => {
-            setRows(res.data);
-        });
-
-
-
-
-        // setRows(data)
-        console.log("rows", rows)
-    }, []);
 
     const [page, setPage] = React.useState(1);
 
@@ -88,17 +58,22 @@ export default function TableInTest() {
     }, [visibleColumns]);
 
     const filteredItems = React.useMemo(() => {
-        let filteredUsers = [...data];
+        let filteredUsers = [...users];
 
         if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((data) =>
-                data["location-en"].toLowerCase().includes(filterValue.toLowerCase()),
+            filteredUsers = filteredUsers.filter((user) =>
+                user.name.toLowerCase().includes(filterValue.toLowerCase()),
+            );
+        }
+        if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+            filteredUsers = filteredUsers.filter((user) =>
+                Array.from(statusFilter).includes(user.status),
             );
         }
 
         return filteredUsers;
-    }, [data, filterValue, statusFilter]);
-    console.log("filetered items", filteredItems)
+    }, [users, filterValue, statusFilter]);
+
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
     const items = React.useMemo(() => {
@@ -108,117 +83,46 @@ export default function TableInTest() {
         return filteredItems.slice(start, end);
     }, [page, filteredItems, rowsPerPage]);
 
-    // 
-    // const sortedItems = React.useMemo(() => {
-    //     let sorted = [...items].sort((a: Data, b: Data) => {
-    //         let first: string | number = "";
-    //         let second: string | number = "";
-
-    //         if (sortDescriptor.column === 'number') {
-    //             first = Number(a.no);
-    //             second = Number(b.no);
-    //         } else if (sortDescriptor.column === 'lat-long') {
-    //             first = Number(a['lat-long'][0].$numberDouble);
-    //             second = Number(b['lat-long'][0].$numberDouble);
-    //         } else {
-    //             first = a[sortDescriptor.column as keyof Data] as string;
-    //             second = b[sortDescriptor.column as keyof Data] as string;
-    //         }
-
-    //         let cmp: number;
-
-    //         if (typeof first === 'number' && typeof second === 'number') {
-    //             cmp = first - second;
-    //         } else {
-    //             cmp = (first as string).localeCompare(second as string);
-    //         }
-
-    //         return sortDescriptor.direction === "descending" ? -cmp : cmp;
-    //     });
-
-    //     console.log("this is sorted", sorted)
-    //     return sorted;
-    // }, [sortDescriptor, items]);
     const sortedItems = React.useMemo(() => {
-        let sorted = [...items].sort((a: Data, b: Data) => {
-            let first: string | number = a[sortDescriptor.column as keyof Data] || '';
-            let second: string | number = b[sortDescriptor.column as keyof Data] || '';
-
-            if (sortDescriptor.column === 'number') {
-                first = Number(a.no);
-                second = Number(b.no);
-            } else if (sortDescriptor.column === 'lat-long') {
-                first = Number(a['lat-long'][0].$numberDouble);
-                second = Number(b['lat-long'][0].$numberDouble);
-            } else {
-                first = first ? first.toString() : '';
-                second = second ? second.toString() : '';
-            }
-
-            let cmp: number;
-
-            if (typeof first === 'number' && typeof second === 'number') {
-                cmp = first - second;
-            } else {
-                cmp = (first as string).localeCompare(second as string);
-            }
+        return [...items].sort((a: User, b: User) => {
+            const first = a[sortDescriptor.column as keyof User] as number;
+            const second = b[sortDescriptor.column as keyof User] as number;
+            const cmp = first < second ? -1 : first > second ? 1 : 0;
+            console.log("cmp is like", cmp)
+            console.log("first is like", typeof first)
+            console.log("second is like", second)
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
-
-        console.log("this is sorted", sorted)
-        return sorted;
     }, [sortDescriptor, items]);
 
-
-
-    const renderCell = React.useCallback((data: dataShape, columnKey: React.Key) => {
-        const cellValue = data[columnKey as keyof Data];
-        //make latlong to a string
-        const latLong = data["lat-long"].map(obj => obj.$numberDouble).join(", ");
-        console.log("columnKey", columnKey)
-        console.log("columnKey type:", typeof columnKey)
+    const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
+        const cellValue = user[columnKey as keyof User];
 
         switch (columnKey) {
-
-            case "number":
+            case "name":
+                return (
+                    <User
+                        avatarProps={{ radius: "lg", src: user.avatar }}
+                        description={user.email}
+                        name={cellValue}
+                    >
+                        {user.email}
+                    </User>
+                );
+            case "role":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-tiny capitalize text-default-400">{data.no}</p>
+                        <p className="text-bold text-small capitalize">{cellValue}</p>
+                        <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
                     </div>
                 );
-            case "location":
+            case "status":
                 return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-tiny capitalize text-default-400">{data['location-en']}</p>
-                    </div>
+                    <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
+                        {cellValue}
+                    </Chip>
                 );
-            case "parkingNumber":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-tiny capitalize text-default-400">{data["parking-no"]}</p>
-                    </div>
-                );
-            case "districtSmall":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-tiny capitalize text-default-400">{data["district-s-en"]}</p>
-                    </div>
-                );
-            case "latLong":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-tiny capitalize text-default-400">{latLong}</p>
-                    </div>
-                );
-            case "districtLarge":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-tiny capitalize text-default-400">{data["district-l-en"]}</p>
-                    </div>
-                );
-
-
             case "actions":
                 return (
                     <div className="relative flex justify-end items-center gap-2">
@@ -334,7 +238,7 @@ export default function TableInTest() {
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {rows.length} users</span>
+                    <span className="text-default-400 text-small">Total {users.length} users</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -355,7 +259,7 @@ export default function TableInTest() {
         visibleColumns,
         onSearchChange,
         onRowsPerPageChange,
-        rows.length,
+        users.length,
         hasSearchFilter,
     ]);
 
@@ -388,9 +292,6 @@ export default function TableInTest() {
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-
-
-
     return (
         <Table
             aria-label="Example table with custom cells, pagination and sorting"
@@ -421,7 +322,7 @@ export default function TableInTest() {
             </TableHeader>
             <TableBody emptyContent={"No users found"} items={sortedItems}>
                 {(item) => (
-                    <TableRow key={item["no"]}>
+                    <TableRow key={item.id}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                     </TableRow>
                 )}

@@ -19,8 +19,8 @@ import {
     ChipProps,
     SortDescriptor
 } from "@nextui-org/react";
-import { PlusIcon } from "./PlusIcon";
-import { VerticalDotsIcon } from "./VerticalDotsIcon";
+import { PlusIcon } from "./Pluslcon";
+import { VerticalDotsIcon } from "./VerticalDotslcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
 import { columns, users, statusOptions } from "./data";

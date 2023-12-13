@@ -13,6 +13,7 @@ import DynamicContent from "@/components/DynamicContent";
 import DataCRUD from "@/components/DataCRUD";
 import UserCRUD from "@/components/UserCRUD";
 import TableInTest from "@/components/tableInTest/table"
+import TableOri from "@/components/ortable/table"
 export default function IndexPage() {
   const { loggedIn, isadmin } = useUserSystem();
 
@@ -24,6 +25,8 @@ export default function IndexPage() {
             <DynamicContent />
             <DataCRUD />
             <TableInTest />
+
+            {/* <TableOri /> */}
             {/* {isadmin ? <UserCRUD /> : null} */}
             {isadmin ? <UserCRUD /> : <UserCRUD />}
 
