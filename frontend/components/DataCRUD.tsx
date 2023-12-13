@@ -101,6 +101,11 @@ const DataCRUD = () => {
           )}
         </TableBody>
       </Table>
+
+
+
+
+
     </div>
   );
 };

@@ -13,6 +13,8 @@ import { useUserSystem } from "@/contexts/UserSystemContext";
 import DynamicContent from "@/components/DynamicContent";
 import DataCRUD from "@/components/DataCRUD";
 import UserCRUD from "@/components/UserCRUD";
+import TableInTest from "@/components/tableInTest/table";
+import TableOri from "@/components/ortable/table";
 import LandingBanner from "@/components/LandingBanner";
 import { useEffect } from "react";
 
@@ -35,6 +37,10 @@ export default function IndexPage() {
           <>
             <DynamicContent />
             <DataCRUD />
+            <TableInTest />
+
+            {/* <TableOri /> */}
+            {/* {isadmin ? <UserCRUD /> : null} */}
             {isadmin && <UserCRUD />}
           </>
         ) : (

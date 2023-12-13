@@ -61,6 +61,7 @@ interface userProps {
 const UserSystemContext = createContext<UserSystemContextValue>(
   {} as UserSystemContextValue
 );
+//global method of passing variable to provent param drill in every layer
 
 export const useUserSystem = () => useContext(UserSystemContext);
 
