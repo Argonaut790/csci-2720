@@ -24,7 +24,7 @@ export function LandingBanner() {
         <div className="inline-block h-12">
           <div className="flex">
             <h1 className="tracking-tight font-semibold text-[2.1rem] lg:text-5xl">Find &nbsp;</h1>
-            <h1 className="animate-bounce tracking-tight font-semibold from-[#FF1CF7] to-[#b249f8] text-[2.1rem] lg:text-5xl bg-clip-text text-transparent bg-gradient-to-b">
+            <h1 className="animate-bounce tracking-tight font-semibold from-[#FF1CF7] to-[#b249f8] text-[2.1rem] lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b">
               Best &nbsp;
             </h1>
           </div>
