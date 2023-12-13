@@ -20,10 +20,7 @@ router.post("/login", upload.array(), async (req: Request, res: Response) => {
         email: user.email,
         favourite: user.favourite,
       };
-      res
-        .status(200)
-        .json(userToken)
-        .send("Success login as " + user.username);
+      res.status(200).json(userToken);
     } else {
       res.status(401).send("Wrong password");
     }
@@ -85,13 +82,10 @@ router.get("/:userId", async (req, res) => {
   try {
     const user = await Account.findOne({ userId: req.params.userId });
     console.log(user);
-    res
-      .status(200)
-      .json(user)
-      .send("Success get one user info" + user?.username);
+    res.status(200).json(user);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: err }).send("Failed get one user info");
+    res.status(500).send("Failed get one user info");
   }
 });
 

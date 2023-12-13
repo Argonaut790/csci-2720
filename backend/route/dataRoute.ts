@@ -8,9 +8,9 @@ import Data from "../model/data";
 router.get("/", async (req: Request, res: Response) => {
   try {
     const data = await Data.find();
-    res.status(200).json(data).send("Success get all data");
+    res.status(200).json(data);
   } catch (err) {
-    res.status(500).json(err).send("Failed get all data");
+    res.status(500).send("Failed get all data");
   }
 });
 
@@ -18,9 +18,9 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:locationid", async (req: Request, res: Response) => {
   try {
     const data = await Data.find({ locationid: req.params.locationid });
-    res.status(200).json(data).send("Success get one data by locationid");
+    res.status(200).json(data);
   } catch (err) {
-    res.status(500).json(err).send("Failed get one data by locationid");
+    res.status(500).send("Failed get one data by locationid");
   }
 });
 
@@ -37,9 +37,9 @@ router.post("/", async (req: Request, res: Response) => {
     if (req.query["price"]) query["price"] = req.body.price;
     if (req.query["locationid"]) query["locationid"] = req.body.locationid;
     const data = await Data.find(query);
-    res.status(200).json(data).send("Success get all data with matched multiple field");
+    res.status(200).json(data);
   } catch (err) {
-    res.status(500).json(err).send("Failed get all data with matched multiple field");
+    res.status(500).send("Failed get all data with matched multiple field");
   }
 });
 
@@ -47,9 +47,9 @@ router.post("/", async (req: Request, res: Response) => {
 router.delete("/:locationid", async (req: Request, res: Response) => {
   try {
     const removedData = await Data.deleteOne({ locationid: req.params.locationid });
-    res.status(200).json(removedData).send("Success delete one data by locationid");
+    res.status(200).json(removedData);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed delete one data by locationid");
+    res.status(500).send("Failed delete one data by locationid");
   }
 });
 
@@ -72,9 +72,9 @@ router.post("/", async (req: Request, res: Response) => {
     });
     const newData = await Data.create(data);
     console.log(newData);
-    res.status(200).json(newData).send("Success create one new data");
+    res.status(200).json(newData);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed create one new data");
+    res.status(500).send("Failed create one new data");
   }
 });
 
@@ -100,9 +100,9 @@ router.patch("/:locationid", async (req: Request, res: Response) => {
       }
     );
     console.log(updatedData);
-    res.status(200).json(updatedData).send("Success update one data by locationid");
+    res.status(200).json(updatedData);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed update one data by locationid");
+    res.status(500).send("Failed update one data by locationid");
   }
 });
 
