@@ -12,6 +12,7 @@ import { useUserSystem } from "@/contexts/UserSystemContext";
 import DynamicContent from "@/components/DynamicContent";
 import DataCRUD from "@/components/DataCRUD";
 import UserCRUD from "@/components/UserCRUD";
+import TableInTest from "@/components/tableInTest/table"
 export default function IndexPage() {
   const { loggedIn, isadmin } = useUserSystem();
 
@@ -22,7 +23,10 @@ export default function IndexPage() {
           <>
             <DynamicContent />
             <DataCRUD />
-            {isadmin ? <UserCRUD /> : null}
+            <TableInTest />
+            {/* {isadmin ? <UserCRUD /> : null} */}
+            {isadmin ? <UserCRUD /> : <UserCRUD />}
+
           </>
         ) : (
           <UserSystem />
