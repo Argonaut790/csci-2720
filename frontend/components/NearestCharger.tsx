@@ -2,7 +2,8 @@ import { Input, Button, Card, CardBody } from "@nextui-org/react";
 import { useState, useRef, useEffect } from "react";
 import { GoogleMapsWrapper } from "@components/GoogleMapWrapper";
 import axios from "axios";
-
+import { set } from "react-hook-form";
+import { useUserSystem } from "@/contexts/UserSystemContext";
 interface Props {
   lat: number;
   lng: number;
@@ -39,6 +40,8 @@ const addLocationMarker = ({
   color?: string;
   info?: string;
 }) => {
+  if (!location) return;
+
   const svgMarker = {
     path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
     fillColor: color,
@@ -78,14 +81,13 @@ const addLocationMarker = ({
   // });
 };
 
-const GoogleMaps = ({
-  className,
-  curCoordinate,
-  nearestCoordinate,
-}: GoogleMapsProps) => {
+const GoogleMaps = ({ className }: GoogleMapsProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const DEFAULT_ZOOM = 14;
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [renderCounter, setRenderCounter] = useState(0);
+
+  const { curCoordinate, nearestCoordinate } = useUserSystem();
 
   // Initialize the map
   useEffect(() => {
@@ -100,7 +102,12 @@ const GoogleMaps = ({
 
   // Add markers whenever curCoordinate or nearestCoordinate changes
   useEffect(() => {
+    setRenderCounter(renderCounter + 1);
     if (map) {
+      console.log("Rendder Counter: " + renderCounter);
+      console.log("curCoordinate: " + curCoordinate);
+      console.log("nearestCoordinate: " + nearestCoordinate);
+
       addLocationMarker({
         location: curCoordinate,
         map: map,
@@ -147,63 +154,36 @@ const GoogleMaps = ({
   );
 };
 
-const NearestCharger = () => {
-  const [curCoordinate, setCurCoordinate] = useState<number[]>([
-    22.419373049191574,
-    114.20637130715477, //CUHK
-  ]);
-  const [nearestCoordinate, setNearestCoordinate] = useState<number[]>([
-    22.419373049191574,
-    114.20637130715477, //CUHK
-  ]);
-
-  const latRef = useRef<HTMLInputElement | null>(null);
-  const lngRef = useRef<HTMLInputElement | null>(null);
-
-  const GetNearestCharger = async (lat: number, lng: number) => {
-    console.log("GetNearestCharger");
-    console.log(
+export const GetNearestCharger = async (lat: number, lng: number) => {
+  console.log("GetNearestCharger");
+  console.log(
+    process.env.NEXT_PUBLIC_DEV_API_PATH +
+      "data/nearest?lat=" +
+      lat +
+      "&lng=" +
+      lng
+  );
+  try {
+    const res = await axios.get(
       process.env.NEXT_PUBLIC_DEV_API_PATH +
         "data/nearest?lat=" +
         lat +
         "&lng=" +
         lng
     );
-    try {
-      const res = await axios.get(
-        process.env.NEXT_PUBLIC_DEV_API_PATH +
-          "data/nearest?lat=" +
-          lat +
-          "&lng=" +
-          lng
-      );
-      console.log(res.data);
-      return res.data;
-    } catch (err) {
-      console.log(err);
-      return err;
-    }
-  };
+    console.log(res.data);
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    return err;
+  }
+};
 
-  useEffect(() => {
-    //user location
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      setCurCoordinate([position.coords.latitude, position.coords.longitude]);
-      console.log("Get User Location");
-      console.log(curCoordinate);
-      // setTimeout(() => {
-      //   setLoading(false);
-      // }, 6000);
+const NearestCharger = () => {
+  const { curCoordinate, nearestCoordinate } = useUserSystem();
 
-      //get nearest charger location from
-      const result: data = await GetNearestCharger(
-        position.coords.latitude,
-        position.coords.longitude
-      );
-      setNearestCoordinate(result["lat-long"]);
-      console.log("nearestCoordinate" + nearestCoordinate);
-    });
-  }, []);
+  const latRef = useRef<HTMLInputElement | null>(null);
+  const lngRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <>
@@ -222,7 +202,7 @@ const NearestCharger = () => {
             type="number"
             label="Latitude"
             placeholder="22.419373049191574"
-            value={curCoordinate[0]}
+            value={curCoordinate[0].toString()}
             labelPlacement="outside"
             // endContent={
             //   <div className="pointer-events-none flex items-center">
@@ -234,7 +214,7 @@ const NearestCharger = () => {
             type="number"
             label="Longtitude"
             placeholder="114.20637130715477"
-            value={curCoordinate[1]}
+            value={curCoordinate[1].toString()}
             labelPlacement="outside"
             // endContent={
             //   <div className="pointer-events-none flex items-center">
