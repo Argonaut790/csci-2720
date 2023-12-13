@@ -37,7 +37,7 @@ interface dataShape {
     "district-s-en": string;
     "location-en": string;
     img: string | null;
-    no: number;
+    no: string;
     "district-l-en": string;
     "parking-no": string;
     "address-en": string;
@@ -59,7 +59,7 @@ export default function TableInTest() {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
         column: "no",
-        direction: "ascending",
+        direction: "descending",
     });
 
     //retrieve and set data
@@ -106,50 +106,64 @@ export default function TableInTest() {
     }, [page, filteredItems, rowsPerPage]);
 
     const sortedItems = React.useMemo(() => {
-        return [...items].sort((a: dataShape, b: dataShape) => {
-            const first = a[sortDescriptor.column as keyof dataShape] as number;
-            const second = b[sortDescriptor.column as keyof dataShape] as number;
+        return [...items].sort((a: Data, b: Data) => {
+            const first = a[sortDescriptor.column as keyof Data] as string;
+            const second = b[sortDescriptor.column as keyof Data] as string;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
+            console.log("this is first", first)
+            console.log("this is second", second)
 
+            console.log("This is cmp", cmp)
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
     }, [sortDescriptor, items]);
 
     const renderCell = React.useCallback((data: dataShape, columnKey: React.Key) => {
-        // const cellValue = rows[columnKey as keyof data];
-        const cellValue = data[columnKey as keyof dataShape];
-
+        const cellValue = data[columnKey as keyof Data];
+        //make latlong to a string
+        const latLong = data["lat-long"].map(obj => obj.$numberDouble).join(", ");
         console.log("columnKey", columnKey)
+        console.log("columnKey type:", typeof columnKey)
+
         switch (columnKey) {
 
             case "number":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
                         <p className="text-bold text-tiny capitalize text-default-400">{data.no}</p>
                     </div>
                 );
             case "location":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
                         <p className="text-bold text-tiny capitalize text-default-400">{data['location-en']}</p>
                     </div>
                 );
             case "parkingNumber":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
                         <p className="text-bold text-tiny capitalize text-default-400">{data["parking-no"]}</p>
                     </div>
                 );
             case "districtSmall":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
                         <p className="text-bold text-tiny capitalize text-default-400">{data["district-s-en"]}</p>
                     </div>
                 );
+            case "latLong":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-tiny capitalize text-default-400">{latLong}</p>
+                    </div>
+                );
+            case "districtLarge":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-tiny capitalize text-default-400">{data["district-l-en"]}</p>
+                    </div>
+                );
+
 
             case "actions":
                 return (
