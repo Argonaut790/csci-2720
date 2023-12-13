@@ -13,6 +13,7 @@ import { useUserSystem } from "@/contexts/UserSystemContext";
 import DynamicContent from "@/components/DynamicContent";
 import DataCRUD from "@/components/DataCRUD";
 import UserCRUD from "@/components/UserCRUD";
+import LandingBanner from "@/components/LandingBanner";
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
 
@@ -27,7 +28,10 @@ export default function IndexPage() {
             {isadmin ?? <UserCRUD />}
           </>
         ) : (
-          <UserSystem />
+          <div className="flex relative z-20 flex-col gap-14 w-full justify-center">
+            <LandingBanner />
+            <UserSystem />
+          </div>
         )}
         {/* <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Make&nbsp;</h1>

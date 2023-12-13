@@ -30,8 +30,7 @@ router.post("/login", upload.array(), async (req: Request, res: Response) => {
 // Sign up
 router.post("/signup", upload.array(), async (req, res) => {
   // Server-side validation
-  const emailRegEx =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
   if (!req.body || !req.body.email || !req.body.email.match(emailRegEx)) {
     return res.status(401).json("Invalud email");
@@ -43,9 +42,7 @@ router.post("/signup", upload.array(), async (req, res) => {
   if (registeredUser.length) {
     return res
       .status(400)
-      .send(
-        "This email has been registered. Please click 'Forgot Password' if you cannot login."
-      );
+      .send("This email has been registered. Please click 'Forgot Password' if you cannot login.");
   }
 
   const account = new Account({
@@ -58,9 +55,7 @@ router.post("/signup", upload.array(), async (req, res) => {
     const saveduser = await account.save();
     res.status(200).json(saveduser);
   } catch (err) {
-    res
-      .status(401)
-      .json("Unknown error, please try again or sign up with another method.");
+    res.status(401).json("Unknown error, please try again or sign up with another method.");
   }
 });
 
