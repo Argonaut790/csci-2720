@@ -151,7 +151,11 @@ const LoginModal = () => {
           onFocus={() => setPasswordResult("")}
           errorMessage={passwordResult}
           endContent={
-            <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+            <button
+              className="focus:outline-none"
+              type="button"
+              onClick={toggleVisibility}
+            >
               {isVisible ? (
                 <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
               ) : (

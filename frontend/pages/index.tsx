@@ -14,18 +14,28 @@ import DynamicContent from "@/components/DynamicContent";
 import DataCRUD from "@/components/DataCRUD";
 import UserCRUD from "@/components/UserCRUD";
 import LandingBanner from "@/components/LandingBanner";
+import { useEffect } from "react";
+
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
+
+  useEffect(() => {
+    console.log("FRONTEND RUNNING");
+    console.log(loading);
+    console.log(loggedIn);
+    console.log(isadmin);
+    console.log("================");
+  }, []);
 
   return (
     <DefaultLayout>
       <section className="h-full py-8 md:py-10 w-full">
-        {loading ?? <Spinner label="Loading..." color="secondary" />}
+        {loading && <Spinner label="Loading..." color="secondary" />}
         {loggedIn ? (
           <>
             <DynamicContent />
             <DataCRUD />
-            {isadmin ?? <UserCRUD />}
+            {isadmin && <UserCRUD />}
           </>
         ) : (
           <div className="flex relative z-20 flex-col gap-14 w-full justify-center">

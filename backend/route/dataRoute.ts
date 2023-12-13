@@ -117,7 +117,6 @@ router.get("/nearest", async (req: Request, res: Response) => {
   const latitudes = req.query.lat;
   const longitudes = req.query.lng;
   const max = 1; // it caps at 100 with the API
-  console.log("hello");
   console.log(
     process.env.GOV_DATA_API +
       "?lat=" +
