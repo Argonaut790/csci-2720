@@ -7,27 +7,28 @@ import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import LoginModel from "@/components/LoginModel";
+import { Spinner } from "@nextui-org/react";
 import UserSystem from "@/components/UserSystem";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import DynamicContent from "@/components/DynamicContent";
 import DataCRUD from "@/components/DataCRUD";
 import UserCRUD from "@/components/UserCRUD";
 export default function IndexPage() {
-  const { loggedIn, isadmin } = useUserSystem();
+  const { loading, loggedIn, isadmin } = useUserSystem();
 
   return (
     <DefaultLayout>
       <section className="h-full py-8 md:py-10 w-full">
+        {loading ?? <Spinner label="Loading..." color="secondary" />}
         {loggedIn ? (
           <>
             <DynamicContent />
             <DataCRUD />
-            {isadmin ? <UserCRUD /> : null}
+            {isadmin ?? <UserCRUD />}
           </>
         ) : (
           <UserSystem />
         )}
-
         {/* <div className="inline-block max-w-lg text-center justify-center">
           <h1 className={title()}>Make&nbsp;</h1>
           <h1 className={title({ color: "violet" })}>beautiful&nbsp;</h1>

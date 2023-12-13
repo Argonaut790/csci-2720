@@ -7,15 +7,21 @@ import updateData from "@/components/UpdateData";
 import { toast } from "react-toastify";
 import { useTheme } from "next-themes";
 import { set } from "react-hook-form";
+import { useEffect } from "react";
+import { EyeSlashFilledIcon, EyeFilledIcon } from "./icons";
 
 const LoginModal = () => {
   //useref for email and password
   const { theme } = useTheme();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  // const resultRef = useRef<HTMLSpanElement>(null);
   const [emailResult, setEmailResult] = useState<string>("");
   const [passwordResult, setPasswordResult] = useState<string>("");
+
+  useEffect(() => {
+    emailRef.current?.focus();
+    emailRef.current!.value = Cookies.get("email") + " " ?? "";
+  }, []);
 
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
@@ -30,12 +36,11 @@ const LoginModal = () => {
   } = useUserSystem();
 
   const login = () => {
+    Cookies.set("email", emailRef.current!.value);
     const user = {
       email: emailRef.current!.value,
       password: passwordRef.current!.value,
     };
-    // console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/login");
-    // console.log(user);
 
     toggleLoadingOn();
     axios
@@ -46,7 +51,7 @@ const LoginModal = () => {
           setPasswordResult("");
           Cookies.set("loggedIn", "true");
           Cookies.set("userId", res.data.userId);
-          setLoginUser(res.data.username);
+
           if (res.data.isAdmin) {
             Cookies.set("isAdmin", "true");
             toggleIsAdminOn();
@@ -56,6 +61,8 @@ const LoginModal = () => {
 
           setTimeout(() => {
             toggleLoggedInOn();
+            toggleLoadingOff();
+            setLoginUser(res.data.username);
           }, 1000);
 
           const welcomemsg = "Login Success! Welcom, " + res.data.username;
@@ -68,16 +75,15 @@ const LoginModal = () => {
 
           // Update Data Database
           updateData();
-          toggleLoadingOff();
         }
+        return "result from success";
       })
       .catch((err) => {
-        toggleLoadingOff();
         console.log(err);
 
         if (err.response.data === "Wrong password") {
           setEmailResult("");
-          setPasswordResult("Please input a correct Password");
+          setPasswordResult("Incorrect Password");
           toast.error("Incorrect password", {
             position: "bottom-right",
             autoClose: 1500,
@@ -94,6 +100,8 @@ const LoginModal = () => {
             theme: theme == "light" ? "light" : "dark",
           });
         }
+        toggleLoadingOff();
+        return "result from error";
       });
   };
 
@@ -114,20 +122,10 @@ const LoginModal = () => {
     if (email !== "" && password !== "") {
       login();
     }
-
-    // Add "is-invalid" class to input fields that match the syntax
-    // document.getElementById("floatingEmail").className = isEmailInvalid
-    //   ? "form-control floating is-invalid"
-    //   : "form-control floating";
-    // document.getElementById("floatingPassword").className = isPasswordInvalid
-    //   ? "form-control floating is-invalid"
-    //   : "form-control floating";
   };
 
-  //   const handleForgotPassword = () => {
-  //     setShowForgotPasswordModal(true);
-  //     setShowModal(false);
-  //   };
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleVisibility = () => setIsVisible(!isVisible);
 
   return (
     // <Card>
@@ -139,6 +137,7 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Email"
           ref={emailRef}
+          placeholder={emailRef.current?.value + " " ?? ""}
           onFocus={() => setEmailResult("")}
           errorMessage={emailResult}
           // className="pb-4"
@@ -146,17 +145,29 @@ const LoginModal = () => {
 
         <Input
           // isRequired
-          type="password"
           variant={"underlined"}
           label="Password"
           ref={passwordRef}
           onFocus={() => setPasswordResult("")}
           errorMessage={passwordResult}
+          endContent={
+            <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+              {isVisible ? (
+                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              ) : (
+                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              )}
+            </button>
+          }
+          type={isVisible ? "text" : "password"}
           // className="pb-4"
         />
         <div className="w-full opacity-80 flex justify-between">
           Don&apos;t have an account?{" "}
-          <span className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold" onClick={() => toggleSignUpModalOn()}>
+          <span
+            className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
+            onClick={() => toggleSignUpModalOn()}
+          >
             Sign Up here
           </span>
         </div>
