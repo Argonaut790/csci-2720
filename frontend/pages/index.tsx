@@ -16,18 +16,9 @@ import UserCRUD from "@/components/UserCRUD";
 import TableInTest from "@/components/tableInTest/table";
 import TableOri from "@/components/ortable/table";
 import LandingBanner from "@/components/LandingBanner";
-import { useEffect } from "react";
 
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
-
-  useEffect(() => {
-    console.log("FRONTEND RUNNING");
-    console.log(loading);
-    console.log(loggedIn);
-    console.log(isadmin);
-    console.log("================");
-  }, []);
 
   return (
     <DefaultLayout>
