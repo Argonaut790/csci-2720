@@ -1,10 +1,32 @@
-import { createContext, useEffect, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useEffect,
+  useContext,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import Cookies from "js-cookie";
 import Loading from "@components/Loading";
 import axios from "axios";
+import { GetNearestCharger } from "@components/NearestCharger";
 
 interface Props {
   children?: ReactNode;
+}
+
+interface data {
+  "district-s-en": string;
+  "location-en": string;
+  img: string;
+  no: string;
+  "district-l-en": string;
+  "parking-no": string;
+  "address-en": string;
+  provider: string;
+  type: string;
+  "lat-long": number[];
 }
 
 interface UserSystemContextValue {
@@ -15,6 +37,10 @@ interface UserSystemContextValue {
   showSignUpModal: boolean;
   showLoginModal: boolean;
   showForgotPasswordModal: boolean;
+  curCoordinate: number[];
+  nearestCoordinate: number[];
+  setCurCoordinate: Dispatch<SetStateAction<number[]>>;
+  setNearestCoordinate: Dispatch<SetStateAction<number[]>>;
   toggleLoadingOn: () => void;
   toggleLoadingOff: () => void;
   toggleLoggedInOn: () => void;
@@ -32,7 +58,9 @@ interface userProps {
   name: string;
 }
 
-const UserSystemContext = createContext<UserSystemContextValue>({} as UserSystemContextValue);
+const UserSystemContext = createContext<UserSystemContextValue>(
+  {} as UserSystemContextValue
+);
 
 export const useUserSystem = () => useContext(UserSystemContext);
 
@@ -45,6 +73,10 @@ export const UserSystemProvider = ({ children }: Props) => {
   const [showLoginModal, setShowLoginModal] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
+  const [curCoordinate, setCurCoordinate] = useState<number[]>([]);
+
+  const [nearestCoordinate, setNearestCoordinate] = useState<number[]>([]);
+
   // Get cookies and set loggedIn to true if cookie exists
   // Get cookies and set loggedIn to true if cookie exists
   // console.log(Cookies.get(user.name));
@@ -56,14 +88,39 @@ export const UserSystemProvider = ({ children }: Props) => {
       setLoggedIn(true);
     }
     if (Cookies.get("userId")) {
-      axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + Cookies.get("userId")).then((res) => {
-        setUser({
-          name: res.data.username ?? "",
+      axios
+        .get(
+          process.env.NEXT_PUBLIC_DEV_API_PATH +
+            "account/" +
+            Cookies.get("userId")
+        )
+        .then((res) => {
+          setUser({
+            name: res.data.username ?? "",
+          });
         });
-      });
     }
     if (Cookies.get("isAdmin")) {
       setIsAdmin(true);
+    }
+
+    //user location
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setCurCoordinate([position.coords.latitude, position.coords.longitude]);
+
+        //get nearest charger location from
+        GetNearestCharger(position.coords.latitude, position.coords.longitude)
+          .then((result) => {
+            setNearestCoordinate(result["lat-long"]);
+            console.log(
+              "Context Updated the NearestCoor " + result["lat-long"]
+            );
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
     }
   }, []);
 
@@ -135,6 +192,10 @@ export const UserSystemProvider = ({ children }: Props) => {
     showSignUpModal,
     showLoginModal,
     showForgotPasswordModal,
+    curCoordinate,
+    nearestCoordinate,
+    setCurCoordinate,
+    setNearestCoordinate,
     toggleLoadingOn,
     toggleLoadingOff,
     toggleLoggedInOn,
@@ -148,5 +209,9 @@ export const UserSystemProvider = ({ children }: Props) => {
     setLoginUser,
   };
 
-  return <UserSystemContext.Provider value={contextValue}>{children}</UserSystemContext.Provider>;
+  return (
+    <UserSystemContext.Provider value={contextValue}>
+      {children}
+    </UserSystemContext.Provider>
+  );
 };
