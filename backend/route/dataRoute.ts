@@ -116,8 +116,15 @@ router.patch("/", async (req: Request, res: Response) => {
           "lat-long": item["lat-long"],
         });
 
+        const { no, ...itemWithoutNo } = item;
+
+  const dataNoNum = new Data({
+    ...itemWithoutNo
+  });
+
         // if data is not in the database, save it
-        const existedData = await Data.find({ no: item.no });
+        
+        const existedData = await Data.find(dataNoNum);
         if (existedData.length === 0) {
           try {
             await data.save();
@@ -137,5 +144,72 @@ router.patch("/", async (req: Request, res: Response) => {
       console.log(err);
     });
 });
+
+
+
+////////////
+router.use(express.json())
+//{"newLocat": "North Point", "newCoor": ["22.2855988576","114.18833258"], "newProvider": "CLP"}
+router.post("/api/createNewData",async(req: Request, res: Response)=>{
+
+
+  console.log("this is the req",req.body.newCoor)
+
+  let inputData = req.body
+
+
+const largestNoDocument = await Data.aggregate([
+  {
+    $addFields: {
+      noInt: { $toInt: "$no" }
+    }
+  },
+  {
+    $sort: { noInt: -1 }
+  },
+  {
+    $limit: 1
+  }
+]);
+let largestNo = largestNoDocument[0].no;
+largestNo = Number(largestNo)+1
+console.log("the largest no is",largestNo)
+
+let [lat, long] = inputData.newCoor
+console.log("latitude",lat)
+console.log("longitude",long)
+
+let data={
+"district-s-en":"Special1",
+"location-en":"Specia1",
+"img":"/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
+"no":`${(largestNo).toString()}`,
+// "no":"241",
+"district-l-en":"New Territories",
+"parking-no":"D042 - D052, D106 - D112",
+"address-en":"Hong Kong Science Park Carpark P2, B/F,\n8-10 Science Park West Avenue, Shatin, N.T.",
+"provider":`${inputData}`,
+"type":"SemiQuick",
+"lat-long":[parseFloat(lat),parseFloat(long)],
+"__v":0
+}
+
+// Check if the data already exists in the database
+const existingData = await Data.findOne({ "lat-long": data["lat-long"], "parking-no": data["parking-no"] });
+
+if (existingData) {
+  console.log('Data already exists in the database.');
+} else {
+  console.log('Data does not exist in the database. Creating new document...');
+  const result = await Data.create(data);
+  console.log(`New document inserted with the following id: ${result._id}`);
+}
+
+
+
+  let returnValue = req.body
+  res.send(returnValue)
+
+})
 
 module.exports = router;

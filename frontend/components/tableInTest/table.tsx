@@ -31,10 +31,11 @@ import { VerticalDotsIcon } from "./VerticalDotslcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
 // import { columns, statusOptions, data } from "./data";
-import { columns, statusOptions } from "./data";
+import { columnsInfo, statusOptions } from "./data";
 
 import { capitalize } from "./utils";
 import axios from "axios";
+import { useUserSystem } from "@/contexts/UserSystemContext";
 const statusColorMap: Record<string, ChipProps["color"]> = {
     active: "success",
     paused: "danger",
@@ -80,14 +81,37 @@ export default function TableInTest() {
 
     const [data, setData] = React.useState<dataShape[]>([]);
     const [useSorting, setSorting] = React.useState(false)
+    const { loggedIn, isadmin } = useUserSystem();
 
 
     //for popup edit button
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+
+
+    //set cases for admin and user
+    let columns = {}
+    if (isadmin == true) {
+        columns = columnsInfo
+    } else if (isadmin == false) {
+        columns = [
+            { name: "number", uid: "number", sortable: true },
+            { name: "location", uid: "location", sortable: true },
+            { name: "districtSmall", uid: "districtSmall", sortable: true },
+            { name: "districtLarge", uid: "districtLarge", sortable: true },
+            { name: "parkingNumber", uid: "parkingNumber", sortable: true },
+            { name: "provider", uid: "provider" },
+            { name: "latLong", uid: "latLong" },
+
+        ];
+    }
+
+
+
+
+
     //retrieve and set data
-
-
     React.useEffect(() => {
         const fetchData = async () => {
             let result = await axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data")
@@ -208,7 +232,7 @@ export default function TableInTest() {
         const latLong = data["lat-long"].map((num: number) => Number(num.toPrecision(4))).join(",");
 
         console.log("columnKey type:", typeof columnKey)
-        let isadmin = 0
+
         switch (columnKey) {
 
             case "number":
@@ -247,10 +271,16 @@ export default function TableInTest() {
                         <p className="text-bold text-tiny capitalize text-default-400">{data["district-l-en"]}</p>
                     </div>
                 );
+            case "type":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-tiny capitalize text-default-400">{data["type"]}</p>
+                    </div>
+                );
 
 
             case "actions":
-                if (isadmin == 1) {
+                if (isadmin == true) {
                     return (
                         <div className="relative flex justify-end items-center gap-2">
                             <Dropdown>
@@ -268,7 +298,7 @@ export default function TableInTest() {
                         </div>
                     );
                 }
-                else if (isadmin == 0) {
+                else if (isadmin == false) {
                     return
                 }
 
@@ -364,9 +394,11 @@ export default function TableInTest() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" endContent={<PlusIcon />} onPress={onOpen}>
-                            Edit
-                        </Button>
+
+                        {isadmin ? <Button color="primary" endContent={<PlusIcon />} onPress={onOpen}>
+                            Create New
+                        </Button> : <></>}
+
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -434,9 +466,9 @@ export default function TableInTest() {
         const updatedPasswordRef = useRef<HTMLInputElement>(null);
         const resultRef = useRef<HTMLSpanElement>(null);
 
-        const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
-            console.log("Hello");
+
             e.preventDefault();
             const updatedLocationName = updatedLocationNameRef.current?.value;
             const updatedLatitude = updatedLatitudeRef.current?.value;
@@ -447,7 +479,15 @@ export default function TableInTest() {
                 newCoor: [updatedLatitude, updatedLongitude],
                 newProvider: updatedProvider
             }
-            console.log(data)
+
+            // axios.post(process.env.NEXT_PUBLIC_DEV_API_PATH + "api/createNewData", data).then((res) => {
+            //     console.log("this is the result", res)
+            // })
+
+            const res = await axios.post("http://localhost:5500/data/api/createNewData", data)
+
+            console.log("this is the result", res.data)
+
 
 
         };
@@ -568,7 +608,6 @@ export default function TableInTest() {
             </>
         );
     };
-
 
 
     return (<>
