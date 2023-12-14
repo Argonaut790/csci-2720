@@ -38,7 +38,7 @@ const addLocationMarker = ({
     fillOpacity: 1,
     strokeWeight: 0,
     rotation: 0,
-    scale: 3,
+    scale: 2,
     anchor: new google.maps.Point(0, 20),
   };
 
@@ -55,11 +55,11 @@ const addLocationMarker = ({
       content: `<div class=" h-4 font-bold text-black">${position.info}</div>`, // 支援html
     });
 
-    infowindow.open(map, marker);
+    // infowindow.open(map, marker);
 
-    // marker.addListener("click", (e: React.FormEvent<HTMLFormElement>) => {
-    //   infowindow.open(map, marker);
-    // });
+    marker.addListener("click", (e: React.FormEvent<HTMLFormElement>) => {
+      infowindow.open(map, marker);
+    });
   });
 };
 
@@ -79,7 +79,7 @@ const addChargerMarker = ({
         fillOpacity: 0.6,
         strokeWeight: 0,
         rotation: 0,
-        scale: 2,
+        scale: 1,
         anchor: new google.maps.Point(0, 20),
       };
 
@@ -124,7 +124,7 @@ const GoogleMaps = ({
   className?: string;
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const DEFAULT_CENTER = { lat: 22.375267, lng: 114.145151 };
+  const DEFAULT_CENTER = { lat: 22.36055048544373, lng: 114.12749704182502 };
   const DEFAULT_ZOOM = 11;
   const [curCoordinate, setCurCoordinate] = useState([
     22.419373049191574, 114.20637130715477,
@@ -161,28 +161,29 @@ const GoogleMaps = ({
   return (
     <div
       ref={ref}
-      style={{ width: "900px", height: "600px" }}
-      className=" rounded "
+      style={{ width: "100%" }}
+      className=" rounded-2xl aspect-video shadow-lg"
     />
+  );
+};
+
+const AllDataPoints = () => {
+  return (
+    <div className="flex flex-col gap-4 h-screen">
+      <h1 className=" text-4xl"> All Data Points</h1>
+      <div className="">
+        <GoogleMapsWrapper>
+          <GoogleMaps locations={LOCATIONS} />
+        </GoogleMapsWrapper>
+      </div>
+    </div>
   );
 };
 
 const MapContent = () => {
   return (
-    <div className="w-100 mx-auto max-w-7xl overflow-hidden">
-      {/* <h1>Content</h1> */}
-      <div className="flex flex-row justify-center gap-8">
-        {/* <div
-          id="map"
-          className="w-[768px] h-[512px] border aspect-video rounded z-10"
-        ></div> */}
-        <div>
-          <h1 className=" text-4xl"> Introduction</h1>
-        </div>
-        <GoogleMapsWrapper>
-          <GoogleMaps locations={LOCATIONS} />
-        </GoogleMapsWrapper>
-      </div>
+    <div className="w-100 mx-auto max-w-7xl flex flex-col gap-4">
+      {/* <AllDataPoints /> */}
       <NearestCharger />
     </div>
   );

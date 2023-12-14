@@ -37,10 +37,6 @@ interface UserSystemContextValue {
   showSignUpModal: boolean;
   showLoginModal: boolean;
   showForgotPasswordModal: boolean;
-  curCoordinate: number[];
-  nearestCoordinate: number[];
-  setCurCoordinate: Dispatch<SetStateAction<number[]>>;
-  setNearestCoordinate: Dispatch<SetStateAction<number[]>>;
   toggleLoadingOn: () => void;
   toggleLoadingOff: () => void;
   toggleLoggedInOn: () => void;
@@ -74,10 +70,6 @@ export const UserSystemProvider = ({ children }: Props) => {
   const [showLoginModal, setShowLoginModal] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-  const [curCoordinate, setCurCoordinate] = useState<number[]>([]);
-
-  const [nearestCoordinate, setNearestCoordinate] = useState<number[]>([]);
-
   // Get cookies and set loggedIn to true if cookie exists
   // Get cookies and set loggedIn to true if cookie exists
   // console.log(Cookies.get(user.name));
@@ -103,25 +95,6 @@ export const UserSystemProvider = ({ children }: Props) => {
     }
     if (Cookies.get("isAdmin")) {
       setIsAdmin(true);
-    }
-
-    //user location
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setCurCoordinate([position.coords.latitude, position.coords.longitude]);
-
-        //get nearest charger location from
-        GetNearestCharger(position.coords.latitude, position.coords.longitude)
-          .then((result) => {
-            setNearestCoordinate(result["lat-long"]);
-            console.log(
-              "Context Updated the NearestCoor " + result["lat-long"]
-            );
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      });
     }
   }, []);
 
@@ -193,10 +166,6 @@ export const UserSystemProvider = ({ children }: Props) => {
     showSignUpModal,
     showLoginModal,
     showForgotPasswordModal,
-    curCoordinate,
-    nearestCoordinate,
-    setCurCoordinate,
-    setNearestCoordinate,
     toggleLoadingOn,
     toggleLoadingOff,
     toggleLoggedInOn,
