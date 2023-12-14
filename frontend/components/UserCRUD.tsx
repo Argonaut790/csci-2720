@@ -191,12 +191,10 @@ const UserCRUD = () => {
   };
 
   const DeleteUser = (userId: string) => {
-    axios
-      .delete(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + userId)
-      .then((res) => {
-        console.log(res);
-        setUpdated((prev) => !prev);
-      });
+    axios.delete(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + userId).then((res) => {
+      console.log(res);
+      setUpdated((prev) => !prev);
+    });
   };
 
   const renderCell = useCallback(
@@ -256,20 +254,14 @@ const UserCRUD = () => {
 
       // Check for the username and password for not empty
       if (username === "" || password === "") {
-        resultRef.current!.innerText +=
-          "Username and password cannot be empty. ";
+        resultRef.current!.innerText += "Username and password cannot be empty. ";
       } else {
         // Update the user info
-        console.log(
-          process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + editingRow
-        );
-        axios.patch(
-          process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + editingRow,
-          {
-            username: username,
-            password: password,
-          }
-        );
+        console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + editingRow);
+        axios.patch(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + editingRow, {
+          username: username,
+          password: password,
+        });
       }
       setEditingData(null);
       setEditingRow(null);
@@ -399,7 +391,7 @@ const UserCRUD = () => {
   };
 
   return (
-    <>
+    <div id="UserCRUDSection">
       <EditMask />
       <div className="flex justify-end">
         <Button
@@ -432,24 +424,20 @@ const UserCRUD = () => {
           }
         >
           <TableHeader columns={columns}>
-            {(column) => (
-              <TableColumn key={column.key}>{column.label}</TableColumn>
-            )}
+            {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
           </TableHeader>
           <TableBody items={items}>
             {(item) => (
               <TableRow key={item.userId}>
                 {(columnKey: Key) => (
-                  <TableCell>
-                    {renderCell(item, columnKey as keyof data)}
-                  </TableCell>
+                  <TableCell>{renderCell(item, columnKey as keyof data)}</TableCell>
                 )}
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-    </>
+    </div>
   );
 };
 

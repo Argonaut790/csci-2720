@@ -111,7 +111,9 @@ const SignUpModal: React.FC = () => {
       setFormResult({
         email: isValidEmail ? "" : "Please enter a valid email",
         username: isValidUsername ? "" : "Please enter a valid username",
-        password: isValidPassword ? "" : "You password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number",
+        password: isValidPassword
+          ? ""
+          : "You password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number",
         confirmPassword: isValidConfirmPassword ? "" : "You password must be same as above",
       });
     }
@@ -154,7 +156,9 @@ const SignUpModal: React.FC = () => {
             });
           }}
           description={
-            passwordOnFocus ? "Your password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number" : ""
+            passwordOnFocus
+              ? "Your password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number"
+              : ""
           }
           errorMessage={formResult.password}
           // className="pb-0"
@@ -171,13 +175,22 @@ const SignUpModal: React.FC = () => {
           errorMessage={formResult.confirmPassword}
           // className="pb-4"
         />
-        <div className="w-full pt-4 opacity-80 flex justify-between">
+        <div className="w-full pt-4 opacity-80 flex justify-between text-sm">
           Already have an account?
-          <span className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold" onClick={() => toggleLoginModalOn()}>
+          <span
+            className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
+            onClick={() => toggleLoginModalOn()}
+          >
             Login here
           </span>
         </div>
-        <Button className="w-full mt-4" variant="faded" type="submit" size="md" isDisabled={!lastTouch}>
+        <Button
+          className="w-full mt-4"
+          variant="faded"
+          type="submit"
+          size="md"
+          isDisabled={!lastTouch}
+        >
           Sign Up
         </Button>
       </form>

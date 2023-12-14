@@ -102,11 +102,7 @@ const GoogleMaps = ({
   }, [ref, center]);
 
   return (
-    <div
-      ref={ref}
-      style={{ width: "100%" }}
-      className=" rounded-2xl aspect-video shadow-lg"
-    />
+    <div ref={ref} style={{ width: "100%" }} className=" rounded-2xl aspect-video shadow-lg" />
   );
 };
 
@@ -124,18 +120,9 @@ const DistrictMap = () => {
     setSelectedDistrict(e.target.value);
   };
 
-  const addChargerMarker = ({
-    map,
-  }: {
-    map: google.maps.Map | null | undefined;
-  }) => {
+  const addChargerMarker = ({ map }: { map: google.maps.Map | null | undefined }) => {
     axios
-      .get(
-        process.env.NEXT_PUBLIC_DEV_API_PATH +
-          "data/district?" +
-          "district=" +
-          selectedDistrict
-      )
+      .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data/district?" + "district=" + selectedDistrict)
       .then((res) => {
         console.log(res.data);
 
@@ -199,8 +186,10 @@ const DistrictMap = () => {
   }, [selectedDistrict]);
 
   return (
-    <div className=" flex flex-col gap-6 max-h-screen">
-      <h1 className=" text-4xl flex justify-end">Get Charger by District</h1>
+    <div id="districtmapsection" className=" flex flex-col gap-6 mb-20">
+      <h1 className="flex justify-end text-7xl lg:h-20 mb-6 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        Get Charger by District
+      </h1>
       <div className="flex flex-row">
         <div className="w-1/3 flex justify-center items-center">
           <Select
@@ -220,20 +209,14 @@ const DistrictMap = () => {
         </div>
         <div className=" w-2/3">
           <GoogleMapsWrapper>
-            <GoogleMaps
-              locations={LOCATIONS}
-              center={center}
-              addChargerMarker={addChargerMarker}
-            />
+            <GoogleMaps locations={LOCATIONS} center={center} addChargerMarker={addChargerMarker} />
           </GoogleMapsWrapper>
         </div>
       </div>
       <div className=" grid grid-cols-3 gap-6 h-[250px]">
         <Card className="py-4">
           <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-            <h4 className="font-bold text-large">
-              Selected Charger's Location
-            </h4>
+            <h4 className="font-bold text-large">Selected Charger's Location</h4>
           </CardHeader>
           <Divider />
           <CardBody className="overflow-visible py-2 opacity-70">
@@ -250,12 +233,8 @@ const DistrictMap = () => {
           <CardBody className="overflow-visible py-2 opacity-70">
             <span>Location: {selectedCharger?.["location-en"] || "None"}</span>
             <span>Address: {selectedCharger?.["address-en"] || "None"}</span>
-            <span>
-              District: {selectedCharger?.["district-s-en"] || "None"}
-            </span>
-            <span>
-              Parking Notes: {selectedCharger?.["parking-no"] || "None"}
-            </span>
+            <span>District: {selectedCharger?.["district-s-en"] || "None"}</span>
+            <span>Parking Notes: {selectedCharger?.["parking-no"] || "None"}</span>
             <span>Provider: {selectedCharger?.["provider"] || "None"}</span>
             <span>Type: {selectedCharger?.["type"] || "None"}</span>
           </CardBody>

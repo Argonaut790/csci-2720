@@ -54,9 +54,7 @@ interface userProps {
   name: string;
 }
 
-const UserSystemContext = createContext<UserSystemContextValue>(
-  {} as UserSystemContextValue
-);
+const UserSystemContext = createContext<UserSystemContextValue>({} as UserSystemContextValue);
 //global method of passing variable to provent param drill in every layer
 
 export const useUserSystem = () => useContext(UserSystemContext);
@@ -82,18 +80,14 @@ export const UserSystemProvider = ({ children }: Props) => {
     }
     if (Cookies.get("userId")) {
       axios
-        .get(
-          process.env.NEXT_PUBLIC_DEV_API_PATH +
-            "account/" +
-            Cookies.get("userId")
-        )
+        .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + Cookies.get("userId"))
         .then((res) => {
           setUser({
             name: res.data.username ?? "",
           });
         });
     }
-    if (Cookies.get("isAdmin")) {
+    if (Cookies.get("isAdmin") === "true") {
       setIsAdmin(true);
     }
   }, []);
@@ -179,9 +173,5 @@ export const UserSystemProvider = ({ children }: Props) => {
     setLoginUser,
   };
 
-  return (
-    <UserSystemContext.Provider value={contextValue}>
-      {children}
-    </UserSystemContext.Provider>
-  );
+  return <UserSystemContext.Provider value={contextValue}>{children}</UserSystemContext.Provider>;
 };

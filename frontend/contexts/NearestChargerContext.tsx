@@ -53,9 +53,8 @@ export const useNearestCharger = () => useContext(NearestChargerContext);
 
 export const NearestChargerProvider = ({ children }: Props) => {
   const [userMarker, setUserMarker] = useState<google.maps.Marker | null>(null);
-  const [nearestChargerMarker, setNearestChargerMarker] =
-    useState<google.maps.Marker | null>(null);
-  const [curCoordinate, setCurCoordinate] = useState<number[]>([]);
+  const [nearestChargerMarker, setNearestChargerMarker] = useState<google.maps.Marker | null>(null);
+  const [curCoordinate, setCurCoordinate] = useState<number[]>([22.418194, 114.207444]);
   const [nearestCoordinate, setNearestCoordinate] = useState<number[]>([]);
   const [extraInfo, setExtraInfo] = useState<data | null>(null);
 
@@ -64,15 +63,15 @@ export const NearestChargerProvider = ({ children }: Props) => {
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       console.log("Get User Location");
       navigator.geolocation.getCurrentPosition((position) => {
+        console.log("Get User Location Success");
+        console.log(position.coords.latitude, position.coords.longitude);
         setCurCoordinate([position.coords.latitude, position.coords.longitude]);
 
         //get nearest charger location from
         GetNearestCharger(position.coords.latitude, position.coords.longitude)
           .then((result) => {
             setNearestCoordinate(result["lat-long"]);
-            console.log(
-              "Context Updated the NearestCoor " + result["lat-long"]
-            );
+            console.log("Context Updated the NearestCoor " + result["lat-long"]);
             setExtraInfo(result);
           })
           .catch((err) => {
@@ -96,8 +95,6 @@ export const NearestChargerProvider = ({ children }: Props) => {
   };
 
   return (
-    <NearestChargerContext.Provider value={contextValue}>
-      {children}
-    </NearestChargerContext.Provider>
+    <NearestChargerContext.Provider value={contextValue}>{children}</NearestChargerContext.Provider>
   );
 };

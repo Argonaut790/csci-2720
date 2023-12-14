@@ -18,11 +18,6 @@ const LoginModal = () => {
   const [emailResult, setEmailResult] = useState<string>("");
   const [passwordResult, setPasswordResult] = useState<string>("");
 
-  useEffect(() => {
-    emailRef.current?.focus();
-    emailRef.current!.value = Cookies.get("email") + " " ?? "";
-  }, []);
-
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
   const {
@@ -137,7 +132,6 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Email"
           ref={emailRef}
-          placeholder={emailRef.current?.value + " " ?? ""}
           onFocus={() => setEmailResult("")}
           errorMessage={emailResult}
           // className="pb-4"
@@ -151,11 +145,7 @@ const LoginModal = () => {
           onFocus={() => setPasswordResult("")}
           errorMessage={passwordResult}
           endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility}
-            >
+            <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
               {isVisible ? (
                 <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
               ) : (
@@ -166,7 +156,7 @@ const LoginModal = () => {
           type={isVisible ? "text" : "password"}
           // className="pb-4"
         />
-        <div className="w-full opacity-80 flex justify-between">
+        <div className="w-full opacity-80 flex justify-between text-sm">
           Don&apos;t have an account?{" "}
           <span
             className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"

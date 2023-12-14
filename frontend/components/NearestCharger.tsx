@@ -1,12 +1,4 @@
-import {
-  Input,
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Divider,
-} from "@nextui-org/react";
+import { Input, Button, Card, CardHeader, CardBody, CardFooter, Divider } from "@nextui-org/react";
 import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { GoogleMapsWrapper } from "@components/GoogleMapWrapper";
 import axios from "axios";
@@ -55,13 +47,9 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     setNearestCoordinate,
   } = useNearestCharger();
 
-  const addLocationMarker = ({
-    info,
-  }: {
-    location: number[];
-    info?: string;
-  }) => {
+  const addLocationMarker = ({ info }: { location: number[]; info?: string }) => {
     if (curCoordinate.length == 0 && nearestCoordinate.length == 0) return;
+    console.log("current coordinate", curCoordinate);
 
     deleteMarkers(true);
 
@@ -152,8 +140,7 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     const localUserMarker = userMarker;
     if (localUserMarker != null) localUserMarker.setMap(null);
     const localNearestChargerMarker = nearestChargerMarker;
-    if (localNearestChargerMarker != null)
-      localNearestChargerMarker.setMap(null);
+    if (localNearestChargerMarker != null) localNearestChargerMarker.setMap(null);
   };
 
   // Initialize the map
@@ -210,30 +197,16 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
   }, [map, curCoordinate, nearestCoordinate]);
 
   return (
-    <div
-      ref={ref}
-      style={{ width: "100%" }}
-      className=" rounded-2xl aspect-video shadow-lg"
-    />
+    <div ref={ref} style={{ width: "100%" }} className=" rounded-2xl aspect-video shadow-lg" />
   );
 };
 
 export const GetNearestCharger = async (lat: number, lng: number) => {
   console.log("GetNearestCharger");
-  console.log(
-    process.env.NEXT_PUBLIC_DEV_API_PATH +
-      "data/nearest?lat=" +
-      lat +
-      "&lng=" +
-      lng
-  );
+  console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "data/nearest?lat=" + lat + "&lng=" + lng);
   try {
     const res = await axios.get(
-      process.env.NEXT_PUBLIC_DEV_API_PATH +
-        "data/nearest?lat=" +
-        lat +
-        "&lng=" +
-        lng
+      process.env.NEXT_PUBLIC_DEV_API_PATH + "data/nearest?lat=" + lat + "&lng=" + lng
     );
     console.log(res.data);
     return res.data;
@@ -244,13 +217,8 @@ export const GetNearestCharger = async (lat: number, lng: number) => {
 };
 
 const NearestCharger = () => {
-  const {
-    curCoordinate,
-    nearestCoordinate,
-    extraInfo,
-    setNearestCoordinate,
-    setExtraInfo,
-  } = useNearestCharger();
+  const { curCoordinate, nearestCoordinate, extraInfo, setNearestCoordinate, setExtraInfo } =
+    useNearestCharger();
 
   const latRef = useRef<HTMLInputElement | null>(null);
   const lngRef = useRef<HTMLInputElement | null>(null);
@@ -270,15 +238,14 @@ const NearestCharger = () => {
 
   return (
     <>
-      <div className=" flex flex-col gap-6 max-h-screen">
-        <h1 className=" text-4xl">Find Charger that near you</h1>
+      <div id="NearestChargerSection" className=" flex flex-col gap-6">
+        <h1 className="flex justify-start lg:h-20 mb-6 text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+          Find Charger that near you
+        </h1>
         <div className=" flex flex-row">
           <div className=" w-2/3">
             <GoogleMapsWrapper>
-              <GoogleMaps
-                curCoordinate={curCoordinate}
-                nearestCoordinate={nearestCoordinate}
-              />
+              <GoogleMaps curCoordinate={curCoordinate} nearestCoordinate={nearestCoordinate} />
             </GoogleMapsWrapper>
           </div>
           <div className="px-10 flex flex-col gap-4 w-1/3 justify-center items-center">
@@ -316,9 +283,7 @@ const NearestCharger = () => {
               //   </div>
               // }
             />
-            <Button onClick={() => handleOnClickGetNearestLocations()}>
-              Get Nearest Charger
-            </Button>
+            <Button onClick={() => handleOnClickGetNearestLocations()}>Get Nearest Charger</Button>
           </div>
         </div>
         <div className=" grid grid-cols-3 gap-6 h-[250px]">

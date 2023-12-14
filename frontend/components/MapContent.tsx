@@ -64,11 +64,7 @@ const addLocationMarker = ({
   });
 };
 
-const addChargerMarker = ({
-  map,
-}: {
-  map: google.maps.Map | null | undefined;
-}) => {
+const addChargerMarker = ({ map }: { map: google.maps.Map | null | undefined }) => {
   axios
     .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data")
     .then((res) => {
@@ -85,11 +81,9 @@ const addChargerMarker = ({
       };
 
       // from res.data only filter out the lat-long
-      const locations: ReadonlyArray<google.maps.LatLngLiteral> = res.data.map(
-        (position: data) => {
-          return { lat: position["lat-long"][0], lng: position["lat-long"][1] };
-        }
-      );
+      const locations: ReadonlyArray<google.maps.LatLngLiteral> = res.data.map((position: data) => {
+        return { lat: position["lat-long"][0], lng: position["lat-long"][1] };
+      });
 
       const markers = locations.map((position) => {
         let marker = new google.maps.Marker({
@@ -117,19 +111,11 @@ const addChargerMarker = ({
     });
 };
 
-const GoogleMaps = ({
-  locations,
-  className,
-}: {
-  locations: Props[];
-  className?: string;
-}) => {
+const GoogleMaps = ({ locations, className }: { locations: Props[]; className?: string }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const DEFAULT_CENTER = { lat: 22.36055048544373, lng: 114.12749704182502 };
   const DEFAULT_ZOOM = 11;
-  const [curCoordinate, setCurCoordinate] = useState([
-    22.419373049191574, 114.20637130715477,
-  ]);
+  const [curCoordinate, setCurCoordinate] = useState([22.419373049191574, 114.20637130715477]);
 
   useEffect(() => {
     //user location
@@ -160,18 +146,17 @@ const GoogleMaps = ({
   }, [ref, locations]);
 
   return (
-    <div
-      ref={ref}
-      style={{ width: "100%" }}
-      className=" rounded-2xl aspect-video shadow-lg"
-    />
+    <div ref={ref} style={{ width: "100%" }} className=" rounded-2xl aspect-video shadow-lg" />
   );
 };
 
 const AllDataPoints = () => {
   return (
-    <div className="flex flex-col gap-6 h-screen">
-      <h1 className=" text-4xl"> All Data Points</h1>
+    <div id="AllDataPointsSection" className="flex flex-col gap-6 h-5/6 mb-20">
+      <h1 className="text-7xl lg:h-20 mb-6 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        {" "}
+        All Data Points
+      </h1>
       <div className="">
         <GoogleMapsWrapper>
           <GoogleMaps locations={LOCATIONS} />

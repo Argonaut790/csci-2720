@@ -23,21 +23,18 @@ export default function IndexPage() {
   return (
     <DefaultLayout>
       <section className="h-full py-4 md:py-6 w-full">
-        {loading && <Spinner label="Loading..." color="secondary" />}
         {loggedIn ? (
           <>
             <DynamicContent />
             <DataCRUD />
             <TableInTest />
-
-            {/* <TableOri /> */}
-            {/* {isadmin ? <UserCRUD /> : null} */}
             {isadmin && <UserCRUD />}
           </>
         ) : (
           <div className="flex relative z-20 flex-col gap-14 w-full justify-center">
             <LandingBanner />
             <UserSystem />
+            {loading && <Spinner label="Loading..." color="secondary" />}
           </div>
         )}
       </section>
