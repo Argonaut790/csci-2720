@@ -328,18 +328,18 @@ const NearestCharger = () => {
             </CardHeader>
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70">
-              Latitude: {curCoordinate[0]}
+              Latitude: {curCoordinate && curCoordinate[0]}
               <br />
-              Longtitude: {curCoordinate[1]}
+              Longtitude: {curCoordinate && curCoordinate[1]}
             </CardBody>
             <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
               <h4 className="font-bold text-large">Nearest Charger Location</h4>
             </CardHeader>
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70">
-              Latitude: {nearestCoordinate[0]}
+              Latitude: {nearestCoordinate && nearestCoordinate[0]}
               <br />
-              Longtitude: {nearestCoordinate[1]}
+              Longtitude: {nearestCoordinate && nearestCoordinate[1]}
             </CardBody>
           </Card>
           <Card className="py-4">
