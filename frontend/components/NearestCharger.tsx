@@ -78,11 +78,7 @@ const addLocationMarker = ({
   // });
 };
 
-const GoogleMaps = ({
-  className,
-  curCoordinate,
-  nearestCoordinate,
-}: GoogleMapsProps) => {
+const GoogleMaps = ({ className, curCoordinate, nearestCoordinate }: GoogleMapsProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const DEFAULT_ZOOM = 14;
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -130,21 +126,13 @@ const GoogleMaps = ({
         infoWindow = new google.maps.InfoWindow({
           position: mapsMouseEvent.latLng,
         });
-        infoWindow.setContent(
-          JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
-        );
+        infoWindow.setContent(JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2));
         infoWindow.open(map);
       });
     }
   }, [map, curCoordinate, nearestCoordinate]);
 
-  return (
-    <div
-      ref={ref}
-      style={{ width: "900px", height: "600px" }}
-      className=" rounded "
-    />
-  );
+  return <div ref={ref} style={{ width: "900px", height: "600px" }} className=" rounded " />;
 };
 
 const NearestCharger = () => {
@@ -162,20 +150,10 @@ const NearestCharger = () => {
 
   const GetNearestCharger = async (lat: number, lng: number) => {
     console.log("GetNearestCharger");
-    console.log(
-      process.env.NEXT_PUBLIC_DEV_API_PATH +
-        "data/nearest?lat=" +
-        lat +
-        "&lng=" +
-        lng
-    );
+    console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "data/nearest?lat=" + lat + "&lng=" + lng);
     try {
       const res = await axios.get(
-        process.env.NEXT_PUBLIC_DEV_API_PATH +
-          "data/nearest?lat=" +
-          lat +
-          "&lng=" +
-          lng
+        process.env.NEXT_PUBLIC_DEV_API_PATH + "data/nearest?lat=" + lat + "&lng=" + lng
       );
       console.log(res.data);
       return res.data;
@@ -211,10 +189,7 @@ const NearestCharger = () => {
       <div className=" flex flex-row justify-center">
         <div>
           <GoogleMapsWrapper>
-            <GoogleMaps
-              curCoordinate={curCoordinate}
-              nearestCoordinate={nearestCoordinate}
-            />
+            <GoogleMaps curCoordinate={curCoordinate} nearestCoordinate={nearestCoordinate} />
           </GoogleMapsWrapper>
         </div>
         <div className="px-10 flex flex-col gap-4 w-[260px] justify-center items-center">

@@ -71,9 +71,9 @@ router.post("/signup", upload.array(), async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const list = await Account.find();
-    res.status(200).json(list).send("Success get all user info");
+    res.status(200).json(list);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed get all user info");
+    res.status(500).send("Failed get all user info");
   }
 });
 
@@ -102,12 +102,9 @@ router.patch("/:userId", async (req, res) => {
       }
     );
     console.log(updatedUser);
-    res
-      .status(200)
-      .json(updatedUser)
-      .send("Success update user info" + req.body.username);
+    res.status(200).json(updatedUser);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed update user info");
+    res.status(500).json({ message: err });
   }
 });
 
@@ -116,12 +113,9 @@ router.delete("/:userId", async (req, res) => {
   try {
     const removedUser = await Account.deleteOne({ userId: req.params.userId });
     console.log(removedUser);
-    res
-      .status(200)
-      .json(removedUser)
-      .send("Success delete user" + req.body.username);
+    res.status(200).json(removedUser);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed delete user");
+    res.status(500).json({ message: err });
   }
 });
 
@@ -137,9 +131,9 @@ router.post("/", async (req, res) => {
       favourite: [],
     });
     const saveduser = await account.save();
-    res.status(200).json(saveduser).send("Success add new admin user");
+    res.status(200).json(saveduser);
   } catch (err) {
-    res.status(500).json({ message: err }).send("Failed add new admin user");
+    res.status(500).json({ message: err });
   }
 });
 
