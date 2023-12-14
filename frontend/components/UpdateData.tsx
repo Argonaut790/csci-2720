@@ -5,7 +5,7 @@ export const LOCATIONS = [
   { lat: 22.312957669310823, lng: 114.1694709069294, info: "Yau Tsim Mong" }, // Yau Tsim Mong
   { lat: 22.312263908147774, lng: 114.2264018794126, info: "Kwun Tong" }, // Kwun Tong
   { lat: 22.377159870179007, lng: 114.19723973287563, info: "Shatin" }, // Shatin
-  { lat: 22.265372960315688, lng: 114.23520307180851, info: "Eastern" }, // Eastern
+  { lat: 22.282159566977967, lng: 114.22184173738505, info: "Eastern" }, // Eastern
   { lat: 22.36979174926326, lng: 114.11425935981161, info: "Tsuen Wan" }, // Tsuen Wan
   { lat: 22.277577947931675, lng: 114.17383118307438, info: "Wan Chai" }, // Wan Chai
   { lat: 22.447553202846628, lng: 114.02614444721702, info: "Yuen Long" }, // Yuen Long
@@ -18,8 +18,8 @@ export const LOCATIONS = [
   { lat: 22.362753293667296, lng: 114.13115568275614, info: "Kwai Tsing" }, // Kwai Tsing
   { lat: 22.38283448260053, lng: 114.2711912133148, info: "Sai Kung" }, // Sai Kung
   {
-    lat: 22.25434987510336,
-    lng: 113.8630792803884,
+    lat: 22.289973589491137,
+    lng: 113.9404001606481,
     info: "Outlying Islands",
   }, // Outlying Islands
   {

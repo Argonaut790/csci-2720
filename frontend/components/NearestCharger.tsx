@@ -66,20 +66,20 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     deleteMarkers(true);
 
     const user_svgMarker = {
-      path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+      path: "M22,2V4H20V2H18V6a2,2,0,0,0,2,2V18a1,1,0,0,1-1,1H16V11H13V9h3V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V9H3v2H0V24H16V21h3a3,3,0,0,0,3-3V8a2,2,0,0,0,2-2V2ZM10.772,11.426,9.008,14.959l-1.789-.893L8.75,11H6.615A1.614,1.614,0,0,1,5.07,8.917L7.293,4.756l1.76.949L7.275,9H9.4a1.6,1.6,0,0,1,1.376,2.426Z",
       fillColor: "red",
       fillOpacity: 1,
-      strokeWeight: 0,
+      strokeWeight: 2,
       rotation: 0,
       scale: 2,
       anchor: new google.maps.Point(0, 20),
     };
 
     const nearest_charger_svgMarker = {
-      path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+      path: "M22,2V4H20V2H18V6a2,2,0,0,0,2,2V18a1,1,0,0,1-1,1H16V11H13V9h3V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V9H3v2H0V24H16V21h3a3,3,0,0,0,3-3V8a2,2,0,0,0,2-2V2ZM10.772,11.426,9.008,14.959l-1.789-.893L8.75,11H6.615A1.614,1.614,0,0,1,5.07,8.917L7.293,4.756l1.76.949L7.275,9H9.4a1.6,1.6,0,0,1,1.376,2.426Z",
       fillColor: "blue",
       fillOpacity: 1,
-      strokeWeight: 0,
+      strokeWeight: 2,
       rotation: 0,
       scale: 2,
       anchor: new google.maps.Point(0, 20),
@@ -271,7 +271,7 @@ const NearestCharger = () => {
   return (
     <>
       <div className=" flex flex-col gap-6 max-h-screen">
-        <h1 className=" text-4xl">Nearest Charger</h1>
+        <h1 className=" text-4xl">Find Charger that near you</h1>
         <div className=" flex flex-row">
           <div className=" w-2/3">
             <GoogleMapsWrapper>
@@ -317,11 +317,11 @@ const NearestCharger = () => {
               // }
             />
             <Button onClick={() => handleOnClickGetNearestLocations()}>
-              Get Nearest Locations
+              Get Nearest Charger
             </Button>
           </div>
         </div>
-        <div className=" grid grid-cols-3 gap-6 h-full">
+        <div className=" grid grid-cols-3 gap-6 h-[250px]">
           <Card className="py-4">
             <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
               <h4 className="font-bold text-large">User's Location</h4>
@@ -363,7 +363,6 @@ const NearestCharger = () => {
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70 overflow-y-scroll h-full">
               <p> Testing Comment</p>
-              {/* <p> Testing Comment</p>
               <p> Testing Comment</p>
               <p> Testing Comment</p>
               <p> Testing Comment</p>
@@ -379,7 +378,8 @@ const NearestCharger = () => {
               <p> Testing Comment</p>
               <p> Testing Comment</p>
               <p> Testing Comment</p>
-              <p> Testing Comment</p> */}
+              <p> Testing Comment</p>
+              <p> Testing Comment</p>
             </CardBody>
             <Divider />
             <CardFooter className=" p-0">

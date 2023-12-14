@@ -60,32 +60,44 @@ export const Navbar = () => {
   );
 
   return (
-    <NextUINavbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
+    <NextUINavbar
+      isBordered
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
+    >
       <NavbarContent className="hidden sm:flex gap-4" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        />
         <NavbarBrand>
           <Logo />
-          <p className="font-bold text-inherit">CSCI 2720</p>
+          <p className="font-bold text-inherit">EC2Find@HK</p>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        />
       </NavbarContent>
 
       <NavbarContent className="sm:hidden" justify="center">
         <NavbarBrand>
           <Logo />
-          <p className="font-bold text-inherit">CSCI 2720</p>
+          <p className="font-bold text-inherit">EC2Find @HK</p>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent justify="end">
         <NavbarItem className="hidden sm:flex">
-          {user.name && <p className="font-bold text-inherit">Welcome! {user.name}</p>}
+          {user.name && (
+            <p className="font-bold text-inherit">Welcome! {user.name}</p>
+          )}
         </NavbarItem>
         <NavbarItem className="sm:hidden">
-          {user.name && <p className="font-bold text-inherit">Hey! {user.name}</p>}
+          {user.name && (
+            <p className="font-bold text-inherit">Hey! {user.name}</p>
+          )}
         </NavbarItem>
 
         <ThemeSwitch />

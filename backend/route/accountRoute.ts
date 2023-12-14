@@ -89,6 +89,7 @@ router.get("/:userId", async (req, res) => {
 
 // Update user info
 router.patch("/:userId", async (req, res) => {
+  console.log("DEBUG");
   try {
     const updatedUser = await Account.updateOne(
       { userId: req.params.userId },
@@ -102,6 +103,7 @@ router.patch("/:userId", async (req, res) => {
     console.log(updatedUser);
     res.status(200).json(updatedUser);
   } catch (err) {
+    console.log(err);
     res.status(500).send("Failed update user info");
   }
 });

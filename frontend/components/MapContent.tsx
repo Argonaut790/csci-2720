@@ -6,6 +6,7 @@ import { LOCATIONS } from "@components/UpdateData";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import axios from "axios";
 import NearestCharger from "@components/NearestCharger";
+import DistrictMap from "./DistrictMap";
 interface Props {
   lat: number;
   lng: number;
@@ -33,10 +34,10 @@ const addLocationMarker = ({
   map: google.maps.Map | null | undefined;
 }) => {
   const svgMarker = {
-    path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+    path: "M22,2V4H20V2H18V6a2,2,0,0,0,2,2V18a1,1,0,0,1-1,1H16V11H13V9h3V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V9H3v2H0V24H16V21h3a3,3,0,0,0,3-3V8a2,2,0,0,0,2-2V2ZM10.772,11.426,9.008,14.959l-1.789-.893L8.75,11H6.615A1.614,1.614,0,0,1,5.07,8.917L7.293,4.756l1.76.949L7.275,9H9.4a1.6,1.6,0,0,1,1.376,2.426Z",
     fillColor: "purple",
     fillOpacity: 1,
-    strokeWeight: 0,
+    strokeWeight: 2,
     rotation: 0,
     scale: 2,
     anchor: new google.maps.Point(0, 20),
@@ -74,10 +75,10 @@ const addChargerMarker = ({
       console.log(res.data);
 
       const svgMarker = {
-        path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+        path: "M22,2V4H20V2H18V6a2,2,0,0,0,2,2V18a1,1,0,0,1-1,1H16V11H13V9h3V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V9H3v2H0V24H16V21h3a3,3,0,0,0,3-3V8a2,2,0,0,0,2-2V2ZM10.772,11.426,9.008,14.959l-1.789-.893L8.75,11H6.615A1.614,1.614,0,0,1,5.07,8.917L7.293,4.756l1.76.949L7.275,9H9.4a1.6,1.6,0,0,1,1.376,2.426Z",
         fillColor: "black",
         fillOpacity: 0.6,
-        strokeWeight: 0,
+        strokeWeight: 2,
         rotation: 0,
         scale: 1,
         anchor: new google.maps.Point(0, 20),
@@ -169,7 +170,7 @@ const GoogleMaps = ({
 
 const AllDataPoints = () => {
   return (
-    <div className="flex flex-col gap-4 h-screen">
+    <div className="flex flex-col gap-6 h-screen">
       <h1 className=" text-4xl"> All Data Points</h1>
       <div className="">
         <GoogleMapsWrapper>
@@ -183,7 +184,8 @@ const AllDataPoints = () => {
 const MapContent = () => {
   return (
     <div className="w-100 mx-auto max-w-7xl flex flex-col gap-4">
-      {/* <AllDataPoints /> */}
+      <AllDataPoints />
+      <DistrictMap />
       <NearestCharger />
     </div>
   );

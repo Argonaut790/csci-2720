@@ -146,6 +146,14 @@ router.get("/nearest", async (req: Request, res: Response) => {
     });
 });
 
+// Get Charging Stateion with matched district Only
+router.get("/district", async (req: Request, res: Response) => {
+  const district = req.query.district;
+  // query from database
+  const data = await Data.find({ "district-s-en": district });
+  res.status(200).json(data);
+});
+
 // Repatch new data with government data
 router.patch("/", async (req: Request, res: Response) => {
   const latitudes = req.body.latitudes;
@@ -196,6 +204,16 @@ router.patch("/", async (req: Request, res: Response) => {
     .catch((err: Error) => {
       console.log(err);
     });
+});
+
+// Get Specific Charger Info by no.
+router.get("/no/:no", async (req: Request, res: Response) => {
+  try {
+    const data = await Data.find({ no: req.params.no });
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).send("Failed get one data by no.");
+  }
 });
 
 module.exports = router;
