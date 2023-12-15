@@ -25,7 +25,7 @@ const columnsInfo = [
   {name: "districtSmall", uid: "districtSmall", sortable: true},
   {name: "districtLarge", uid: "districtLarge", sortable: true},
   {name: "parkingNumber", uid: "parkingNumber",sortable: true},
-  {name: "provider", uid: "provider"},
+  {name: "provider", uid: "provider" },
   {name: "latLong", uid: "latLong"},
   {name: "type", uid: "type"},
   {name: "ACTIONS", uid: "actions"},
@@ -45,9 +45,9 @@ const columnsInfo = [
 
 
 const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  {name: "Standard", uid: "Standard"},
+  {name: "Quick", uid: "Quick"},
+  {name: "SemiQuick", uid: "SemiQuick"},
 ];
 
 

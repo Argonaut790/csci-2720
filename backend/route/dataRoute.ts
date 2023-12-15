@@ -245,4 +245,19 @@ if(result.deletedCount==1){
 
 })
 
+router.post("/api/getSpecficData",async(req: Request, res: Response)=>{
+
+  let incomingData = req.body.data 
+  console.log("income",incomingData)
+  const document = await Data.findOne({ no: incomingData });
+
+
+
+  console.log("res",document)
+  res.send(document)
+
+})
+
+
+
 module.exports = router;
