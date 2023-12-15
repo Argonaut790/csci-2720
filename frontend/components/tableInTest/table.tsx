@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
     Table,
     TableHeader,
@@ -17,23 +17,33 @@ import {
     Pagination,
     Selection,
     ChipProps,
-    SortDescriptor
+    SortDescriptor,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
+    Modal,
+
 } from "@nextui-org/react";
 import { PlusIcon } from "./Pluslcon";
 import { VerticalDotsIcon } from "./VerticalDotslcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
 // import { columns, statusOptions, data } from "./data";
-import { columns, statusOptions } from "./data";
+import { columnsInfo, statusOptions } from "./data";
 
 import { capitalize } from "./utils";
 import axios from "axios";
+import { useUserSystem } from "@/contexts/UserSystemContext";
 const statusColorMap: Record<string, ChipProps["color"]> = {
     active: "success",
     paused: "danger",
     vacation: "warning",
 };
 
+// import MapContent from "../MapContent"
+import MapView from "./mapView";
 interface dataShape {
     _id: { $oid: string };
     "district-s-en": string;
@@ -72,11 +82,42 @@ export default function TableInTest() {
     });
 
     const [data, setData] = React.useState<dataShape[]>([]);
+    const [useSorting, setSorting] = React.useState(false)
+    const { loggedIn, isadmin } = useUserSystem();
+
+    //open map view
+    const [mapView, setMapView] = React.useState(false);
+
+    //for popup edit button
+
+    const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
+    //delete function
+    const [deleteLoc, setDeleteLoc] = React.useState(false);
+    const [reloadData, setReloadData] = React.useState(false);
+
+    //set cases for admin and user
+    let columns = {}
+    if (isadmin == true) {
+        columns = columnsInfo
+    } else if (isadmin == false) {
+        columns = [
+            { name: "number", uid: "number", sortable: true },
+            { name: "location", uid: "location", sortable: true },
+            { name: "districtSmall", uid: "districtSmall", sortable: true },
+            { name: "districtLarge", uid: "districtLarge", sortable: true },
+            { name: "parkingNumber", uid: "parkingNumber", sortable: true },
+            { name: "provider", uid: "provider" },
+            { name: "latLong", uid: "latLong" },
+            { name: "ACTIONS", uid: "actions" },
+        ];
+    }
+
+
+
 
 
     //retrieve and set data
-
-
     React.useEffect(() => {
         const fetchData = async () => {
             let result = await axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data")
@@ -85,11 +126,10 @@ export default function TableInTest() {
         }
 
 
-
-
         fetchData()
+        console.log("i am fetch data")
         // console.log("rows", rows)
-    }, []);
+    }, [reloadData]);
 
     const [page, setPage] = React.useState(1);
 
@@ -110,65 +150,117 @@ export default function TableInTest() {
                 ||
                 data["district-s-en"].toLowerCase().includes(filterValue.toLowerCase())
                 ||
-                data["district-l-en"].toLowerCase().includes(filterValue.toLowerCase()),
+                data["district-l-en"].toLowerCase().includes(filterValue.toLowerCase()) ||
+                data["provider"].toLowerCase().includes(filterValue.toLowerCase())
             );
         }
 
-
+        console.log("here is the filteredItems", filteredUsers)
         return filteredUsers;
-    }, [data, filterValue, statusFilter]);
+    }, [data, filterValue]);
 
 
+    React.useEffect(
+        () => {
+            setSorting(!useSorting)
+        }
+        , [setSortDescriptor])
+
+    const sortedItems = React.useMemo(() => {
+
+        if (useSorting) {
+
+            let sorted = [...filteredItems].sort((a: Data, b: Data) => {
+
+                let first: string | number = a[sortDescriptor.column as keyof Data] || '';
+                let second: string | number = b[sortDescriptor.column as keyof Data] || '';
 
 
-    console.log("filetered items", filteredItems)
+                if (sortDescriptor.column === 'number') {
+                    first = Number(a.no);
+                    second = Number(b.no);
+                    console.log("first", first)
+                    console.log("second", second)
+                } else if (sortDescriptor.column === 'lat-long') {
+                    first = Number(a['lat-long'][0].$numberDouble);
+                    second = Number(b['lat-long'][0].$numberDouble);
+                    console.log("first", first)
+                    console.log("second", second)
+                } else {
+                    first = first ? first.toString() : '';
+                    second = second ? second.toString() : '';
+                    console.log("first", first)
+                    console.log("second", second)
+                }
 
-    const pages = Math.ceil(filteredItems.length / rowsPerPage);
+                let cmp: number;
+
+                if (typeof first === 'number' && typeof second === 'number') {
+                    cmp = first - second;
+                } else {
+                    cmp = (first as string).localeCompare(second as string);
+                }
+
+                return sortDescriptor.direction === "descending" ? -cmp : cmp;
+
+            });
+
+            console.log("this is sorted", sorted)
+            return sorted;
+        }
+        else {
+            let unsorted = [...filteredItems]
+            console.log("unsorted", unsorted)
+            return unsorted
+        }
+
+    }, [data, sortDescriptor, filteredItems, hasSearchFilter]);
+
+
+    console.log("sortedItemsitems", sortedItems)
+
+    const pages = Math.ceil(sortedItems.length / rowsPerPage);
 
     const items = React.useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
-        return filteredItems.slice(start, end);
-    }, [page, filteredItems, rowsPerPage]);
+        return sortedItems.slice(start, end);
+    }, [page, filteredItems, sortedItems, rowsPerPage]);
 
-    const sortedItems = React.useMemo(() => {
-        let sorted = [...items].sort((a: Data, b: Data) => {
-            let first: string | number = a[sortDescriptor.column as keyof Data] || '';
-            let second: string | number = b[sortDescriptor.column as keyof Data] || '';
+    const deleteLoca = async (no: string) => {
+        // console.log("deleting here", no)
+
+        let number = { "number": no }
+        let response = await axios.post("http://localhost:5500/data/api/deleteData", number)
+        // console.log("repsonse", response.status)
+        if (response.status == 200) {
+
+            setReloadData(prevState => !prevState)
+            console.log("delete sucess")
+        }
+        else {
+            prompt("Some problem with delete")
+        }
+    }
 
 
-            if (sortDescriptor.column === 'number') {
-                first = Number(a.no);
-                second = Number(b.no);
-                console.log("first", first)
-                console.log("second", second)
-            } else if (sortDescriptor.column === 'lat-long') {
-                first = Number(a['lat-long'][0].$numberDouble);
-                second = Number(b['lat-long'][0].$numberDouble);
-                console.log("first", first)
-                console.log("second", second)
-            } else {
-                first = first ? first.toString() : '';
-                second = second ? second.toString() : '';
-                console.log("first", first)
-                console.log("second", second)
-            }
 
-            let cmp: number;
 
-            if (typeof first === 'number' && typeof second === 'number') {
-                cmp = first - second;
-            } else {
-                cmp = (first as string).localeCompare(second as string);
-            }
 
-            return sortDescriptor.direction === "descending" ? -cmp : cmp;
-        });
 
-        console.log("this is sorted", sorted)
-        return sorted;
-    }, [sortDescriptor, items]);
+
+
+
+
+    const editLoca = async (no: string) => {
+        console.log("number to edit is ", no)
+
+
+        setIsOpenModal1(true)
+
+
+    }
 
 
 
@@ -178,7 +270,7 @@ export default function TableInTest() {
         const latLong = data["lat-long"].map((num: number) => Number(num.toPrecision(4))).join(",");
 
         console.log("columnKey type:", typeof columnKey)
-        let isadmin = 0
+
         switch (columnKey) {
 
             case "number":
@@ -217,10 +309,16 @@ export default function TableInTest() {
                         <p className="text-bold text-tiny capitalize text-default-400">{data["district-l-en"]}</p>
                     </div>
                 );
+            case "type":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-tiny capitalize text-default-400">{data["type"]}</p>
+                    </div>
+                );
 
 
             case "actions":
-                if (isadmin == 1) {
+                if (isadmin == true) {
                     return (
                         <div className="relative flex justify-end items-center gap-2">
                             <Dropdown>
@@ -230,15 +328,15 @@ export default function TableInTest() {
                                     </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu>
-                                    <DropdownItem>View</DropdownItem>
-                                    <DropdownItem>Edit</DropdownItem>
-                                    <DropdownItem>Delete</DropdownItem>
+                                    <DropdownItem>Viewinging</DropdownItem>
+                                    <DropdownItem onClick={() => editLoca(data.no)}>Edit</DropdownItem>
+                                    <DropdownItem onClick={() => deleteLoca(data.no)}>Delete</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
                     );
                 }
-                else if (isadmin == 0) {
+                else if (isadmin == false) {
                     return
                 }
 
@@ -278,6 +376,11 @@ export default function TableInTest() {
         setPage(1)
     }, [])
 
+
+    const createButton = () => {
+        onOpen()
+
+    }
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
@@ -334,13 +437,15 @@ export default function TableInTest() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" endContent={<PlusIcon />}>
-                            Add New
-                        </Button>
+
+                        {isadmin ? <Button color="primary" endContent={<PlusIcon />} onClick={createButton}>
+                            Create New
+                        </Button> : <></>}
+
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {data.length} users</span>
+                    <span className="text-default-400 text-small">Total {data.length} locations</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -393,11 +498,539 @@ export default function TableInTest() {
             </div>
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+    const updatedDistSmallNameRef = useRef<HTMLInputElement>(null);
+    const updatedDistLargeNameRef = useRef<HTMLInputElement>(null);
+    const updatedLocationNameRef = useRef<HTMLInputElement>(null);
+    const updatedAddressNameRef = useRef<HTMLInputElement>(null);
+
+    const updatedLatitudeRef = useRef<HTMLInputElement>(null);
+    const updatedLongitudeRef = useRef<HTMLInputElement>(null);
+    const updatedProviderRef = useRef<HTMLInputElement>(null);
+
+    const updatedTypeRef = useRef<HTMLInputElement>(null);
+
+
+    const updatedParkingNumberRef = useRef<HTMLInputElement>(null);
+
+
+    const [newCreate, setNewCreate] = useState(false)
+    const [submitState, setsubmitState] = useState(false)
+    // const [incorrectForm, setincorrectForm] = useState(false)
+
+
+    const [mapData, setMapData] = useState("");
+    const CreateMask = () => {
+        const updatedUserNameRef = useRef<HTMLInputElement>(null);
+        const updatedPasswordRef = useRef<HTMLInputElement>(null);
+        const resultRef = useRef<HTMLSpanElement>(null);
+
+
+        const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            const updatedDistSmallName = updatedDistSmallNameRef.current?.value;
+            const updatedDistLargeName = updatedDistLargeNameRef.current?.value;
+            const updatedAddressName = updatedAddressNameRef.current?.value;
+            const updatedLocationName = updatedLocationNameRef.current?.value;
+            const updatedLatitude = updatedLatitudeRef.current?.value;
+            const updatedLongitude = updatedLongitudeRef.current?.value;
+            const updatedProvider = updatedProviderRef.current?.value;
+            const updatedType = updatedTypeRef.current?.value;
+            const updatedParkingNumber = updatedParkingNumberRef.current?.value;
+
+            let data = {
+                newDistSmall: updatedDistSmallName,
+                newDistLarge: updatedDistLargeName,
+                newDistAddress: updatedAddressName,
+                newUpdatedType: updatedType,
+                newLocat: updatedLocationName,
+                newCoor: [updatedLatitude, updatedLongitude],
+                newProvider: updatedProvider,
+                newParkingNum: updatedParkingNumber
+
+            }
+            // for (let key in data) {
+            //     if (data[key] === undefined || data[key] === null || data[key] === '') {
+
+            //         setincorrectForm(true)
+
+            //         console.log("wrongg!!!!!")
+
+            //         return;
+
+            //     }
+            // }
+
+            // axios.post(process.env.NEXT_PUBLIC_DEV_API_PATH + "api/createNewData", data).then((res) => {
+            //     console.log("this is the result", res)
+            // })
+
+
+            const res = await axios.post("http://localhost:5500/data/api/createNewData", data)
+
+            if (res.status == 200) {
+                setNewCreate(true)
+                setsubmitState(true)
+
+            }
+
+            console.log("this is the result", res.data)
+
+            setReloadData(prevState => !prevState)
+        };
+
+        const handleMapData = (lat: number, lng: number) => {
+
+            setMapData({ lat, lng });
+            // const [mapView, setMapView] = React.useState(false);
+            setMapView(false)
+
+            console.log(`Data received from MapView: latitude: ${lat}, longitude: ${lng}`);
+        };
+        const handleClose = () => {
+            onClose();
+            setsubmitState(false);
+        };
+
+
+        return (
+            <>
+                <Modal
+                    isOpen={isOpen}
+                    onOpenChange={onOpenChange}
+                    placement="center"
+                    motionProps={{
+                        variants: {
+                            enter: {
+                                y: 0,
+                                opacity: 1,
+                                transition: {
+                                    duration: 0.3,
+                                    ease: "easeOut",
+                                },
+                            },
+                            exit: {
+                                y: -20,
+                                opacity: 0,
+                                transition: {
+                                    duration: 0.2,
+                                    ease: "easeIn",
+                                },
+                            },
+                        },
+                    }}
+                    onClose={onClose}
+                >
+                    <ModalContent>
+                        {(onClose) => (
+                            <form onSubmit={onSubmit} className="overflwo">
+                                <ModalHeader className="flex flex-col gap-1">
+                                    New Location
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Small"
+                                        // defaultValue={editingData?.username}
+                                        // value="North Point"
+                                        placeholder="eg. shatin"
+                                        isRequired
+                                        ref={updatedDistSmallNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Large"
+                                        // defaultValue={editingData?.username}
+                                        value="New Territories"
+                                        placeholder="eg.New Territories"
+                                        isRequired
+                                        ref={updatedDistLargeNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Location Name"
+                                        // defaultValue={editingData?.username}
+                                        value="Hong Kong Science Park"
+                                        placeholder="eg. Hong Kong Science Park"
+                                        isRequired
+                                        ref={updatedLocationNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Address Name"
+                                        placeholder="eg. Hong Kong Science Park Carpark P2, B/F,"
+                                        value="Hong Kong Science Park Carpark P2, B/F,"
+                                        isRequired
+                                        ref={updatedAddressNameRef}
+                                    />
 
 
 
 
-    return (
+
+                                    <div>Coordinate:</div>
+
+                                    {mapData ? <div className="flex flex-row">
+                                        <input type="text" className="m-1"
+                                            value={mapData.lat} ref={updatedLatitudeRef} isRequired />
+                                        <input type="text" className="m-1"
+                                            value={mapData.lng} ref={updatedLongitudeRef} isRequired />
+                                    </div> : null}
+
+                                    {!mapData ? <div className="flex flex-row">
+                                        <Input
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="lat"
+                                            isRequired
+                                            ref={updatedLatitudeRef}
+                                        />
+                                        <Input
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="long"
+                                            isRequired
+                                            ref={updatedLongitudeRef}
+                                        />
+
+                                    </div> : null}
+
+
+                                    <Button color="success" variant="light" onClick={() => setMapView(true)}>
+                                        Select coordinate by Map
+                                    </Button>
+
+
+
+                                    <div>
+
+                                        {mapView ? <MapView className="w-full h-64" onMapData={handleMapData} /> : null}
+                                    </div>
+
+
+
+
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="parking number"
+                                        value="D104"
+                                        isRequired
+                                        ref={updatedParkingNumberRef}
+
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Type"
+                                        value="Quick"
+                                        placeholder="eg. Quick"
+                                        isRequired
+                                        ref={updatedTypeRef}
+
+                                    />
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="provider"
+                                        value="CLP"
+                                        isRequired
+                                        ref={updatedProviderRef}
+
+                                    />
+
+                                    {submitState ? <span ref={resultRef}>result here</span> : null}
+                                    {submitState ? (newCreate ? <div className="success">success</div> : <div>fail</div>) : <div></div>}
+                                </ModalBody>
+
+                                <ModalFooter>
+                                    <Button color="danger" variant="light" onClick={handleClose}>
+                                        Discard
+                                    </Button>
+                                    <Button type="submit" color="primary">
+                                        Submit Change
+                                    </Button>
+
+
+
+                                </ModalFooter>
+
+                            </form>
+
+                        )}
+                    </ModalContent>
+                </Modal >
+            </>
+        );
+    };
+
+
+
+    const [isOpenModal1, setIsOpenModal1] = useState(false);
+    const [editNum, setEditNum] = useState()
+
+
+    const EditMask = () => {
+        // const { isOpen, onOpen, onClose } = useDisclosure();
+        const [backdrop, setBackdrop] = React.useState('opaque')
+
+        const backdrops = ["opaque", "blur", "transparent"];
+
+        const handleOpen = (backdrop) => {
+            setBackdrop(backdrop)
+
+            onOpen();
+        }
+
+
+        const updatedUserNameRef = useRef<HTMLInputElement>(null);
+        const updatedPasswordRef = useRef<HTMLInputElement>(null);
+        const resultRef = useRef<HTMLSpanElement>(null);
+
+
+        const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            const updatedDistSmallName = updatedDistSmallNameRef.current?.value;
+            const updatedDistLargeName = updatedDistLargeNameRef.current?.value;
+            const updatedAddressName = updatedAddressNameRef.current?.value;
+            const updatedLocationName = updatedLocationNameRef.current?.value;
+            const updatedLatitude = updatedLatitudeRef.current?.value;
+            const updatedLongitude = updatedLongitudeRef.current?.value;
+            const updatedProvider = updatedProviderRef.current?.value;
+            const updatedType = updatedTypeRef.current?.value;
+            const updatedParkingNumber = updatedParkingNumberRef.current?.value;
+
+            let data = {
+                newDistSmall: updatedDistSmallName,
+                newDistLarge: updatedDistLargeName,
+                newDistAddress: updatedAddressName,
+                newUpdatedType: updatedType,
+                newLocat: updatedLocationName,
+                newCoor: [updatedLatitude, updatedLongitude],
+                newProvider: updatedProvider,
+                newParkingNum: updatedParkingNumber
+
+            }
+            // for (let key in data) {
+            //     if (data[key] === undefined || data[key] === null || data[key] === '') {
+
+            //         setincorrectForm(true)
+
+            //         console.log("wrongg!!!!!")
+
+            //         return;
+
+            //     }
+            // }
+
+            // axios.post(process.env.NEXT_PUBLIC_DEV_API_PATH + "api/createNewData", data).then((res) => {
+            //     console.log("this is the result", res)
+            // })
+
+
+            const res = await axios.post("http://localhost:5500/data/api/createNewData", data)
+
+            if (res.status == 200) {
+                setNewCreate(true)
+                setsubmitState(true)
+
+            }
+
+            console.log("this is the result", res.data)
+
+            setReloadData(prevState => !prevState)
+        };
+
+        const handleMapData = (lat: number, lng: number) => {
+
+            setMapData({ lat, lng });
+            // const [mapView, setMapView] = React.useState(false);
+            setMapView(false)
+
+            console.log(`Data received from MapView: latitude: ${lat}, longitude: ${lng}`);
+        };
+        const handleClose = () => {
+            onClose();
+            setsubmitState(false);
+            setIsOpenModal1(false);
+
+        };
+        return (
+            <>
+                <div className="flex flex-wrap gap-3">
+
+                    {/* <Button
+                        key={"opaque"}
+                        onPress={() => handleOpen("opaque")}
+                        className="capitalize"
+                    >
+                        Edit
+                    </Button> */}
+
+                </div>
+                <Modal backdrop="opaque" isOpen={isOpenModal1} onClose={onClose}>
+                    <ModalContent>
+                        {(onClose) => (
+                            <form onSubmit={onSubmit} className="overflwo">
+                                <ModalHeader className="flex flex-col gap-1">
+                                    New Location
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Small"
+                                        // defaultValue={editingData?.username}
+                                        // value="North Point"
+                                        placeholder="eg. shatin"
+                                        isRequired
+                                        ref={updatedDistSmallNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Large"
+                                        // defaultValue={editingData?.username}
+                                        value="New Territories"
+                                        placeholder="eg.New Territories"
+                                        isRequired
+                                        ref={updatedDistLargeNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Location Name"
+                                        // defaultValue={editingData?.username}
+                                        value="Hong Kong Science Park"
+                                        placeholder="eg. Hong Kong Science Park"
+                                        isRequired
+                                        ref={updatedLocationNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Address Name"
+                                        placeholder="eg. Hong Kong Science Park Carpark P2, B/F,"
+                                        value="Hong Kong Science Park Carpark P2, B/F,"
+                                        isRequired
+                                        ref={updatedAddressNameRef}
+                                    />
+
+
+
+
+
+                                    <div>Coordinate:</div>
+
+                                    {mapData ? <div className="flex flex-row">
+                                        <input type="text" className="m-1"
+                                            value={mapData.lat} ref={updatedLatitudeRef} isRequired />
+                                        <input type="text" className="m-1"
+                                            value={mapData.lng} ref={updatedLongitudeRef} isRequired />
+                                    </div> : null}
+
+                                    {!mapData ? <div className="flex flex-row">
+                                        <Input
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="lat"
+                                            isRequired
+                                            ref={updatedLatitudeRef}
+                                        />
+                                        <Input
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="long"
+                                            isRequired
+                                            ref={updatedLongitudeRef}
+                                        />
+
+                                    </div> : null}
+
+
+                                    <Button color="success" variant="light" onClick={() => setMapView(true)}>
+                                        Select coordinate by Map
+                                    </Button>
+
+
+
+                                    <div>
+
+                                        {mapView ? <MapView className="w-full h-64" onMapData={handleMapData} /> : null}
+                                    </div>
+
+
+
+
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="parking number"
+                                        value="D104"
+                                        isRequired
+                                        ref={updatedParkingNumberRef}
+
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Type"
+                                        value="Quick"
+                                        placeholder="eg. Quick"
+                                        isRequired
+                                        ref={updatedTypeRef}
+
+                                    />
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="provider"
+                                        value="CLP"
+                                        isRequired
+                                        ref={updatedProviderRef}
+
+                                    />
+
+                                    {submitState ? <span ref={resultRef}>result here</span> : null}
+                                    {submitState ? (newCreate ? <div className="success">success</div> : <div>fail</div>) : <div></div>}
+                                </ModalBody>
+
+                                <ModalFooter>
+                                    <Button color="danger" variant="light" onClick={handleClose}>
+                                        Discard
+                                    </Button>
+                                    <Button type="submit" color="primary">
+                                        Submit Change
+                                    </Button>
+
+
+
+                                </ModalFooter>
+
+                            </form>
+
+                        )}
+                    </ModalContent>
+                </Modal >
+            </>
+        );
+    }
+
+
+
+
+    return (<>
+
+
+        <CreateMask />
+        <EditMask />
         <Table
             aria-label="Example table with custom cells, pagination and sorting"
             isHeaderSticky
@@ -407,7 +1040,7 @@ export default function TableInTest() {
                 wrapper: "max-h-[382px]",
             }}
             selectedKeys={selectedKeys}
-            selectionMode="multiple"
+            // selectionMode="multiple"
             sortDescriptor={sortDescriptor}
             topContent={topContent}
             topContentPlacement="outside"
@@ -419,13 +1052,14 @@ export default function TableInTest() {
                     <TableColumn
                         key={column.uid}
                         align={column.uid === "actions" ? "center" : "start"}
-                        allowsSorting={column.sortable}
+                        allowsSorting={column.uid === "number" ? true : false}
                     >
                         {column.name}
                     </TableColumn>
                 )}
             </TableHeader>
-            <TableBody emptyContent={"No users found"} items={sortedItems}>
+
+            <TableBody emptyContent={"No users found"} items={items}>
                 {(item) => (
                     <TableRow key={item["no"]}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
@@ -433,5 +1067,6 @@ export default function TableInTest() {
                 )}
             </TableBody>
         </Table>
+    </>
     );
 }
