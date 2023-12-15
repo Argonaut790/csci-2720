@@ -35,7 +35,7 @@ import axios from "axios";
 import { Cookie } from "next/font/google";
 
 export const Navbar = () => {
-  const { user, loggedIn, logout, getLoginUser } = useUserSystem();
+  const { user, loggedIn, logout } = useUserSystem();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const searchInput = (
@@ -90,13 +90,13 @@ export const Navbar = () => {
 
       <NavbarContent justify="end">
         <NavbarItem className="hidden sm:flex">
-          {user.name && (
-            <p className="font-bold text-inherit">Welcome! {user.name}</p>
+          {user?.username && (
+            <p className="font-bold text-inherit">Welcome! {user?.username}</p>
           )}
         </NavbarItem>
         <NavbarItem className="sm:hidden">
-          {user.name && (
-            <p className="font-bold text-inherit">Hey! {user.name}</p>
+          {user?.username && (
+            <p className="font-bold text-inherit">Hey! {user?.username}</p>
           )}
         </NavbarItem>
 

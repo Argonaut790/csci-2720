@@ -33,7 +33,7 @@ interface UserSystemContextValue {
   loading: boolean;
   loggedIn: boolean;
   isadmin: boolean;
-  user: userProps;
+  user: userProps | null;
   showSignUpModal: boolean;
   showLoginModal: boolean;
   showForgotPasswordModal: boolean;
@@ -41,17 +41,17 @@ interface UserSystemContextValue {
   toggleLoadingOff: () => void;
   toggleLoggedInOn: () => void;
   toggleIsAdminOn: () => void;
-  logout: () => void;
   toggleSignUpModalOn: () => void;
   toggleLoginModalOn: () => void;
   toggleForgotPasswordModalOn: () => void;
   toggleAllOff: () => void;
-  getLoginUser: () => userProps;
-  setLoginUser: (user: string) => void;
+  logout: () => void;
+  setUser: Dispatch<SetStateAction<userProps | null>>;
 }
 
 interface userProps {
-  name: string;
+  username: string;
+  userId: string;
 }
 
 const UserSystemContext = createContext<UserSystemContextValue>(
@@ -65,7 +65,7 @@ export const UserSystemProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [isadmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<userProps>({ name: "" });
+  const [user, setUser] = useState<userProps | null>(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
@@ -89,7 +89,8 @@ export const UserSystemProvider = ({ children }: Props) => {
         )
         .then((res) => {
           setUser({
-            name: res.data.username ?? "",
+            username: res.data.username ?? "",
+            userId: res.data.userId ?? "",
           });
         });
     }
@@ -114,22 +115,12 @@ export const UserSystemProvider = ({ children }: Props) => {
     setIsAdmin(true);
   };
 
-  const setLoginUser = (username: string) => {
-    setUser({
-      name: username,
-    });
-  };
-
-  const getLoginUser = () => {
-    return user;
-  };
-
   const logout = () => {
     console.log("logout");
     Cookies.remove("loggedIn");
     Cookies.remove("userId");
     Cookies.remove("isAdmin");
-    setUser({ name: "" });
+    setUser(null);
     setIsAdmin(false);
     setLoggedIn(false);
   };
@@ -175,8 +166,7 @@ export const UserSystemProvider = ({ children }: Props) => {
     toggleLoginModalOn,
     toggleForgotPasswordModalOn,
     toggleAllOff,
-    getLoginUser,
-    setLoginUser,
+    setUser,
   };
 
   return (

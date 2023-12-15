@@ -58,6 +58,16 @@ router.delete("/location/:locationid", async (req: Request, res: Response) => {
   }
 });
 
+//Get by no
+router.get("/no/:no", async (req: Request, res: Response) => {
+  try {
+    const data = await Data.find({ no: req.params.no });
+    res.status(200).json(data[0]);
+  } catch (err) {
+    res.status(500).send("Failed get one data by no");
+  }
+});
+
 // Create one new data
 router.post("/", async (req: Request, res: Response) => {
   try {
@@ -206,13 +216,34 @@ router.patch("/", async (req: Request, res: Response) => {
     });
 });
 
-// Get Specific Charger Info by no.
-router.get("/no/:no", async (req: Request, res: Response) => {
+//get comments by chargerId
+router.get("/comments/:chargerId", async (req: Request, res: Response) => {
   try {
-    const data = await Data.find({ no: req.params.no });
-    res.status(200).json(data);
+    const data = await Data.find({ locationid: req.params.chargerId });
+    res.status(200).json(data[0].comments);
   } catch (err) {
-    res.status(500).send("Failed get one data by no.");
+    res.status(500).send("Failed get comments by chargerId");
+  }
+});
+
+// post comments by chargerId
+router.post("/comments/:chargerId", async (req: Request, res: Response) => {
+  try {
+    const updatedData = await Data.updateOne(
+      { locationid: req.params.chargerId },
+      {
+        $push: {
+          comments: {
+            userid: req.body.userid,
+            comment: req.body.comment,
+          },
+        },
+      }
+    );
+    console.log(updatedData);
+    res.status(200).json(updatedData);
+  } catch (err) {
+    res.status(500).send("Failed update one data by locationid");
   }
 });
 

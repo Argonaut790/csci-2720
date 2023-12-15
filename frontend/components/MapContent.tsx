@@ -183,8 +183,8 @@ const AllDataPoints = () => {
 
 const MapContent = () => {
   return (
-    <div className="w-100 mx-auto max-w-7xl flex flex-col gap-4">
-      <AllDataPoints />
+    <div className="w-100 mx-auto max-w-7xl flex flex-col gap-8">
+      {/* <AllDataPoints /> */}
       <DistrictMap />
       <NearestCharger />
     </div>

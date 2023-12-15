@@ -18,6 +18,11 @@ interface Props {
   children?: ReactNode;
 }
 
+interface nearestProps {
+  "lat-long": number[];
+  locationid: string;
+}
+
 interface data {
   "district-s-en": string;
   "location-en": string;
@@ -35,12 +40,12 @@ interface NearestChargerContextValue {
   userMarker: google.maps.Marker | null;
   nearestChargerMarker: google.maps.Marker | null;
   curCoordinate: number[];
-  nearestCoordinate: number[];
+  nearestCoordinate: nearestProps;
   extraInfo: data | null;
   setUserMarker: Dispatch<SetStateAction<google.maps.Marker | null>>;
   setNearestChargerMarker: Dispatch<SetStateAction<google.maps.Marker | null>>;
   setCurCoordinate: Dispatch<SetStateAction<number[]>>;
-  setNearestCoordinate: Dispatch<SetStateAction<number[]>>;
+  setNearestCoordinate: Dispatch<SetStateAction<nearestProps>>;
   setExtraInfo: Dispatch<SetStateAction<data | null>>;
 }
 
@@ -56,7 +61,10 @@ export const NearestChargerProvider = ({ children }: Props) => {
   const [nearestChargerMarker, setNearestChargerMarker] =
     useState<google.maps.Marker | null>(null);
   const [curCoordinate, setCurCoordinate] = useState<number[]>([]);
-  const [nearestCoordinate, setNearestCoordinate] = useState<number[]>([]);
+  const [nearestCoordinate, setNearestCoordinate] = useState<nearestProps>({
+    "lat-long": [],
+    locationid: "",
+  } as nearestProps);
   const [extraInfo, setExtraInfo] = useState<data | null>(null);
 
   useEffect(() => {
@@ -69,7 +77,10 @@ export const NearestChargerProvider = ({ children }: Props) => {
         //get nearest charger location from
         GetNearestCharger(position.coords.latitude, position.coords.longitude)
           .then((result) => {
-            setNearestCoordinate(result["lat-long"]);
+            setNearestCoordinate({
+              "lat-long": result["lat-long"],
+              locationid: result.locationid,
+            });
             console.log(
               "Context Updated the NearestCoor " + result["lat-long"]
             );
