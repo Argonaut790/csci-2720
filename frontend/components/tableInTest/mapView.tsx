@@ -176,30 +176,30 @@ const MapView = ({ onMapData }: MapViewProps) => {
     const latRef = useRef<HTMLInputElement | null>(null);
     const lngRef = useRef<HTMLInputElement | null>(null);
     const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
-    const GetNearestCharger = async (lat: number, lng: number) => {
-        console.log("GetNearestCharger");
-        console.log(
-            process.env.NEXT_PUBLIC_DEV_API_PATH +
-            "data/nearest?lat=" +
-            lat +
-            "&lng=" +
-            lng
-        );
-        try {
-            const res = await axios.get(
-                process.env.NEXT_PUBLIC_DEV_API_PATH +
-                "data/nearest?lat=" +
-                lat +
-                "&lng=" +
-                lng
-            );
-            console.log(res.data);
-            return res.data;
-        } catch (err) {
-            console.log(err);
-            return err;
-        }
-    };
+    // const GetNearestCharger = async (lat: number, lng: number) => {
+    //     console.log("GetNearestCharger");
+    //     // console.log(
+    //     //     process.env.NEXT_PUBLIC_DEV_API_PATH +
+    //     //     "data/nearest?lat=" +
+    //     //     lat +
+    //     //     "&lng=" +
+    //     //     lng
+    //     // );
+    //     try {
+    //         const res = await axios.get(
+    //             process.env.NEXT_PUBLIC_DEV_API_PATH +
+    //             "data/nearest?lat=" +
+    //             lat +
+    //             "&lng=" +
+    //             lng
+    //         );
+    //         console.log(res.data);
+    //         return res.data;
+    //     } catch (err) {
+    //         console.log(err);
+    //         return err;
+    //     }
+    // };
 
     useEffect(() => {
         //user location
@@ -212,12 +212,12 @@ const MapView = ({ onMapData }: MapViewProps) => {
             // }, 6000);
 
             //get nearest charger location from
-            const result: data = await GetNearestCharger(
-                position.coords.latitude,
-                position.coords.longitude
-            );
-            setNearestCoordinate(result["lat-long"]);
-            console.log("nearestCoordinate" + nearestCoordinate);
+            // const result: data = await GetNearestCharger(
+            //     position.coords.latitude,
+            //     position.coords.longitude
+            // );
+            // setNearestCoordinate(result["lat-long"]);
+            // console.log("nearestCoordinate" + nearestCoordinate);
         });
     }, []);
     const handleMapClick = (lat: number, lng: number) => {
@@ -234,35 +234,35 @@ const MapView = ({ onMapData }: MapViewProps) => {
     };
     const [selected, setSelected] = useState(null)
 
-    const PlacesAutocomplete = ({ setSelected }) => {
-        const {
-            ready,
-            value,
-            setValue,
-            suggestions: { status, data },
-            clearSuggestions,
-        } = usePlacesAutocomplete();
-        return (<Combobox>
-            <ComboboxInput value={value} onChange={e => setValue(e.target.value)} disabled={!ready} placeholder="Search an address" />
-            <ComboboxPopover>
-                <ComboboxList>
-                    {status === "OK" &&
-                        data.map(({ place_id, description }) => (<ComboboxOption key={place_id} value={description} />))}
-                </ComboboxList>
-            </ComboboxPopover>
-        </Combobox>)
+    // const PlacesAutocomplete = ({ setSelected }) => {
+    //     const {
+    //         ready,
+    //         value,
+    //         setValue,
+    //         suggestions: { status, data },
+    //         clearSuggestions,
+    //     } = usePlacesAutocomplete();
+    //     return (<Combobox>
+    //         <ComboboxInput value={value} onChange={e => setValue(e.target.value)} disabled={!ready} placeholder="Search an address" />
+    //         <ComboboxPopover>
+    //             <ComboboxList>
+    //                 {status === "OK" &&
+    //                     data.map(({ place_id, description }) => (<ComboboxOption key={place_id} value={description} />))}
+    //             </ComboboxList>
+    //         </ComboboxPopover>
+    //     </Combobox>)
 
-    }
+    // }
     return (
         <>
 
 
             <div>
                 <GoogleMapsWrapper>
-                    <div className="places-container">
+                    {/* <div className="places-container">
                         <PlacesAutocomplete setSelected="setSelected" />
 
-                    </div>
+                    </div> */}
                     <GoogleMaps
                         curCoordinate={curCoordinate}
                         nearestCoordinate={nearestCoordinate}
