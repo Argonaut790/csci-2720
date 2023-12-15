@@ -415,8 +415,10 @@ const NearestCharger = () => {
 
   return (
     <>
-      <div className=" flex flex-col gap-6 max-h-screen">
-        <h1 className=" text-4xl">Find Charger that near you</h1>
+      <div id="NearestChargerSection" className=" flex flex-col gap-6">
+        <h1 className="flex justify-start lg:h-20 mb-6 text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+          Find Charger that near you
+        </h1>
         <div className=" flex flex-row">
           <div className=" w-2/3">
             <GoogleMapsWrapper>

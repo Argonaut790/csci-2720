@@ -346,19 +346,13 @@ router.post("/comments/:chargerId", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/api/getSpecficData",async(req: Request, res: Response)=>{
-
-  let incomingData = req.body.data 
-  console.log("income",incomingData)
+router.post("/api/getSpecficData", async (req: Request, res: Response) => {
+  let incomingData = req.body.data;
+  console.log("income", incomingData);
   const document = await Data.findOne({ no: incomingData });
 
-
-
-  console.log("res",document)
-  res.send(document)
-
-})
-
-
+  console.log("res", document);
+  res.send(document);
+});
 
 module.exports = router;

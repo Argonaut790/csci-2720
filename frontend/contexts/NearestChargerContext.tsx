@@ -72,6 +72,8 @@ export const NearestChargerProvider = ({ children }: Props) => {
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       console.log("Get User Location");
       navigator.geolocation.getCurrentPosition((position) => {
+        console.log("Get User Location Success");
+        console.log(position.coords.latitude, position.coords.longitude);
         setCurCoordinate([position.coords.latitude, position.coords.longitude]);
 
         //get nearest charger location from

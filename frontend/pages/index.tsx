@@ -17,6 +17,10 @@ import TableInTest from "@/components/tableInTest/table";
 import TableOri from "@/components/ortable/table";
 import LandingBanner from "@/components/LandingBanner";
 
+// External UI libraries to upgrade user experience
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import MapView from "@/components/tableInTest/mapView";
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
@@ -24,7 +28,6 @@ export default function IndexPage() {
   return (
     <DefaultLayout>
       <section className="h-full py-4 md:py-6 w-full">
-        {loading && <Spinner label="Loading..." color="secondary" />}
         {loggedIn ? (
           <>
             <DynamicContent />
@@ -37,9 +40,11 @@ export default function IndexPage() {
           <div className="flex relative z-20 flex-col gap-14 w-full justify-center">
             <LandingBanner />
             <UserSystem />
+            {loading && <Spinner label="Loading..." color="secondary" />}
           </div>
         )}
       </section>
+      <ToastContainer />
     </DefaultLayout>
   );
 }

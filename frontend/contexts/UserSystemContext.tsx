@@ -80,7 +80,11 @@ export const UserSystemProvider = ({ children }: Props) => {
       console.log("Running");
       setLoggedIn(true);
     }
-    if (Cookies.get("userId")) {
+    if (
+      Cookies.get("loggedIn") === "true" &&
+      Cookies.get("userId") &&
+      Cookies.get("userName")
+    ) {
       axios
         .get(
           process.env.NEXT_PUBLIC_DEV_API_PATH +
@@ -94,7 +98,7 @@ export const UserSystemProvider = ({ children }: Props) => {
           });
         });
     }
-    if (Cookies.get("isAdmin")) {
+    if (Cookies.get("isAdmin") === "true") {
       setIsAdmin(true);
     }
   }, []);
@@ -117,8 +121,10 @@ export const UserSystemProvider = ({ children }: Props) => {
 
   const logout = () => {
     console.log("logout");
+    Cookies.remove("email");
     Cookies.remove("loggedIn");
     Cookies.remove("userId");
+    Cookies.remove("userName");
     Cookies.remove("isAdmin");
     setUser(null);
     setIsAdmin(false);

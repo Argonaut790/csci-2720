@@ -174,8 +174,11 @@ const GoogleMaps = ({
 
 const AllDataPoints = () => {
   return (
-    <div className="flex flex-col gap-6 max-h-screen">
-      <h1 className=" text-4xl"> All Data Points</h1>
+    <div id="AllDataPointsSection" className="flex flex-col gap-6 h-5/6 mb-20">
+      <h1 className="text-7xl lg:h-20 mb-6 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        {" "}
+        All Data Points
+      </h1>
       <div className="">
         <GoogleMapsWrapper>
           <GoogleMaps locations={LOCATIONS} />

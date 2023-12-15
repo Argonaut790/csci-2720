@@ -5,7 +5,7 @@ import { Input, Button, Card, CardBody } from "@nextui-org/react";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import { toast } from "react-toastify";
 import { useTheme } from "next-themes";
-
+import { EyeSlashFilledIcon, EyeFilledIcon } from "./icons";
 // interface SignUpModalProps {
 //   setShowModal: (show: boolean) => void;
 // }
@@ -32,6 +32,11 @@ const SignUpModal: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const toggleConfirmPasswordVisibility = () =>
+    setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
 
   // const captchaRef = useRef<ReCAPTCHA>(null);
 
@@ -98,6 +103,13 @@ const SignUpModal: React.FC = () => {
     const isValidPassword = validatePassword();
     const isValidConfirmPassword = validateConfirmPassword();
 
+    console.log("Input validation result: ", [
+      isValidEmail,
+      isValidUsername,
+      isValidPassword,
+      isValidConfirmPassword,
+    ]);
+
     if (isValidEmail && isValidUsername && isValidPassword && isValidConfirmPassword) {
       setFormResult({
         email: "",
@@ -108,10 +120,18 @@ const SignUpModal: React.FC = () => {
       createAccount();
     } else {
       console.log();
+      toast.error("Please check again your input", {
+        position: "bottom-right",
+        autoClose: 2500,
+        hideProgressBar: false,
+        theme: theme == "light" ? "light" : "dark",
+      });
       setFormResult({
         email: isValidEmail ? "" : "Please enter a valid email",
-        username: isValidUsername ? "" : "Please enter a valid username",
-        password: isValidPassword ? "" : "You password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number",
+        username: isValidUsername ? "" : "Please enter a username within 8 characters",
+        password: isValidPassword
+          ? ""
+          : "You password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number",
         confirmPassword: isValidConfirmPassword ? "" : "You password must be same as above",
       });
     }
@@ -142,7 +162,6 @@ const SignUpModal: React.FC = () => {
         />
         <Input
           // isRequired
-          type="password"
           variant={"underlined"}
           label="Password"
           ref={passwordRef}
@@ -154,14 +173,25 @@ const SignUpModal: React.FC = () => {
             });
           }}
           description={
-            passwordOnFocus ? "Your password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number" : ""
+            passwordOnFocus
+              ? "Your password must have at least 8 charcacters, including 1 uppercase, 1 lowercase and 1 number"
+              : ""
           }
           errorMessage={formResult.password}
+          endContent={
+            <button className="focus:outline-none" type="button" onClick={togglePasswordVisibility}>
+              {isPasswordVisible ? (
+                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              ) : (
+                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              )}
+            </button>
+          }
+          type={isPasswordVisible ? "text" : "password"}
           // className="pb-0"
         />
         <Input
           // isRequired
-          type="password"
           variant={"underlined"}
           label="Confirm Password"
           ref={confirmPasswordRef}
@@ -169,15 +199,38 @@ const SignUpModal: React.FC = () => {
             setLastTouch(true);
           }}
           errorMessage={formResult.confirmPassword}
+          endContent={
+            <button
+              className="focus:outline-none"
+              type="button"
+              onClick={toggleConfirmPasswordVisibility}
+            >
+              {isConfirmPasswordVisible ? (
+                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              ) : (
+                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              )}
+            </button>
+          }
+          type={isConfirmPasswordVisible ? "text" : "password"}
           // className="pb-4"
         />
-        <div className="w-full pt-4 opacity-80 flex justify-between">
+        <div className="w-full pt-4 opacity-80 flex justify-between text-sm">
           Already have an account?
-          <span className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold" onClick={() => toggleLoginModalOn()}>
+          <span
+            className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
+            onClick={() => toggleLoginModalOn()}
+          >
             Login here
           </span>
         </div>
-        <Button className="w-full mt-4" variant="faded" type="submit" size="md" isDisabled={!lastTouch}>
+        <Button
+          className="w-full mt-4"
+          variant="faded"
+          type="submit"
+          size="md"
+          isDisabled={!lastTouch}
+        >
           Sign Up
         </Button>
       </form>

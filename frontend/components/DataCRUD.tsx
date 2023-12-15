@@ -58,10 +58,12 @@ const DataCRUD = () => {
   ];
 
   return (
-    <div className="py-8">
+    <div id="DataCRUDSection" className="py-8 gap-6 h-5/6 mb-20">
+      <h1 className="text-7xl flex justify-end lg:h-20 mb-6 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        Data CRUD
+      </h1>
       <Table
         isStriped
-        removeWrapper
         aria-label="Example table with dynamic content"
         bottomContent={
           <div className="flex w-full justify-center">
@@ -78,9 +80,7 @@ const DataCRUD = () => {
         }
       >
         <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
+          {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
         </TableHeader>
         <TableBody items={items}>
           {(item) => (
@@ -101,11 +101,6 @@ const DataCRUD = () => {
           )}
         </TableBody>
       </Table>
-
-
-
-
-
     </div>
   );
 };

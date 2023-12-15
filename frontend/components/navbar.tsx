@@ -12,7 +12,8 @@ import {
   NavbarMenuItem,
 } from "@nextui-org/react";
 
-import { link as linkStyles } from "@nextui-org/theme";
+import { Link as ReactScrollLink } from "react-scroll";
+import { useUserSystem } from "@contexts/UserSystemContext";
 
 import { siteConfig } from "@/config/site";
 import NextLink from "next/link";
@@ -26,17 +27,23 @@ import {
   DiscordIcon,
   HeartFilledIcon,
   SearchIcon,
+  NextUILogo,
+  Logo,
+  LogoDark,
 } from "@/components/icons";
-import { useUserSystem } from "@contexts/UserSystemContext";
-import { Logo } from "@/components/icons";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import axios from "axios";
 import { Cookie } from "next/font/google";
 
+import { useTheme } from "next-themes";
+
 export const Navbar = () => {
-  const { user, loggedIn, logout } = useUserSystem();
+  const { theme, setTheme } = useTheme();
+  const { user, loggedIn, isadmin, logout, getLoginUser } = useUserSystem();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  console.log("navbar", user);
 
   const searchInput = (
     <Input
@@ -60,19 +67,133 @@ export const Navbar = () => {
   );
 
   return (
+    // container mx-auto max-w-7xl px-6 flex-grow
     <NextUINavbar
+      className="w-full h-max sticky top-0 z-50"
+      classNames={{
+        item: [
+          "flex",
+          "relative",
+          "h-full",
+          "items-center",
+          "data-[active=true]:after:content-['']",
+          "data-[active=true]:after:absolute",
+          "data-[active=true]:after:bottom-0",
+          "data-[active=true]:after:left-0",
+          "data-[active=true]:after:right-0",
+          "data-[active=true]:after:h-[2px]",
+          "data-[active=true]:after:rounded-[2px]",
+          "data-[active=true]:after:bg-primary",
+        ],
+      }}
       isBordered
       isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
+      maxWidth="xl"
     >
-      <NavbarContent className="hidden sm:flex gap-4" justify="start">
+      <NavbarContent className="hidden sm:flex gap-6" justify="start">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         />
         <NavbarBrand>
-          <Logo />
+          {theme === "dark" ? <Logo /> : <LogoDark />}
           <p className="font-bold text-inherit">EC2Find@HK</p>
         </NavbarBrand>
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden md:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
+          >
+            <ReactScrollLink
+              to="AllDataPointsSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              All Data Points
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden md:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
+          >
+            <ReactScrollLink
+              to="districtmapsection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              District Map
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden md:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
+          >
+            <ReactScrollLink
+              to="NearestChargerSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              Nearest Charger
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden lg:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
+          >
+            <ReactScrollLink
+              to="DataCRUDSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              Data CRUD
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {isadmin && (
+          <NavbarItem
+            className={`hidden lg:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
+          >
+            <ReactScrollLink
+              to="UserCRUDSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              User CRUD
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
       </NavbarContent>
 
       <NavbarContent className="sm:hidden" justify="start">
@@ -83,7 +204,7 @@ export const Navbar = () => {
 
       <NavbarContent className="sm:hidden" justify="center">
         <NavbarBrand>
-          <Logo />
+          {theme === "dark" ? <Logo /> : <LogoDark />}
           <p className="font-bold text-inherit">EC2Find @HK</p>
         </NavbarBrand>
       </NavbarContent>
@@ -104,22 +225,100 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarMenu className="gap-10">
-        <NavbarMenuItem>
-          <Link
-            isExternal
-            className="w-full flex justify-center items-center gap-2"
-            color="foreground"
-            href={siteConfig.links.github}
-            size="lg"
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >
-            <GithubIcon className="text-default-500 m-1" />
-            <p>GitHub Documentation</p>
-          </Link>
-        </NavbarMenuItem>
+            <ReactScrollLink
+              to="AllDataPointsSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              All Data Points
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
+          >
+            <ReactScrollLink
+              to="districtmapsection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              District Map
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
+          >
+            <ReactScrollLink
+              to="NearestChargerSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              Nearest Charger
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
+          >
+            <ReactScrollLink
+              to="DataCRUDSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              Data CRUD
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {isadmin && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
+          >
+            <ReactScrollLink
+              to="UserCRUDSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              User CRUD
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
         {loggedIn && (
           <NavbarMenuItem>
             <Button
-              className="w-full flex justify-center items-center"
+              className="w-full flex justify-center items-center "
               color="danger"
               size="lg"
               onClick={() => {
@@ -131,6 +330,25 @@ export const Navbar = () => {
             </Button>
           </NavbarMenuItem>
         )}
+        <NavbarMenuItem>
+          <Link
+            isExternal
+            className="w-full flex justify-center items-center gap-2"
+            color="foreground"
+            href={siteConfig.links.github}
+            size="lg"
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
+          >
+            <GithubIcon className="text-default-500 m-1" />
+            <p>GitHub Documentation</p>
+          </Link>
+        </NavbarMenuItem>
+        <p className="text-sm text-default-400 flex justify-center">
+          {" "}
+          Powered By NextUI{" "}
+        </p>
       </NavbarMenu>
     </NextUINavbar>
   );

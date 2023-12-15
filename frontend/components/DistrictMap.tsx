@@ -309,8 +309,10 @@ const DistrictMap = () => {
   };
 
   return (
-    <div className=" flex flex-col gap-6 max-h-screen">
-      <h1 className=" text-4xl flex justify-end">Get Charger by District</h1>
+    <div id="districtmapsection" className=" flex flex-col gap-6 mb-20">
+      <h1 className="flex justify-end text-7xl lg:h-20 mb-6 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        Get Charger by District
+      </h1>
       <div className="flex flex-row">
         <div className="w-1/3 flex flex-col justify-center items-center">
           <Select

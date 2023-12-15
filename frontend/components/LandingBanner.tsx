@@ -20,18 +20,16 @@ export function LandingBanner() {
           </span>
         </Link>
       </div>
-      <div className="text-center leading-8 md:leading-10 md:text-left">
-        <div className="inline-block h-12">
-          <div className="flex">
-            <h1 className="tracking-tight font-semibold text-[2.1rem] lg:text-5xl">Find &nbsp;</h1>
-            <h1 className="animate-bounce tracking-tight font-semibold from-[#FF1CF7] to-[#b249f8] text-[2.1rem] lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b">
-              Best &nbsp;
-            </h1>
-          </div>
+      <div className="text-center leading-11 md:leading-14 md:text-left">
+        <div className="flex flex-wrap justify-center">
+          <h1 className=" ltracking-tight font-semibold text-[3rem] lg:text-5xl">Find&nbsp;</h1>
+          <h1 className="animate-bounce tracking-tight font-semibold from-[#FF1CF7] to-[#b249f8] text-[3rem] lg:text-5xl bg-clip-text text-transparent bg-gradient-to-b">
+            Best&nbsp;
+          </h1>
+          <h1 className="tracking-tight font-semibold text-[3rem] lg:text-5xl">
+            Electric Charger Seamlessly
+          </h1>
         </div>
-        <h1 className="inline tracking-tight font-semibold text-[2.1rem] lg:text-5xl">
-          Electric Vehicle Charging Station
-        </h1>
       </div>
     </>
   );

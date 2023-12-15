@@ -18,11 +18,6 @@ const LoginModal = () => {
   const [emailResult, setEmailResult] = useState<string>("");
   const [passwordResult, setPasswordResult] = useState<string>("");
 
-  useEffect(() => {
-    emailRef.current?.focus();
-    emailRef.current!.value = Cookies.get("email") + " " ?? "";
-  }, []);
-
   //   const navigate = useNavigate();
   //   const result = document.getElementById("result")!;
   const {
@@ -49,8 +44,6 @@ const LoginModal = () => {
         if (res.status === 200) {
           setEmailResult("");
           setPasswordResult("");
-          Cookies.set("loggedIn", "true");
-          Cookies.set("userId", res.data.userId);
 
           if (res.data.isAdmin) {
             Cookies.set("isAdmin", "true");
@@ -135,7 +128,6 @@ const LoginModal = () => {
           variant={"underlined"}
           label="Email"
           ref={emailRef}
-          placeholder={emailRef.current?.value + " " ?? ""}
           onFocus={() => setEmailResult("")}
           errorMessage={emailResult}
           // className="pb-4"
@@ -164,7 +156,7 @@ const LoginModal = () => {
           type={isVisible ? "text" : "password"}
           // className="pb-4"
         />
-        <div className="w-full opacity-80 flex justify-between">
+        <div className="w-full opacity-80 flex justify-between text-sm">
           Don&apos;t have an account?{" "}
           <span
             className=" text-sky-600 underline hover:cursor-pointer hover:font-semibold"
