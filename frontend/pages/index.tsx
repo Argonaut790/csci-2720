@@ -21,10 +21,6 @@ import LandingBanner from "@/components/LandingBanner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// External UI libraries to upgrade user experience
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import MapView from "@/components/tableInTest/mapView";
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
