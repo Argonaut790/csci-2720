@@ -33,7 +33,7 @@ interface UserSystemContextValue {
   loading: boolean;
   loggedIn: boolean;
   isadmin: boolean;
-  user: userProps;
+  user: userProps | null;
   showSignUpModal: boolean;
   showLoginModal: boolean;
   showForgotPasswordModal: boolean;
@@ -41,13 +41,12 @@ interface UserSystemContextValue {
   toggleLoadingOff: () => void;
   toggleLoggedInOn: () => void;
   toggleIsAdminOn: () => void;
-  logout: () => void;
   toggleSignUpModalOn: () => void;
   toggleLoginModalOn: () => void;
   toggleForgotPasswordModalOn: () => void;
   toggleAllOff: () => void;
-  getLoginUser: () => userProps;
-  setLoginUser: (userId: string, userName: string) => void;
+  logout: () => void;
+  setUser: Dispatch<SetStateAction<userProps | null>>;
 }
 
 interface userProps {
@@ -55,7 +54,9 @@ interface userProps {
   userId: string;
 }
 
-const UserSystemContext = createContext<UserSystemContextValue>({} as UserSystemContextValue);
+const UserSystemContext = createContext<UserSystemContextValue>(
+  {} as UserSystemContextValue
+);
 //global method of passing variable to provent param drill in every layer
 
 export const useUserSystem = () => useContext(UserSystemContext);
@@ -64,7 +65,7 @@ export const UserSystemProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [isadmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<userProps>({ username: "", userId: "" });
+  const [user, setUser] = useState<userProps | null>(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
@@ -79,9 +80,17 @@ export const UserSystemProvider = ({ children }: Props) => {
       console.log("Running");
       setLoggedIn(true);
     }
-    if (Cookies.get("loggedIn") === "true" && Cookies.get("userId") && Cookies.get("userName")) {
+    if (
+      Cookies.get("loggedIn") === "true" &&
+      Cookies.get("userId") &&
+      Cookies.get("userName")
+    ) {
       axios
-        .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + Cookies.get("userId"))
+        .get(
+          process.env.NEXT_PUBLIC_DEV_API_PATH +
+            "account/" +
+            Cookies.get("userId")
+        )
         .then((res) => {
           setUser({
             username: res.data.username ?? "",
@@ -110,20 +119,6 @@ export const UserSystemProvider = ({ children }: Props) => {
     setIsAdmin(true);
   };
 
-  const setLoginUser = (userId: string, username: string) => {
-    setUser({
-      userId: userId,
-      username: username,
-    });
-    Cookies.set("loggedIn", "true");
-    Cookies.set("userId", userId);
-    Cookies.set("userName", username);
-  };
-
-  const getLoginUser = () => {
-    return user;
-  };
-
   const logout = () => {
     console.log("logout");
     Cookies.remove("email");
@@ -131,7 +126,7 @@ export const UserSystemProvider = ({ children }: Props) => {
     Cookies.remove("userId");
     Cookies.remove("userName");
     Cookies.remove("isAdmin");
-    setUser({ username: "", userId: "" });
+    setUser(null);
     setIsAdmin(false);
     setLoggedIn(false);
   };
@@ -177,9 +172,12 @@ export const UserSystemProvider = ({ children }: Props) => {
     toggleLoginModalOn,
     toggleForgotPasswordModalOn,
     toggleAllOff,
-    getLoginUser,
-    setLoginUser,
+    setUser,
   };
 
-  return <UserSystemContext.Provider value={contextValue}>{children}</UserSystemContext.Provider>;
+  return (
+    <UserSystemContext.Provider value={contextValue}>
+      {children}
+    </UserSystemContext.Provider>
+  );
 };

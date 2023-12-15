@@ -31,9 +31,10 @@ export default function IndexPage() {
         {loggedIn ? (
           <>
             <DynamicContent />
-            <DataCRUD />
-            <TableInTest />
-            {isadmin && <UserCRUD />}
+            {/* <DataCRUD /> */}
+
+            {/* <TableOri /> */}
+            {/* {isadmin ? <UserCRUD /> : null} */}
           </>
         ) : (
           <div className="flex relative z-20 flex-col gap-14 w-full justify-center">

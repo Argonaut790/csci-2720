@@ -10,6 +10,15 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  "charger-no": {
+    type: String,
+    required: true,
+    typeKey: "_type",
+    id: true,
+    _id: true,
+    timestamps: true,
+    versionKey: true,
+  },
 });
 
 const DataSchema = new Schema({

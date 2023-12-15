@@ -25,6 +25,11 @@ interface data {
   provider: string;
   type: string;
   "lat-long": number[];
+  locationid: string;
+  comments: {
+    userid: string;
+    comment: string;
+  }[];
 }
 
 interface DistrictChargerContextValue {

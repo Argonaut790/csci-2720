@@ -92,7 +92,9 @@ export const Navbar = () => {
       maxWidth="xl"
     >
       <NavbarContent className="hidden sm:flex gap-6" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        />
         <NavbarBrand>
           {theme === "dark" ? <Logo /> : <LogoDark />}
           <p className="font-bold text-inherit">EC2Find@HK</p>
@@ -195,7 +197,9 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="sm:hidden" justify="start">
-        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        />
       </NavbarContent>
 
       <NavbarContent className="sm:hidden" justify="center">
@@ -206,11 +210,15 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          {user.username && <p className="font-bold text-inherit">Welcome! {user.username}</p>}
+        <NavbarItem className="hidden sm:flex">
+          {user?.username && (
+            <p className="font-bold text-inherit">Welcome! {user?.username}</p>
+          )}
         </NavbarItem>
-        <NavbarItem className="lg:hidden">
-          {user.username && <p className="font-bold text-inherit">Hey! {user.username}</p>}
+        <NavbarItem className="sm:hidden">
+          {user?.username && (
+            <p className="font-bold text-inherit">Hey! {user?.username}</p>
+          )}
         </NavbarItem>
 
         <ThemeSwitch />
@@ -337,7 +345,10 @@ export const Navbar = () => {
             <p>GitHub Documentation</p>
           </Link>
         </NavbarMenuItem>
-        <p className="text-sm text-default-400 flex justify-center"> Powered By NextUI </p>
+        <p className="text-sm text-default-400 flex justify-center">
+          {" "}
+          Powered By NextUI{" "}
+        </p>
       </NavbarMenu>
     </NextUINavbar>
   );

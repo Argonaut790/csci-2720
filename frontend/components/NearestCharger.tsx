@@ -1,20 +1,39 @@
-import { Input, Button, Card, CardHeader, CardBody, CardFooter, Divider } from "@nextui-org/react";
+import {
+  Input,
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Divider,
+} from "@nextui-org/react";
 import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { GoogleMapsWrapper } from "@components/GoogleMapWrapper";
 import axios from "axios";
 import { set } from "react-hook-form";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import { useNearestCharger } from "@/contexts/NearestChargerContext";
+import { SumbitIcon } from "@components/icons";
 interface Props {
   lat: number;
   lng: number;
   info: string;
 }
 
+interface nearestProps {
+  "lat-long": number[];
+  locationid: string;
+}
+
 interface GoogleMapsProps {
   className?: string;
   curCoordinate: number[];
-  nearestCoordinate: number[];
+  nearestCoordinate: nearestProps;
+}
+
+interface commentProps {
+  userid: string;
+  comment: string;
 }
 
 interface data {
@@ -47,9 +66,14 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     setNearestCoordinate,
   } = useNearestCharger();
 
-  const addLocationMarker = ({ info }: { location: number[]; info?: string }) => {
-    if (curCoordinate.length == 0 && nearestCoordinate.length == 0) return;
-    console.log("current coordinate", curCoordinate);
+  const addLocationMarker = ({
+    info,
+  }: {
+    location: number[];
+    info?: string;
+  }) => {
+    if (curCoordinate.length == 0 && nearestCoordinate["lat-long"].length == 0)
+      return;
 
     deleteMarkers(true);
 
@@ -74,7 +98,10 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     };
 
     let marker_2 = new google.maps.Marker({
-      position: { lat: nearestCoordinate[0], lng: nearestCoordinate[1] },
+      position: {
+        lat: nearestCoordinate["lat-long"][0],
+        lng: nearestCoordinate["lat-long"][1],
+      },
       icon: nearest_charger_svgMarker,
       draggable: false,
       map: map,
@@ -140,7 +167,8 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     const localUserMarker = userMarker;
     if (localUserMarker != null) localUserMarker.setMap(null);
     const localNearestChargerMarker = nearestChargerMarker;
-    if (localNearestChargerMarker != null) localNearestChargerMarker.setMap(null);
+    if (localNearestChargerMarker != null)
+      localNearestChargerMarker.setMap(null);
   };
 
   // Initialize the map
@@ -157,7 +185,11 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
   // Add markers whenever curCoordinate or nearestCoordinate changes
   useEffect(() => {
     setRenderCounter(renderCounter + 1);
-    if (map && curCoordinate.length > 0 && nearestCoordinate.length > 0) {
+    if (
+      map &&
+      curCoordinate.length > 0 &&
+      nearestCoordinate["lat-long"].length > 0
+    ) {
       console.log("Rendder Counter: " + renderCounter);
       console.log("curCoordinate: " + curCoordinate);
       console.log("nearestCoordinate: " + nearestCoordinate);
@@ -197,19 +229,51 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
   }, [map, curCoordinate, nearestCoordinate]);
 
   return (
-    <div ref={ref} style={{ width: "100%" }} className=" rounded-2xl aspect-video shadow-lg" />
+    <div
+      ref={ref}
+      style={{ width: "100%" }}
+      className=" rounded-2xl aspect-video shadow-lg"
+    />
   );
 };
 
 export const GetNearestCharger = async (lat: number, lng: number) => {
   console.log("GetNearestCharger");
-  console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "data/nearest?lat=" + lat + "&lng=" + lng);
+  console.log(
+    process.env.NEXT_PUBLIC_DEV_API_PATH +
+      "data/nearest?lat=" +
+      lat +
+      "&lng=" +
+      lng
+  );
   try {
     const res = await axios.get(
-      process.env.NEXT_PUBLIC_DEV_API_PATH + "data/nearest?lat=" + lat + "&lng=" + lng
+      process.env.NEXT_PUBLIC_DEV_API_PATH +
+        "data/nearest?lat=" +
+        lat +
+        "&lng=" +
+        lng
     );
     console.log(res.data);
-    return res.data;
+
+    // Find the nearest charger in db using no.
+
+    //       router.get("/no/:no", async (req: Request, res: Response) => {
+    //   try {
+    //     const data = await Data.find({ no: req.params.no });
+    //     res.status(200).json(data);
+    //   } catch (err) {
+    //     res.status(500).send("Failed get one data by no");
+    //   }
+    // });
+
+    const res2 = await axios.get(
+      process.env.NEXT_PUBLIC_DEV_API_PATH + "data/no/" + res.data.no
+    );
+
+    console.log(res2.data);
+
+    return res2.data;
   } catch (err) {
     console.log(err);
     return err;
@@ -217,8 +281,13 @@ export const GetNearestCharger = async (lat: number, lng: number) => {
 };
 
 const NearestCharger = () => {
-  const { curCoordinate, nearestCoordinate, extraInfo, setNearestCoordinate, setExtraInfo } =
-    useNearestCharger();
+  const {
+    curCoordinate,
+    nearestCoordinate,
+    extraInfo,
+    setNearestCoordinate,
+    setExtraInfo,
+  } = useNearestCharger();
 
   const latRef = useRef<HTMLInputElement | null>(null);
   const lngRef = useRef<HTMLInputElement | null>(null);
@@ -227,13 +296,121 @@ const NearestCharger = () => {
     //get nearest charger location from
     GetNearestCharger(curCoordinate[0], curCoordinate[1])
       .then((result) => {
-        setNearestCoordinate(result["lat-long"]);
+        console.log("RESULT ");
+        console.log(result);
+        setNearestCoordinate({
+          "lat-long": result["lat-long"],
+          locationid: result["locationid"],
+        });
         console.log("Context Updated the NearestCoor " + result);
         setExtraInfo(result);
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const commentRef = useRef<HTMLInputElement | null>(null);
+  const [commentsList, setCommentsList] = useState<commentProps[]>([]);
+  const { user } = useUserSystem();
+
+  useEffect(() => {
+    console.log(nearestCoordinate);
+    GetNearestCommentsList();
+  }, [nearestCoordinate]);
+
+  const GetNearestCommentsList = () => {
+    // router.get("/comments/:chargerId", async (req: Request, res: Response) => {
+    //   try {
+    //     const data = await Data.find({ locationid: req.params.chargerId });
+    //     res.status(200).json(data[0].comments);
+    //   } catch (err) {
+    //     res.status(500).send("Failed get comments by chargerId");
+    //   }
+    // });
+    if (
+      nearestCoordinate.locationid === "" ||
+      !nearestCoordinate.locationid ||
+      nearestCoordinate.locationid === undefined
+    ) {
+      return;
+    }
+    console.log(nearestCoordinate.locationid);
+    axios
+      .get(
+        process.env.NEXT_PUBLIC_DEV_API_PATH +
+          "data/comments/" +
+          nearestCoordinate?.locationid
+      )
+      .then((res) => {
+        console.log("Comments List: ");
+        console.log(res.data);
+        setCommentsList(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleCommentSubmit = () => {
+    // router.post("/comments/:chargerId", async (req: Request, res: Response) => {
+    //   try {
+    //     const updatedData = await Data.updateOne(
+    //       { locationid: req.params.chargerId },
+    //       {
+    //         $push: {
+    //           comments: {
+    //             userid: req.body.userid,
+    //             comment: req.body.comment,
+    //           },
+    //         },
+    //       }
+    //     );
+    //     console.log(updatedData);
+    //     res.status(200).json(updatedData);
+    //   } catch (err) {
+    //     res.status(500).send("Failed update one data by locationid");
+    //   }
+    // });
+    console.log(user);
+    if (!user) {
+      return;
+    }
+
+    // if content is empty return
+    if (!commentRef.current?.value) {
+      return;
+    }
+
+    if (["lat-long"].length == 0) {
+      return;
+    }
+
+    axios
+      .post(
+        process.env.NEXT_PUBLIC_DEV_API_PATH +
+          "data/comments/" +
+          nearestCoordinate?.locationid,
+        {
+          userid: user?.userId,
+          comment: commentRef.current?.value,
+        }
+      )
+      .then((res) => {
+        console.log(res.data);
+        GetNearestCommentsList();
+        // Clear the input
+        commentRef.current!.value = "";
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleCommentSubmit();
+    }
   };
 
   return (
@@ -245,7 +422,10 @@ const NearestCharger = () => {
         <div className=" flex flex-row">
           <div className=" w-2/3">
             <GoogleMapsWrapper>
-              <GoogleMaps curCoordinate={curCoordinate} nearestCoordinate={nearestCoordinate} />
+              <GoogleMaps
+                curCoordinate={curCoordinate}
+                nearestCoordinate={nearestCoordinate}
+              />
             </GoogleMapsWrapper>
           </div>
           <div className="px-10 flex flex-col gap-4 w-1/3 justify-center items-center">
@@ -255,7 +435,11 @@ const NearestCharger = () => {
               label="Latitude"
               // placeholder="22.419373049191574"
               variant="underlined"
-              value={curCoordinate && curCoordinate[0].toString()}
+              value={
+                curCoordinate != undefined && curCoordinate[0]
+                  ? curCoordinate[0].toString()
+                  : undefined
+              }
               labelPlacement="outside"
               readOnly
               disabled
@@ -272,7 +456,11 @@ const NearestCharger = () => {
               label="Longtitude"
               // placeholder="114.20637130715477"
               variant="underlined"
-              value={curCoordinate && curCoordinate[1].toString()}
+              value={
+                curCoordinate != undefined && curCoordinate[1]
+                  ? curCoordinate[1].toString()
+                  : undefined
+              }
               labelPlacement="outside"
               readOnly
               disabled
@@ -283,7 +471,9 @@ const NearestCharger = () => {
               //   </div>
               // }
             />
-            <Button onClick={() => handleOnClickGetNearestLocations()}>Get Nearest Charger</Button>
+            <Button onClick={() => handleOnClickGetNearestLocations()}>
+              Get Nearest Charger
+            </Button>
           </div>
         </div>
         <div className=" grid grid-cols-3 gap-6 h-[250px]">
@@ -293,18 +483,28 @@ const NearestCharger = () => {
             </CardHeader>
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70">
-              Latitude: {curCoordinate && curCoordinate[0]}
+              Latitude:{" "}
+              {curCoordinate != undefined && curCoordinate[0]
+                ? curCoordinate[0].toString()
+                : undefined}
               <br />
-              Longtitude: {curCoordinate && curCoordinate[1]}
+              Longtitude:{" "}
+              {curCoordinate != undefined && curCoordinate[1]
+                ? curCoordinate[1].toString()
+                : undefined}
             </CardBody>
             <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
               <h4 className="font-bold text-large">Nearest Charger Location</h4>
             </CardHeader>
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70">
-              Latitude: {nearestCoordinate && nearestCoordinate[0]}
+              Latitude:{" "}
+              {nearestCoordinate["lat-long"].length != 0 &&
+                nearestCoordinate["lat-long"][0]}
               <br />
-              Longtitude: {nearestCoordinate && nearestCoordinate[1]}
+              Longtitude:{" "}
+              {nearestCoordinate["lat-long"].length != 0 &&
+                nearestCoordinate["lat-long"][1]}
             </CardBody>
           </Card>
           <Card className="py-4">
@@ -319,6 +519,7 @@ const NearestCharger = () => {
               <span>Parking Notes: {extraInfo?.["parking-no"] || "None"}</span>
               <span>Provider: {extraInfo?.["provider"] || "None"}</span>
               <span>Type: {extraInfo?.["type"] || "None"}</span>
+              <span>No: {extraInfo?.["no"] || "None"}</span>
             </CardBody>
           </Card>
           <Card className="py-4 h-full pb-0">
@@ -326,36 +527,52 @@ const NearestCharger = () => {
               <h4 className="font-bold text-large">Comments</h4>
             </CardHeader>
             <Divider />
-            <CardBody className="overflow-visible py-2 opacity-70 overflow-y-scroll h-full">
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-              <p> Testing Comment</p>
-            </CardBody>
-            <Divider />
-            <CardFooter className=" p-0">
-              <Input
-                type="text"
-                label="Comment"
-                // placeholder="Write your Comment"
-                className=" py-4 px-2 "
-                variant="underlined"
-              />
-            </CardFooter>
+            {nearestCoordinate ? (
+              <>
+                <CardBody className="overflow-visible py-2 opacity-70 overflow-y-scroll h-full">
+                  {commentsList.length === 0 && (
+                    <div className="flex h-full justify-center items-center">
+                      No Comments Yet!
+                    </div>
+                  )}
+
+                  {[...commentsList]
+                    .reverse()
+                    .map((comment: commentProps, key) => (
+                      <div className="flex flex-col gap-2" key={key}>
+                        <span>
+                          #{comment.userid}: {comment.comment}
+                        </span>
+                        <Divider />
+                      </div>
+                    ))}
+                </CardBody>
+                <Divider />
+                <CardFooter className=" p-0">
+                  <Input
+                    type="text"
+                    label="Comment"
+                    // placeholder="Write your Comment"
+                    className=" py-4 px-2 "
+                    variant="underlined"
+                    ref={commentRef}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <Button
+                    isIconOnly
+                    aria-label="Submit Comment"
+                    variant="faded"
+                    onClick={handleCommentSubmit}
+                  >
+                    <SumbitIcon />
+                  </Button>
+                </CardFooter>
+              </>
+            ) : (
+              <CardBody className="py-2 opacity-70 flex justify-center items-center">
+                Select a charger to view comments
+              </CardBody>
+            )}
           </Card>
         </div>
       </div>

@@ -86,9 +86,11 @@ const UserCRUD = () => {
         console.log(res);
       })
       .then(() => {
-        axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account").then((res) => {
-          setAccounts(res.data);
-        });
+        axios
+          .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account")
+          .then((res) => {
+            setAccounts(res.data);
+          });
       })
       .then(() => {
         toast.success("Success remove account", {
@@ -176,10 +178,15 @@ const UserCRUD = () => {
       if (username !== "" && password !== "") {
         // Update the user info
         axios
-          .patch(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + targetAccount!.userId, {
-            username: username,
-            password: password,
-          })
+          .patch(
+            process.env.NEXT_PUBLIC_DEV_API_PATH +
+              "account/" +
+              targetAccount!.userId,
+            {
+              username: username,
+              password: password,
+            }
+          )
           .then((res) => {
             const currentUserId = Cookies.get("userId");
             if (
@@ -194,9 +201,11 @@ const UserCRUD = () => {
             }
           })
           .then(() => {
-            axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account").then((res) => {
-              setAccounts(res.data);
-            });
+            axios
+              .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account")
+              .then((res) => {
+                setAccounts(res.data);
+              });
           })
           .then(() => {
             toast.success("Success update account", {
@@ -304,7 +313,10 @@ const UserCRUD = () => {
   };
 
   return (
-    <div id="UserCRUDSection" className="flex flex-col gap-6 mt-20 mb-20 w-full relative">
+    <div
+      id="UserCRUDSection"
+      className="flex flex-col gap-6 mt-20 mb-20 w-full relative"
+    >
       <ModalView />
       <h1 className="flex justify-start text-7xl lg:h-20 mb-2 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
         User CRUD
@@ -340,13 +352,17 @@ const UserCRUD = () => {
           }
         >
           <TableHeader columns={columns}>
-            {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+            {(column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            )}
           </TableHeader>
           <TableBody items={items}>
             {(item) => (
               <TableRow key={item.userId}>
                 {(columnKey: Key) => (
-                  <TableCell>{renderCell(item, columnKey as keyof data)}</TableCell>
+                  <TableCell>
+                    {renderCell(item, columnKey as keyof data)}
+                  </TableCell>
                 )}
               </TableRow>
             )}

@@ -6,7 +6,11 @@ import { LOCATIONS } from "@components/UpdateData";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import axios from "axios";
 import NearestCharger from "@components/NearestCharger";
-import DistrictMap from "./DistrictMap";
+import DistrictMap from "@components/DistrictMap";
+import TableInTest from "@components/tableInTest/table";
+import { useUserSystem } from "@/contexts/UserSystemContext";
+import UserCRUD from "@components/UserCRUD";
+import { useAllDataPoints } from "@/contexts/AllDataPointsContext";
 interface Props {
   lat: number;
   lng: number;
@@ -64,7 +68,11 @@ const addLocationMarker = ({
   });
 };
 
-const addChargerMarker = ({ map }: { map: google.maps.Map | null | undefined }) => {
+const addChargerMarker = ({
+  map,
+}: {
+  map: google.maps.Map | null | undefined;
+}) => {
   axios
     .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "data")
     .then((res) => {
@@ -81,9 +89,11 @@ const addChargerMarker = ({ map }: { map: google.maps.Map | null | undefined }) 
       };
 
       // from res.data only filter out the lat-long
-      const locations: ReadonlyArray<google.maps.LatLngLiteral> = res.data.map((position: data) => {
-        return { lat: position["lat-long"][0], lng: position["lat-long"][1] };
-      });
+      const locations: ReadonlyArray<google.maps.LatLngLiteral> = res.data.map(
+        (position: data) => {
+          return { lat: position["lat-long"][0], lng: position["lat-long"][1] };
+        }
+      );
 
       const markers = locations.map((position) => {
         let marker = new google.maps.Marker({
@@ -111,11 +121,19 @@ const addChargerMarker = ({ map }: { map: google.maps.Map | null | undefined }) 
     });
 };
 
-const GoogleMaps = ({ locations, className }: { locations: Props[]; className?: string }) => {
+const GoogleMaps = ({
+  locations,
+  className,
+}: {
+  locations: Props[];
+  className?: string;
+}) => {
+  const { centerPoint, zoomRate } = useAllDataPoints();
+
   const ref = useRef<HTMLDivElement | null>(null);
-  const DEFAULT_CENTER = { lat: 22.36055048544373, lng: 114.12749704182502 };
-  const DEFAULT_ZOOM = 11;
-  const [curCoordinate, setCurCoordinate] = useState([22.419373049191574, 114.20637130715477]);
+  const [curCoordinate, setCurCoordinate] = useState([
+    22.419373049191574, 114.20637130715477,
+  ]);
 
   useEffect(() => {
     //user location
@@ -134,8 +152,8 @@ const GoogleMaps = ({ locations, className }: { locations: Props[]; className?: 
     // Display the map
     if (ref.current) {
       const map = new window.google.maps.Map(ref.current, {
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
+        center: { lat: centerPoint[0], lng: centerPoint[1] },
+        zoom: zoomRate,
       });
       // Displays single markers on map when called
       addLocationMarker({ locations, map });
@@ -143,10 +161,14 @@ const GoogleMaps = ({ locations, className }: { locations: Props[]; className?: 
     }
 
     console.log("location set");
-  }, [ref, locations]);
+  }, [ref, locations, centerPoint]);
 
   return (
-    <div ref={ref} style={{ width: "100%" }} className=" rounded-2xl aspect-video shadow-lg" />
+    <div
+      ref={ref}
+      style={{ width: "100%" }}
+      className=" rounded-2xl aspect-video shadow-lg"
+    />
   );
 };
 
@@ -167,11 +189,15 @@ const AllDataPoints = () => {
 };
 
 const MapContent = () => {
+  const { isadmin } = useUserSystem();
+
   return (
-    <div className="w-100 mx-auto max-w-7xl flex flex-col gap-4">
+    <div className="w-100 mx-auto max-w-7xl flex flex-col gap-8">
       <AllDataPoints />
+      <TableInTest />
       <DistrictMap />
       <NearestCharger />
+      {isadmin && <UserCRUD />}
     </div>
   );
 };
