@@ -433,7 +433,11 @@ const NearestCharger = () => {
               label="Latitude"
               // placeholder="22.419373049191574"
               variant="underlined"
-              value={curCoordinate && curCoordinate[0].toString()}
+              value={
+                curCoordinate != undefined && curCoordinate[0]
+                  ? curCoordinate[0].toString()
+                  : undefined
+              }
               labelPlacement="outside"
               readOnly
               disabled
@@ -450,7 +454,11 @@ const NearestCharger = () => {
               label="Longtitude"
               // placeholder="114.20637130715477"
               variant="underlined"
-              value={curCoordinate && curCoordinate[1].toString()}
+              value={
+                curCoordinate != undefined && curCoordinate[1]
+                  ? curCoordinate[1].toString()
+                  : undefined
+              }
               labelPlacement="outside"
               readOnly
               disabled
@@ -473,9 +481,15 @@ const NearestCharger = () => {
             </CardHeader>
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70">
-              Latitude: {curCoordinate && curCoordinate[0]}
+              Latitude:{" "}
+              {curCoordinate != undefined && curCoordinate[0]
+                ? curCoordinate[0].toString()
+                : undefined}
               <br />
-              Longtitude: {curCoordinate && curCoordinate[1]}
+              Longtitude:{" "}
+              {curCoordinate != undefined && curCoordinate[1]
+                ? curCoordinate[1].toString()
+                : undefined}
             </CardBody>
             <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
               <h4 className="font-bold text-large">Nearest Charger Location</h4>
@@ -503,6 +517,7 @@ const NearestCharger = () => {
               <span>Parking Notes: {extraInfo?.["parking-no"] || "None"}</span>
               <span>Provider: {extraInfo?.["provider"] || "None"}</span>
               <span>Type: {extraInfo?.["type"] || "None"}</span>
+              <span>No: {extraInfo?.["no"] || "None"}</span>
             </CardBody>
           </Card>
           <Card className="py-4 h-full pb-0">

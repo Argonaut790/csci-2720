@@ -43,6 +43,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 // import MapContent from "../MapContent"
 import MapView from "./mapView";
+import { useAllDataPoints } from "@/contexts/AllDataPointsContext";
 interface dataShape {
   _id: { $oid: string };
   "district-s-en": string;
@@ -154,6 +155,8 @@ export default function TableInTest() {
 
   const [page, setPage] = React.useState(1);
 
+  const { setCenterPoint, setZoomRate } = useAllDataPoints();
+
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = React.useMemo(() => {
@@ -247,6 +250,20 @@ export default function TableInTest() {
     return sortedItems.slice(start, end);
   }, [page, filteredItems, sortedItems, rowsPerPage]);
 
+  const viewLoca = async (number: string) => {
+    await axios
+      .get("http://localhost:5500/data/no/" + number.toString())
+      .then((res) => {
+        setCenterPoint(res.data["lat-long"]);
+        setZoomRate(16);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return;
+  };
+
   const deleteLoca = async (number: string) => {
     // console.log("deleting here", no)
     // console.log("number to delete is ", number);
@@ -263,7 +280,7 @@ export default function TableInTest() {
     }
   };
 
-  const editLoca = async (no: string) => {
+  const editLoca = (no: string) => {
     // console.log("number to edit is ", no);
 
     setIsOpenModal1(true);
@@ -348,7 +365,9 @@ export default function TableInTest() {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu>
-                    <DropdownItem>Viewinging</DropdownItem>
+                    <DropdownItem onClick={() => viewLoca(data.no)}>
+                      View
+                    </DropdownItem>
                     <DropdownItem onClick={() => editLoca(data.no)}>
                       Edit
                     </DropdownItem>
@@ -493,9 +512,9 @@ export default function TableInTest() {
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
+              <option defaultValue="5">5</option>
+              <option defaultValue="10">10</option>
+              <option defaultValue="15">15</option>
             </select>
           </label>
         </div>
@@ -669,7 +688,7 @@ export default function TableInTest() {
         >
           <ModalContent>
             {(onClose) => (
-              <form onSubmit={onSubmit} className="overflwo">
+              <form onSubmit={onSubmit} className="overflow">
                 <ModalHeader className="flex flex-col gap-1">
                   New Location
                 </ModalHeader>
@@ -679,7 +698,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="District Small"
                     // defaultValue={editingData?.username}
-                    // value="North Point"
+                    defaultValue="Shatin"
                     placeholder="eg. shatin"
                     isRequired
                     ref={updatedDistSmallNameRef}
@@ -689,7 +708,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="District Large"
                     // defaultValue={editingData?.username}
-                    value="New Territories"
+                    defaultValue="New Territories"
                     placeholder="eg.New Territories"
                     isRequired
                     ref={updatedDistLargeNameRef}
@@ -699,7 +718,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="Location Name"
                     // defaultValue={editingData?.username}
-                    value="Hong Kong Science Park"
+                    defaultValue="Hong Kong Science Park"
                     placeholder="eg. Hong Kong Science Park"
                     isRequired
                     ref={updatedLocationNameRef}
@@ -709,7 +728,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="Address Name"
                     placeholder="eg. Hong Kong Science Park Carpark P2, B/F,"
-                    value="Hong Kong Science Park Carpark P2, B/F,"
+                    defaultValue="Hong Kong Science Park Carpark P2, B/F,"
                     isRequired
                     ref={updatedAddressNameRef}
                   />
@@ -775,7 +794,7 @@ export default function TableInTest() {
                     type="text"
                     variant={"underlined"}
                     label="parking number"
-                    value="D104"
+                    defaultValue="D104"
                     isRequired
                     ref={updatedParkingNumberRef}
                   />
@@ -783,7 +802,7 @@ export default function TableInTest() {
                     type="text"
                     variant={"underlined"}
                     label="Type"
-                    value="Quick"
+                    defaultValue="Quick"
                     placeholder="eg. Quick"
                     isRequired
                     ref={updatedTypeRef}
@@ -793,7 +812,7 @@ export default function TableInTest() {
                     type="text"
                     variant={"underlined"}
                     label="provider"
-                    value="CLP"
+                    defaultValue="CLP"
                     isRequired
                     ref={updatedProviderRef}
                   />
@@ -925,7 +944,33 @@ export default function TableInTest() {
                         Edit
                     </Button> */}
         </div>
-        <Modal backdrop="opaque" isOpen={isOpenModal1} onClose={onClose}>
+        <Modal
+          onOpenChange={onOpenChange}
+          backdrop="opaque"
+          isOpen={isOpenModal1}
+          onClose={onClose}
+          placement="center"
+          motionProps={{
+            variants: {
+              enter: {
+                y: 0,
+                opacity: 1,
+                transition: {
+                  duration: 0.3,
+                  ease: "easeOut",
+                },
+              },
+              exit: {
+                y: -20,
+                opacity: 0,
+                transition: {
+                  duration: 0.2,
+                  ease: "easeIn",
+                },
+              },
+            },
+          }}
+        >
           <ModalContent>
             {(onClose) => (
               <form onSubmit={onSubmit} className="overflwo">
@@ -938,7 +983,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="District Small"
                     // defaultValue={editingData?.username}
-                    // value="North Point"
+                    // defaultValue="North Point"
                     placeholder="eg. shatin"
                     isRequired
                     ref={updatedDistSmallNameRef}
@@ -948,7 +993,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="District Large"
                     // defaultValue={editingData?.username}
-                    value="New Territories"
+                    defaultValue="New Territories"
                     placeholder="eg.New Territories"
                     isRequired
                     ref={updatedDistLargeNameRef}
@@ -958,7 +1003,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="Location Name"
                     // defaultValue={editingData?.username}
-                    value="Hong Kong Science Park"
+                    defaultValue="Hong Kong Science Park"
                     placeholder="eg. Hong Kong Science Park"
                     isRequired
                     ref={updatedLocationNameRef}
@@ -968,7 +1013,7 @@ export default function TableInTest() {
                     variant={"underlined"}
                     label="Address Name"
                     placeholder="eg. Hong Kong Science Park Carpark P2, B/F,"
-                    value="Hong Kong Science Park Carpark P2, B/F,"
+                    defaultValue="Hong Kong Science Park Carpark P2, B/F,"
                     isRequired
                     ref={updatedAddressNameRef}
                   />
@@ -1034,7 +1079,7 @@ export default function TableInTest() {
                     type="text"
                     variant={"underlined"}
                     label="parking number"
-                    value="D104"
+                    defaultValue="D104"
                     isRequired
                     ref={updatedParkingNumberRef}
                   />
@@ -1042,7 +1087,7 @@ export default function TableInTest() {
                     type="text"
                     variant={"underlined"}
                     label="Type"
-                    value="Quick"
+                    defaultValue="Quick"
                     placeholder="eg. Quick"
                     isRequired
                     ref={updatedTypeRef}
@@ -1052,7 +1097,7 @@ export default function TableInTest() {
                     type="text"
                     variant={"underlined"}
                     label="provider"
-                    value="CLP"
+                    defaultValue="CLP"
                     isRequired
                     ref={updatedProviderRef}
                   />

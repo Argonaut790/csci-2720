@@ -385,9 +385,9 @@ const DistrictMap = () => {
           </CardHeader>
           <Divider />
           <CardBody className="overflow-visible py-2 opacity-70">
-            Latitude: {selectedCharger?.["lat-long"][0] || "None"}
+            {/* Latitude: {selectedCharger?.["lat-long"][0] || "None"}
             <br />
-            Longtitude: {selectedCharger?.["lat-long"][1] || "None"}
+            Longtitude: {selectedCharger?.["lat-long"][1] || "None"} */}
           </CardBody>
         </Card>
         <Card className="py-4 pb-0">

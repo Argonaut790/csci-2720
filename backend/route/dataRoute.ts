@@ -270,7 +270,7 @@ router.post("/createNewData", async (req: Request, res: Response) => {
   let data = {
     "district-s-en": `${distSmall}`,
     "location-en": `${location}`,
-    img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
+    // img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
     no: `${largestNo.toString()}`,
     "district-l-en": `${distLarge}`,
     "parking-no": `${parkingNum}`,
@@ -278,7 +278,7 @@ router.post("/createNewData", async (req: Request, res: Response) => {
     provider: `${provider}`,
     type: `${type}`,
     "lat-long": [parseFloat(lat), parseFloat(long)],
-    __v: 0,
+    locationid: uuidv4(),
   };
 
   // Check if the data already exists in the database

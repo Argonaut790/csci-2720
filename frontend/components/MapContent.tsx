@@ -6,7 +6,11 @@ import { LOCATIONS } from "@components/UpdateData";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import axios from "axios";
 import NearestCharger from "@components/NearestCharger";
-import DistrictMap from "./DistrictMap";
+import DistrictMap from "@components/DistrictMap";
+import TableInTest from "@components/tableInTest/table";
+import { useUserSystem } from "@/contexts/UserSystemContext";
+import UserCRUD from "@components/UserCRUD";
+import { useAllDataPoints } from "@/contexts/AllDataPointsContext";
 interface Props {
   lat: number;
   lng: number;
@@ -124,9 +128,9 @@ const GoogleMaps = ({
   locations: Props[];
   className?: string;
 }) => {
+  const { centerPoint, zoomRate } = useAllDataPoints();
+
   const ref = useRef<HTMLDivElement | null>(null);
-  const DEFAULT_CENTER = { lat: 22.36055048544373, lng: 114.12749704182502 };
-  const DEFAULT_ZOOM = 11;
   const [curCoordinate, setCurCoordinate] = useState([
     22.419373049191574, 114.20637130715477,
   ]);
@@ -148,8 +152,8 @@ const GoogleMaps = ({
     // Display the map
     if (ref.current) {
       const map = new window.google.maps.Map(ref.current, {
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
+        center: { lat: centerPoint[0], lng: centerPoint[1] },
+        zoom: zoomRate,
       });
       // Displays single markers on map when called
       addLocationMarker({ locations, map });
@@ -157,7 +161,7 @@ const GoogleMaps = ({
     }
 
     console.log("location set");
-  }, [ref, locations]);
+  }, [ref, locations, centerPoint]);
 
   return (
     <div
@@ -170,7 +174,7 @@ const GoogleMaps = ({
 
 const AllDataPoints = () => {
   return (
-    <div className="flex flex-col gap-6 h-screen">
+    <div className="flex flex-col gap-6 max-h-screen">
       <h1 className=" text-4xl"> All Data Points</h1>
       <div className="">
         <GoogleMapsWrapper>
@@ -182,11 +186,15 @@ const AllDataPoints = () => {
 };
 
 const MapContent = () => {
+  const { isadmin } = useUserSystem();
+
   return (
     <div className="w-100 mx-auto max-w-7xl flex flex-col gap-8">
-      {/* <AllDataPoints /> */}
+      <AllDataPoints />
+      <TableInTest />
       <DistrictMap />
       <NearestCharger />
+      {isadmin && <UserCRUD />}
     </div>
   );
 };
