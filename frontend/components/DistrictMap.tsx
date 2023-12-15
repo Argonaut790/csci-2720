@@ -383,17 +383,25 @@ const DistrictMap = () => {
       <div className=" grid grid-cols-3 gap-6 h-[260px]">
         <Card className="py-4 pb-0">
           <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-            <h4 className="font-bold text-large">Favourited Charger</h4>
+            <h4 className="font-bold text-large">Charger's Location</h4>
           </CardHeader>
+
           <Divider />
-          <CardBody className="overflow-visible py-2 opacity-70">
-            {/* Latitude: {selectedCharger?.["lat-long"][0] || "None"}
+          {selectedCharger ? (
+            <CardBody className="overflow-visible py-2 opacity-70">
+              {/* Latitude: {selectedCharger?.["lat-long"][0] || "None"}
             <br />
             Longtitude: {selectedCharger?.["lat-long"][1] || "None"} */}
-            Latitude: {selectedCharger?.["lat-long"][0].toString() || "None"}
-            <br />
-            Longtitude: {selectedCharger?.["lat-long"][1].toString() || "None"}
-          </CardBody>
+              Latitude: {selectedCharger?.["lat-long"][0].toString() || "None"}
+              <br />
+              Longtitude:{" "}
+              {selectedCharger?.["lat-long"][1].toString() || "None"}
+            </CardBody>
+          ) : (
+            <CardBody className="py-2 opacity-70 justify-center items-center">
+              Select a charger to view details
+            </CardBody>
+          )}
         </Card>
         <Card className="py-4 pb-0">
           <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
