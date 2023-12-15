@@ -47,11 +47,12 @@ interface UserSystemContextValue {
   toggleForgotPasswordModalOn: () => void;
   toggleAllOff: () => void;
   getLoginUser: () => userProps;
-  setLoginUser: (user: string) => void;
+  setLoginUser: (userId: string, userName: string) => void;
 }
 
 interface userProps {
-  name: string;
+  username: string;
+  userId: string;
 }
 
 const UserSystemContext = createContext<UserSystemContextValue>({} as UserSystemContextValue);
@@ -63,7 +64,7 @@ export const UserSystemProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [isadmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<userProps>({ name: "" });
+  const [user, setUser] = useState<userProps>({ username: "", userId: "" });
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(true);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
@@ -78,12 +79,13 @@ export const UserSystemProvider = ({ children }: Props) => {
       console.log("Running");
       setLoggedIn(true);
     }
-    if (Cookies.get("userId")) {
+    if (Cookies.get("loggedIn") === "true" && Cookies.get("userId") && Cookies.get("userName")) {
       axios
         .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + Cookies.get("userId"))
         .then((res) => {
           setUser({
-            name: res.data.username ?? "",
+            username: res.data.username ?? "",
+            userId: res.data.userId ?? "",
           });
         });
     }
@@ -108,10 +110,14 @@ export const UserSystemProvider = ({ children }: Props) => {
     setIsAdmin(true);
   };
 
-  const setLoginUser = (username: string) => {
+  const setLoginUser = (userId: string, username: string) => {
     setUser({
-      name: username,
+      userId: userId,
+      username: username,
     });
+    Cookies.set("loggedIn", "true");
+    Cookies.set("userId", userId);
+    Cookies.set("userName", username);
   };
 
   const getLoginUser = () => {
@@ -120,10 +126,12 @@ export const UserSystemProvider = ({ children }: Props) => {
 
   const logout = () => {
     console.log("logout");
+    Cookies.remove("email");
     Cookies.remove("loggedIn");
     Cookies.remove("userId");
+    Cookies.remove("userName");
     Cookies.remove("isAdmin");
-    setUser({ name: "" });
+    setUser({ username: "", userId: "" });
     setIsAdmin(false);
     setLoggedIn(false);
   };

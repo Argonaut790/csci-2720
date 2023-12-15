@@ -24,109 +24,10 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useState, useEffect, useMemo, useCallback, useRef, Key } from "react";
-// {
-//     "_id": "65524b4127cf85ba98a40daa",
-//     "username": "Argonaut",
-//     "password": "123456",
-//     "email": "tung23966373@gmail.com",
-//     "isAdmin": true,
-//     "timestamp": "2023-11-13T16:13:32.357Z",
-//     "userId": "fc996f",
-//     "__v": 0
-// },
-
-const EditIcon = () => {
-  return (
-    <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-      <svg
-        aria-hidden="true"
-        fill="none"
-        focusable="false"
-        height="1em"
-        role="presentation"
-        viewBox="0 0 20 20"
-        width="1em"
-      >
-        <path
-          d="M11.05 3.00002L4.20835 10.2417C3.95002 10.5167 3.70002 11.0584 3.65002 11.4334L3.34169 14.1334C3.23335 15.1084 3.93335 15.775 4.90002 15.6084L7.58335 15.15C7.95835 15.0834 8.48335 14.8084 8.74168 14.525L15.5834 7.28335C16.7667 6.03335 17.3 4.60835 15.4583 2.86668C13.625 1.14168 12.2334 1.75002 11.05 3.00002Z"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit="10"
-          strokeWidth="1.5"
-        ></path>
-        <path
-          d="M9.90833 4.20831C10.2667 6.50831 12.1333 8.26665 14.45 8.49998"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit="10"
-          strokeWidth="1.5"
-        ></path>
-        <path
-          d="M2.5 18.3333H17.5"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit="10"
-          strokeWidth="1.5"
-        ></path>
-      </svg>
-    </span>
-  );
-};
-
-const DeleteIcon = () => {
-  return (
-    <span className="text-lg text-danger cursor-pointer active:opacity-50">
-      <svg
-        aria-hidden="true"
-        fill="none"
-        focusable="false"
-        height="1em"
-        role="presentation"
-        viewBox="0 0 20 20"
-        width="1em"
-      >
-        <path
-          d="M17.5 4.98332C14.725 4.70832 11.9333 4.56665 9.15 4.56665C7.5 4.56665 5.85 4.64998 4.2 4.81665L2.5 4.98332"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-        ></path>
-        <path
-          d="M7.08331 4.14169L7.26665 3.05002C7.39998 2.25835 7.49998 1.66669 8.90831 1.66669H11.0916C12.5 1.66669 12.6083 2.29169 12.7333 3.05835L12.9166 4.14169"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-        ></path>
-        <path
-          d="M15.7084 7.61664L15.1667 16.0083C15.075 17.3166 15 18.3333 12.675 18.3333H7.32502C5.00002 18.3333 4.92502 17.3166 4.83335 16.0083L4.29169 7.61664"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-        ></path>
-        <path
-          d="M8.60834 13.75H11.3833"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-        ></path>
-        <path
-          d="M7.91669 10.4167H12.0834"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-        ></path>
-      </svg>
-    </span>
-  );
-};
+import { toast } from "react-toastify";
+import { useUserSystem } from "@/contexts/UserSystemContext";
+import { EditIcon, DeleteIcon } from "@components/icons";
+import { useTheme } from "next-themes";
 
 interface data {
   username: string;
@@ -139,33 +40,27 @@ interface data {
 }
 
 const UserCRUD = () => {
-  const [editingRow, setEditingRow] = useState<string | null>(null); // userId
-  const [editingData, setEditingData] = useState<data | null>(null);
-  const [updated, setUpdated] = useState<boolean>(false); // userId
+  const rowsPerPage = 10;
+  const [page, setPage] = useState(1);
+  const [accounts, setAccounts] = useState<data[]>([]);
+  const [targetAccount, setTargetAccount] = useState<data | null>(null);
   const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure();
 
-  const [rows, setRows] = useState<data[]>([]);
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
-
-  const pages = Math.ceil(rows.length / rowsPerPage);
+  const { user, setLoginUser } = useUserSystem();
+  const { theme } = useTheme();
 
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return rows.slice(start, end);
-  }, [page, rows]);
+    return accounts.slice(start, end);
+  }, [page, accounts]);
 
   useEffect(() => {
     axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account").then((res) => {
-      setRows(res.data);
+      setAccounts(res.data);
     });
-  }, [updated]);
-
-  useEffect(() => {
-    console.log(editingRow);
-  }, [editingRow]);
+  }, []);
 
   const columns = [
     { key: "username", label: "Username" },
@@ -177,211 +72,89 @@ const UserCRUD = () => {
     { key: "actions", label: "Actions" },
   ];
 
-  const FetchUserInfo = (userId: string) => {
+  const handleEditAccount = (user: data) => {
+    console.log("Edit: ", user.userId);
+    setTargetAccount(user);
+    onOpen();
+  };
+
+  const handleDeleteAccount = (user: data) => {
+    console.log("Delete: ", user.userId);
     axios
-      .get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + userId)
+      .delete(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + user.userId)
       .then((res) => {
-        console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + userId);
-        console.log(res.data);
-        setEditingData(res.data);
+        console.log(res);
+      })
+      .then(() => {
+        axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account").then((res) => {
+          setAccounts(res.data);
+        });
+      })
+      .then(() => {
+        toast.success("Success remove account", {
+          position: "bottom-right",
+          autoClose: 900,
+          hideProgressBar: false,
+          theme: theme == "light" ? "light" : "dark",
+        });
       })
       .catch((err) => {
         console.log(err);
+        toast.error("Failed remove account", {
+          position: "bottom-right",
+          autoClose: 900,
+          hideProgressBar: false,
+          theme: theme == "light" ? "light" : "dark",
+        });
       });
   };
 
-  const DeleteUser = (userId: string) => {
-    axios.delete(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + userId).then((res) => {
-      console.log(res);
-      setUpdated((prev) => !prev);
-    });
-  };
+  const renderCell = useCallback((item: data, columnKey: keyof data) => {
+    const cellValue = item[columnKey];
 
-  const renderCell = useCallback(
-    (item: data, columnKey: keyof data) => {
-      const cellValue = item[columnKey];
-
-      switch (columnKey) {
-        case "actions":
-          return (
-            <div className="relative flex items-center gap-2">
-              <Tooltip content="Edit user">
-                <span
-                  className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                  onClick={() => {
-                    setEditingRow(item.userId);
-                    FetchUserInfo(item.userId);
-                    onOpen();
-                  }}
-                >
-                  <EditIcon />
-                </span>
-              </Tooltip>
-              <Tooltip color="danger" content="Delete user">
-                <span
-                  className="text-lg text-danger cursor-pointer active:opacity-50"
-                  onClick={() => DeleteUser(item.userId)}
-                >
-                  {Cookies.get("userId") != item.userId ? <DeleteIcon /> : ""}
-                </span>
-              </Tooltip>
-            </div>
-          );
-        default:
-          if (typeof cellValue === "boolean") {
-            return (
-              <span className={cellValue ? " text-green-500" : " text-red-500"}>
-                {cellValue.toString()}
+    switch (columnKey) {
+      case "actions":
+        return (
+          <div className="relative flex items-center gap-2">
+            <Tooltip content="Edit user">
+              <span
+                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                onClick={(e) => {
+                  handleEditAccount(item);
+                }}
+              >
+                <EditIcon />
               </span>
-            );
-          } else {
-            return <span>{cellValue}</span>;
-          }
-      }
-    },
-    [editingRow]
-  );
-
-  const EditMask = () => {
-    const updatedUserNameRef = useRef<HTMLInputElement>(null);
-    const updatedPasswordRef = useRef<HTMLInputElement>(null);
-    const resultRef = useRef<HTMLSpanElement>(null);
-
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      const username = updatedUserNameRef.current!.value;
-      const password = updatedPasswordRef.current!.value;
-      e.preventDefault();
-
-      // Check for the username and password for not empty
-      if (username === "" || password === "") {
-        resultRef.current!.innerText += "Username and password cannot be empty. ";
-      } else {
-        // Update the user info
-        console.log(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + editingRow);
-        axios.patch(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + editingRow, {
-          username: username,
-          password: password,
-        });
-      }
-      setEditingData(null);
-      setEditingRow(null);
-      setUpdated((prev) => !prev);
-      onClose();
-    };
-
-    return (
-      <>
-        <Modal
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          isDismissable={false}
-          placement="center"
-          motionProps={{
-            variants: {
-              enter: {
-                y: 0,
-                opacity: 1,
-                transition: {
-                  duration: 0.3,
-                  ease: "easeOut",
-                },
-              },
-              exit: {
-                y: -20,
-                opacity: 0,
-                transition: {
-                  duration: 0.2,
-                  ease: "easeIn",
-                },
-              },
-            },
-          }}
-        >
-          <ModalContent>
-            {(onClose) => (
-              <form onSubmit={onSubmit}>
-                <ModalHeader className="flex flex-col gap-1">
-                  Editing {editingData?.username} #{editingRow}
-                </ModalHeader>
-                <ModalBody>
-                  <Input
-                    type="text"
-                    variant={"underlined"}
-                    label="Username"
-                    defaultValue={editingData?.username}
-                    isRequired
-                    ref={updatedUserNameRef}
-                  />
-                  <Input
-                    type="text"
-                    variant={"underlined"}
-                    label="Password"
-                    defaultValue={editingData?.password}
-                    isRequired
-                    ref={updatedPasswordRef}
-                  />
-                  <Input
-                    type="text"
-                    variant={"underlined"}
-                    label="User ID"
-                    value={editingData?.userId}
-                    className=" opacity-50"
-                    readOnly
-                    disabled
-                  />
-                  <Input
-                    type="text"
-                    variant={"underlined"}
-                    label="Is Admin"
-                    value={editingData?.isAdmin.toString()}
-                    className=" opacity-50"
-                    readOnly
-                    disabled
-                  />
-                  <Input
-                    // isRequired
-                    type="email"
-                    variant={"underlined"}
-                    label="Email"
-                    value={editingData?.email}
-                    className=" opacity-50"
-                    readOnly
-                    disabled
-                    // className="pb-4"
-                  />
-                  <Input
-                    type="text"
-                    variant={"underlined"}
-                    label="Timestamp"
-                    value={editingData?.timestamp}
-                    className=" opacity-50"
-                    readOnly
-                    disabled
-                  />
-                  <span ref={resultRef}></span>
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Discard
-                  </Button>
-                  <Button type="submit" color="primary">
-                    Submit Change
-                  </Button>
-                </ModalFooter>
-              </form>
-            )}
-          </ModalContent>
-        </Modal>
-      </>
-    );
-  };
+            </Tooltip>
+            <Tooltip color="danger" content="Delete user">
+              <span
+                className="text-lg text-danger cursor-pointer active:opacity-50"
+                onClick={(e) => handleDeleteAccount(item)}
+              >
+                {Cookies.get("userId") != item.userId ? <DeleteIcon /> : ""}
+              </span>
+            </Tooltip>
+          </div>
+        );
+      default:
+        if (typeof cellValue === "boolean") {
+          return (
+            <span className={cellValue ? " text-green-500" : " text-red-500"}>
+              {cellValue.toString()}
+            </span>
+          );
+        } else {
+          return <span>{cellValue}</span>;
+        }
+    }
+  }, []);
 
   const AddUesr = () => {
     axios
       .post(process.env.NEXT_PUBLIC_DEV_API_PATH + "account")
       .then((res) => {
         console.log(res);
-        setUpdated((prev) => !prev);
+        // setUpdated((prev) => !prev);
         return res;
       })
       .catch((err) => {
@@ -390,10 +163,153 @@ const UserCRUD = () => {
       });
   };
 
+  const ModalView = () => {
+    const usernameFieldRef = useRef<HTMLInputElement>(null);
+    const passwordFieldRef = useRef<HTMLInputElement>(null);
+
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const username = usernameFieldRef.current!.value;
+      const password = passwordFieldRef.current!.value;
+
+      // Check for the username and password for not empty
+      if (username !== "" && password !== "") {
+        // Update the user info
+        axios
+          .patch(process.env.NEXT_PUBLIC_DEV_API_PATH + "account/" + targetAccount!.userId, {
+            username: username,
+            password: password,
+          })
+          .then((res) => {
+            const currentUserId = Cookies.get("userId");
+            if (
+              targetAccount &&
+              currentUserId &&
+              currentUserId !== undefined &&
+              currentUserId === targetAccount?.userId
+            ) {
+              console.log("Update sign in user info");
+              console.log(username);
+              setLoginUser(targetAccount.userId, username);
+            }
+          })
+          .then(() => {
+            axios.get(process.env.NEXT_PUBLIC_DEV_API_PATH + "account").then((res) => {
+              setAccounts(res.data);
+            });
+          })
+          .then(() => {
+            toast.success("Success update account", {
+              position: "bottom-right",
+              autoClose: 900,
+              hideProgressBar: false,
+              theme: theme == "light" ? "light" : "dark",
+            });
+          })
+          .catch((err) => {
+            toast.success("Failed update account", {
+              position: "bottom-right",
+              autoClose: 900,
+              hideProgressBar: false,
+              theme: theme == "light" ? "light" : "dark",
+            });
+            console.log(err);
+          });
+      }
+      onClose();
+    };
+
+    return (
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        isDismissable={false}
+        placement="center"
+        motionProps={{
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              transition: {
+                duration: 0.3,
+                ease: "easeOut",
+              },
+            },
+            exit: {
+              y: -20,
+              opacity: 0,
+              transition: {
+                duration: 0.2,
+                ease: "easeIn",
+              },
+            },
+          },
+        }}
+      >
+        <ModalContent>
+          <form onSubmit={onSubmit}>
+            <ModalHeader className="flex flex-col gap-1">
+              Editing {targetAccount?.username} #{targetAccount?.userId}
+            </ModalHeader>
+            <ModalBody>
+              <Input
+                type="text"
+                variant={"underlined"}
+                label="Username"
+                defaultValue={targetAccount?.username}
+                isRequired
+                ref={usernameFieldRef}
+              />
+              <Input
+                type="text"
+                variant={"underlined"}
+                label="Password"
+                defaultValue={targetAccount?.password}
+                isRequired
+                ref={passwordFieldRef}
+              />
+              <Input
+                type="text"
+                variant={"underlined"}
+                label="Is Admin"
+                value={targetAccount?.isAdmin.toString()}
+                className=" opacity-50"
+                readOnly
+                disabled
+              />
+              <Input
+                // isRequired
+                type="email"
+                variant={"underlined"}
+                label="Email"
+                value={targetAccount?.email}
+                className=" opacity-50"
+                readOnly
+                disabled
+                // className="pb-4"
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button color="default" variant="light" onPress={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" color="primary">
+                Submit
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+    );
+  };
+
   return (
-    <div id="UserCRUDSection">
-      <EditMask />
-      <div className="flex justify-end">
+    <div id="UserCRUDSection" className="flex flex-col gap-6 mt-20 mb-20 w-full relative">
+      <ModalView />
+      <h1 className="flex justify-start text-7xl lg:h-20 mb-2 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        User CRUD
+      </h1>
+      {/* <div className="flex justify-end">
         <Button
           color="secondary"
           size="md"
@@ -403,11 +319,11 @@ const UserCRUD = () => {
         >
           + User
         </Button>
-      </div>
-      <div className="py-4 ">
+      </div> */}
+      <div className="py-4">
         <Table
           isStriped
-          removeWrapper
+          isHeaderSticky
           aria-label="Example table with dynamic content"
           bottomContent={
             <div className="flex w-full justify-center">
@@ -417,7 +333,7 @@ const UserCRUD = () => {
                 showShadow
                 color="secondary"
                 page={page}
-                total={pages}
+                total={Math.ceil(accounts.length / rowsPerPage)}
                 onChange={(page) => setPage(page)}
               />
             </div>

@@ -44,8 +44,6 @@ const LoginModal = () => {
         if (res.status === 200) {
           setEmailResult("");
           setPasswordResult("");
-          Cookies.set("loggedIn", "true");
-          Cookies.set("userId", res.data.userId);
 
           if (res.data.isAdmin) {
             Cookies.set("isAdmin", "true");
@@ -57,7 +55,7 @@ const LoginModal = () => {
           setTimeout(() => {
             toggleLoggedInOn();
             toggleLoadingOff();
-            setLoginUser(res.data.username);
+            setLoginUser(res.data.userId, res.data.username);
           }, 1000);
 
           const welcomemsg = "Login Success! Welcom, " + res.data.username;

@@ -17,6 +17,10 @@ import TableInTest from "@/components/tableInTest/table";
 import TableOri from "@/components/ortable/table";
 import LandingBanner from "@/components/LandingBanner";
 
+// External UI libraries to upgrade user experience
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
 
@@ -38,6 +42,7 @@ export default function IndexPage() {
           </div>
         )}
       </section>
+      <ToastContainer />
     </DefaultLayout>
   );
 }

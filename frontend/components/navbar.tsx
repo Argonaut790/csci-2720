@@ -43,6 +43,8 @@ export const Navbar = () => {
   const { user, loggedIn, isadmin, logout, getLoginUser } = useUserSystem();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  console.log("navbar", user);
+
   const searchInput = (
     <Input
       aria-label="Search"
@@ -95,66 +97,82 @@ export const Navbar = () => {
           {theme === "dark" ? <Logo /> : <LogoDark />}
           <p className="font-bold text-inherit">EC2Find@HK</p>
         </NavbarBrand>
-        <NavbarItem
-          className={`hidden md:flex cursor-pointer font-bold ${
-            theme == "dark" ? "hover:bg-white hover:text-black" : "hover:bg-black hover:text-white"
-          }`}
-        >
-          <ReactScrollLink
-            to="AllDataPointsSection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden md:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
           >
-            All Data Points
-          </ReactScrollLink>
-        </NavbarItem>
-        <NavbarItem
-          className={`hidden md:flex cursor-pointer font-bold ${
-            theme == "dark" ? "hover:bg-white hover:text-black" : "hover:bg-black hover:text-white"
-          }`}
-        >
-          <ReactScrollLink
-            to="districtmapsection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
+            <ReactScrollLink
+              to="AllDataPointsSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              All Data Points
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden md:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
           >
-            District Map
-          </ReactScrollLink>
-        </NavbarItem>
-        <NavbarItem
-          className={`hidden md:flex cursor-pointer font-bold ${
-            theme == "dark" ? "hover:bg-white hover:text-black" : "hover:bg-black hover:text-white"
-          }`}
-        >
-          <ReactScrollLink
-            to="NearestChargerSection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
+            <ReactScrollLink
+              to="districtmapsection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              District Map
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden md:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
           >
-            Nearest Charger
-          </ReactScrollLink>
-        </NavbarItem>
-        <NavbarItem
-          className={`hidden lg:flex cursor-pointer font-bold ${
-            theme == "dark" ? "hover:bg-white hover:text-black" : "hover:bg-black hover:text-white"
-          }`}
-        >
-          <ReactScrollLink
-            to="DataCRUDSection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
+            <ReactScrollLink
+              to="NearestChargerSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              Nearest Charger
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
+        {loggedIn && (
+          <NavbarItem
+            className={`hidden lg:flex cursor-pointer font-bold ${
+              theme == "dark"
+                ? "hover:bg-white hover:text-black"
+                : "hover:bg-black hover:text-white"
+            }`}
           >
-            Data CRUD
-          </ReactScrollLink>
-        </NavbarItem>
+            <ReactScrollLink
+              to="DataCRUDSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+            >
+              Data CRUD
+            </ReactScrollLink>
+          </NavbarItem>
+        )}
         {isadmin && (
           <NavbarItem
             className={`hidden lg:flex cursor-pointer font-bold ${
@@ -189,80 +207,88 @@ export const Navbar = () => {
 
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
-          {user.name && <p className="font-bold text-inherit">Welcome! {user.name}</p>}
+          {user.username && <p className="font-bold text-inherit">Welcome! {user.username}</p>}
         </NavbarItem>
         <NavbarItem className="lg:hidden">
-          {user.name && <p className="font-bold text-inherit">Hey! {user.name}</p>}
+          {user.username && <p className="font-bold text-inherit">Hey! {user.username}</p>}
         </NavbarItem>
 
         <ThemeSwitch />
       </NavbarContent>
 
       <NavbarMenu className="gap-10">
-        <NavbarMenuItem
-          className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
-        >
-          <ReactScrollLink
-            to="AllDataPointsSection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            onClick={() => {
-              setIsMenuOpen(!isMenuOpen);
-            }}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >
-            All Data Points
-          </ReactScrollLink>
-        </NavbarMenuItem>
-        <NavbarMenuItem
-          className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
-        >
-          <ReactScrollLink
-            to="districtmapsection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            onClick={() => {
-              setIsMenuOpen(!isMenuOpen);
-            }}
+            <ReactScrollLink
+              to="AllDataPointsSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              All Data Points
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >
-            District Map
-          </ReactScrollLink>
-        </NavbarMenuItem>
-        <NavbarMenuItem
-          className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
-        >
-          <ReactScrollLink
-            to="NearestChargerSection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            onClick={() => {
-              setIsMenuOpen(!isMenuOpen);
-            }}
+            <ReactScrollLink
+              to="districtmapsection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              District Map
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >
-            Nearest Charger
-          </ReactScrollLink>
-        </NavbarMenuItem>
-        <NavbarMenuItem
-          className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
-        >
-          <ReactScrollLink
-            to="DataCRUDSection"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={500}
-            onClick={() => {
-              setIsMenuOpen(!isMenuOpen);
-            }}
+            <ReactScrollLink
+              to="NearestChargerSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              Nearest Charger
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
+        {loggedIn && (
+          <NavbarMenuItem
+            className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >
-            Data CRUD
-          </ReactScrollLink>
-        </NavbarMenuItem>
+            <ReactScrollLink
+              to="DataCRUDSection"
+              spy={true}
+              smooth={true}
+              offset={-70}
+              duration={500}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
+              Data CRUD
+            </ReactScrollLink>
+          </NavbarMenuItem>
+        )}
         {isadmin && (
           <NavbarMenuItem
             className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}

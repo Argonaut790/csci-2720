@@ -33,8 +33,7 @@ router.post("/login", upload.array(), async (req: Request, res: Response) => {
 router.post("/signup", upload.array(), async (req, res) => {
   try {
     // Server-side validation
-    const emailRegEx =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
     if (!req.body || !req.body.email || !req.body.email.match(emailRegEx)) {
       return res.status(401).send("Invalud email");

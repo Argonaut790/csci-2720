@@ -64,7 +64,6 @@ const DataCRUD = () => {
       </h1>
       <Table
         isStriped
-        removeWrapper
         aria-label="Example table with dynamic content"
         bottomContent={
           <div className="flex w-full justify-center">
