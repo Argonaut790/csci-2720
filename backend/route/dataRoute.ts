@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import axios from "axios";
-
+import { v4 as uuidv4 } from "uuid";
 const router = express.Router();
 import Data from "../model/data";
 
@@ -37,7 +37,6 @@ router.post("/", async (req: Request, res: Response) => {
     if (req.query["parking-no"]) query["parking-no"] = req.body["parking-no"];
     if (req.query["provider"]) query["provider"] = req.body.provider;
     if (req.query["type"]) query["type"] = req.body.type;
-    if (req.query["price"]) query["price"] = req.body.price;
     if (req.query["locationid"]) query["locationid"] = req.body.locationid;
     const data = await Data.find(query);
     res.status(200).json(data);
@@ -58,6 +57,16 @@ router.delete("/location/:locationid", async (req: Request, res: Response) => {
   }
 });
 
+//Get by no
+router.get("/no/:no", async (req: Request, res: Response) => {
+  try {
+    const data = await Data.find({ no: req.params.no });
+    res.status(200).json(data[0]);
+  } catch (err) {
+    res.status(500).send("Failed get one data by no");
+  }
+});
+
 // Create one new data
 router.post("/", async (req: Request, res: Response) => {
   try {
@@ -65,15 +74,14 @@ router.post("/", async (req: Request, res: Response) => {
       "district-s-en": req.body["district-s-en"],
       "location-en": req.body["location-en"],
       img: req.body.img,
-      no: req.body.no,
+      no: "M" + req.body.no,
       "district-l-en": req.body["district-l-en"],
       "parking-no": req.body["parking-no"],
       "address-en": req.body["address-en"],
       provider: req.body.provider,
       type: req.body.type,
       "lat-long": req.body["lat-long"],
-      price: req.body["price"],
-      locationid: req.body["locationid"],
+      locationid: uuidv4(),
     });
     const newData = await Data.create(data);
     console.log(newData);
@@ -146,6 +154,14 @@ router.get("/nearest", async (req: Request, res: Response) => {
     });
 });
 
+// Get Charging Stateion with matched district Only
+router.get("/district", async (req: Request, res: Response) => {
+  const district = req.query.district;
+  // query from database
+  const data = await Data.find({ "district-s-en": district });
+  res.status(200).json(data);
+});
+
 // Repatch new data with government data
 router.patch("/", async (req: Request, res: Response) => {
   const latitudes = req.body.latitudes;
@@ -176,23 +192,31 @@ router.patch("/", async (req: Request, res: Response) => {
           provider: item.provider,
           type: item.type,
           "lat-long": item["lat-long"],
-          price: item["price"],
-          locationid: item["locationid"],
+          locationid: uuidv4(),
         });
 
-        const { no, ...itemWithoutNo } = item;
-
-        const dataNoNum = new Data({
-          ...itemWithoutNo,
-        });
-
+        const { _id, locationid, ...dataWithout_idAndLocationid } =
+          data.toObject();
         // if data is not in the database, save it
 
-        const existedData = await Data.find(dataNoNum.toObject());
-        if (existedData.length === 0) {
+        const existedData = await Data.findOne({ no: item.no });
+        if (existedData) {
+          // If data already exists, update it
+          try {
+            const updatedData = await Data.findOneAndUpdate(
+              { no: item.no },
+              dataWithout_idAndLocationid,
+              { new: true }
+            );
+            // console.log(updatedData);
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          // If data does not exist, create it
           try {
             const newData = await Data.create(data);
-            console.log(newData);
+            // console.log(newData);
           } catch (error) {
             console.error(error);
           }
@@ -208,7 +232,7 @@ router.patch("/", async (req: Request, res: Response) => {
 ////////////
 router.use(express.json());
 //{"newLocat": "North Point", "newCoor": ["22.2855988576","114.18833258"], "newProvider": "CLP"}
-router.post("/api/createNewData", async (req: Request, res: Response) => {
+router.post("/createNewData", async (req: Request, res: Response) => {
   console.log("this is the req", req.body);
 
   let inputData = req.body;
@@ -246,7 +270,7 @@ router.post("/api/createNewData", async (req: Request, res: Response) => {
   let data = {
     "district-s-en": `${distSmall}`,
     "location-en": `${location}`,
-    img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
+    // img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
     no: `${largestNo.toString()}`,
     "district-l-en": `${distLarge}`,
     "parking-no": `${parkingNum}`,
@@ -254,7 +278,7 @@ router.post("/api/createNewData", async (req: Request, res: Response) => {
     provider: `${provider}`,
     type: `${type}`,
     "lat-long": [parseFloat(lat), parseFloat(long)],
-    __v: 0,
+    locationid: uuidv4(),
   };
 
   // Check if the data already exists in the database
@@ -277,19 +301,48 @@ router.post("/api/createNewData", async (req: Request, res: Response) => {
   res.send(returnValue);
 });
 
-router.post("/api/deleteData", async (req: Request, res: Response) => {
-  let info = req.body.number;
-  console.log("infor: ", info);
-  const result = await Data.deleteOne({ no: info });
+router.delete("/deleteData/:deleteID", async (req: Request, res: Response) => {
+  let info = req.params.deleteID;
+  console.log("info: ", info);
+  await Data.deleteOne({ no: info })
+    .then((result) => {
+      console.log("result: ", result);
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      console.log("err: ", err);
+      res.status(400).send(err);
+    });
+});
 
-  console.log("infor: ", result.deletedCount);
-  if (result.deletedCount == 1) {
-    console.log("send 200");
-    res.send(200);
-  } else {
-    console.log("send 500");
+//get comments by chargerId
+router.get("/comments/:chargerId", async (req: Request, res: Response) => {
+  try {
+    const data = await Data.find({ locationid: req.params.chargerId });
+    res.status(200).json(data[0].comments);
+  } catch (err) {
+    res.status(500).send("Failed get comments by chargerId");
+  }
+});
 
-    res.send(500);
+// post comments by chargerId
+router.post("/comments/:chargerId", async (req: Request, res: Response) => {
+  try {
+    const updatedData = await Data.updateOne(
+      { locationid: req.params.chargerId },
+      {
+        $push: {
+          comments: {
+            userid: req.body.userid,
+            comment: req.body.comment,
+          },
+        },
+      }
+    );
+    console.log(updatedData);
+    res.status(200).json(updatedData);
+  } catch (err) {
+    res.status(500).send("Failed update one data by locationid");
   }
 });
 

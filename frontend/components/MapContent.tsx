@@ -6,6 +6,11 @@ import { LOCATIONS } from "@components/UpdateData";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import axios from "axios";
 import NearestCharger from "@components/NearestCharger";
+import DistrictMap from "@components/DistrictMap";
+import TableInTest from "@components/tableInTest/table";
+import { useUserSystem } from "@/contexts/UserSystemContext";
+import UserCRUD from "@components/UserCRUD";
+import { useAllDataPoints } from "@/contexts/AllDataPointsContext";
 interface Props {
   lat: number;
   lng: number;
@@ -33,12 +38,12 @@ const addLocationMarker = ({
   map: google.maps.Map | null | undefined;
 }) => {
   const svgMarker = {
-    path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+    path: "M22,2V4H20V2H18V6a2,2,0,0,0,2,2V18a1,1,0,0,1-1,1H16V11H13V9h3V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V9H3v2H0V24H16V21h3a3,3,0,0,0,3-3V8a2,2,0,0,0,2-2V2ZM10.772,11.426,9.008,14.959l-1.789-.893L8.75,11H6.615A1.614,1.614,0,0,1,5.07,8.917L7.293,4.756l1.76.949L7.275,9H9.4a1.6,1.6,0,0,1,1.376,2.426Z",
     fillColor: "purple",
     fillOpacity: 1,
-    strokeWeight: 0,
+    strokeWeight: 2,
     rotation: 0,
-    scale: 3,
+    scale: 2,
     anchor: new google.maps.Point(0, 20),
   };
 
@@ -55,11 +60,11 @@ const addLocationMarker = ({
       content: `<div class=" h-4 font-bold text-black">${position.info}</div>`, // 支援html
     });
 
-    infowindow.open(map, marker);
+    // infowindow.open(map, marker);
 
-    // marker.addListener("click", (e: React.FormEvent<HTMLFormElement>) => {
-    //   infowindow.open(map, marker);
-    // });
+    marker.addListener("click", (e: React.FormEvent<HTMLFormElement>) => {
+      infowindow.open(map, marker);
+    });
   });
 };
 
@@ -74,12 +79,12 @@ const addChargerMarker = ({
       console.log(res.data);
 
       const svgMarker = {
-        path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+        path: "M22,2V4H20V2H18V6a2,2,0,0,0,2,2V18a1,1,0,0,1-1,1H16V11H13V9h3V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V9H3v2H0V24H16V21h3a3,3,0,0,0,3-3V8a2,2,0,0,0,2-2V2ZM10.772,11.426,9.008,14.959l-1.789-.893L8.75,11H6.615A1.614,1.614,0,0,1,5.07,8.917L7.293,4.756l1.76.949L7.275,9H9.4a1.6,1.6,0,0,1,1.376,2.426Z",
         fillColor: "black",
         fillOpacity: 0.6,
-        strokeWeight: 0,
+        strokeWeight: 2,
         rotation: 0,
-        scale: 2,
+        scale: 1,
         anchor: new google.maps.Point(0, 20),
       };
 
@@ -123,9 +128,9 @@ const GoogleMaps = ({
   locations: Props[];
   className?: string;
 }) => {
+  const { centerPoint, zoomRate } = useAllDataPoints();
+
   const ref = useRef<HTMLDivElement | null>(null);
-  const DEFAULT_CENTER = { lat: 22.375267, lng: 114.145151 };
-  const DEFAULT_ZOOM = 11;
   const [curCoordinate, setCurCoordinate] = useState([
     22.419373049191574, 114.20637130715477,
   ]);
@@ -147,8 +152,8 @@ const GoogleMaps = ({
     // Display the map
     if (ref.current) {
       const map = new window.google.maps.Map(ref.current, {
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
+        center: { lat: centerPoint[0], lng: centerPoint[1] },
+        zoom: zoomRate,
       });
       // Displays single markers on map when called
       addLocationMarker({ locations, map });
@@ -156,34 +161,40 @@ const GoogleMaps = ({
     }
 
     console.log("location set");
-  }, [ref, locations]);
+  }, [ref, locations, centerPoint]);
 
   return (
     <div
       ref={ref}
-      style={{ width: "900px", height: "600px" }}
-      className=" rounded "
+      style={{ width: "100%" }}
+      className=" rounded-2xl aspect-video shadow-lg"
     />
   );
 };
 
-const MapContent = () => {
+const AllDataPoints = () => {
   return (
-    <div className="w-100 mx-auto max-w-7xl overflow-hidden">
-      {/* <h1>Content</h1> */}
-      <div className="flex flex-row justify-center gap-8">
-        {/* <div
-          id="map"
-          className="w-[768px] h-[512px] border aspect-video rounded z-10"
-        ></div> */}
-        <div>
-          <h1 className=" text-4xl"> Introduction</h1>
-        </div>
+    <div className="flex flex-col gap-6 max-h-screen">
+      <h1 className=" text-4xl"> All Data Points</h1>
+      <div className="">
         <GoogleMapsWrapper>
           <GoogleMaps locations={LOCATIONS} />
         </GoogleMapsWrapper>
       </div>
+    </div>
+  );
+};
+
+const MapContent = () => {
+  const { isadmin } = useUserSystem();
+
+  return (
+    <div className="w-100 mx-auto max-w-7xl flex flex-col gap-8">
+      <AllDataPoints />
+      <TableInTest />
+      <DistrictMap />
       <NearestCharger />
+      {isadmin && <UserCRUD />}
     </div>
   );
 };

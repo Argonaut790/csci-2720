@@ -402,7 +402,7 @@ const UserCRUD = () => {
     <>
       <EditMask />
       <div className="flex justify-end">
-        <Button
+        {/* <Button
           color="secondary"
           size="md"
           variant="bordered"
@@ -410,7 +410,7 @@ const UserCRUD = () => {
           // className="bg-gradient-to-tr from-purple-700 to-yellow-700 text-white shadow-lg"
         >
           + User
-        </Button>
+        </Button> */}
       </div>
       <div className="py-4 ">
         <Table

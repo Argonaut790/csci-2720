@@ -1,6 +1,26 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
+const commentSchema = new mongoose.Schema({
+  userid: {
+    type: String,
+    required: true,
+  },
+  comment: {
+    type: String,
+    required: true,
+  },
+  "charger-no": {
+    type: String,
+    required: true,
+    typeKey: "_type",
+    id: true,
+    _id: true,
+    timestamps: true,
+    versionKey: true,
+  },
+});
+
 const DataSchema = new Schema({
   "district-s-en": {
     type: String,
@@ -43,15 +63,21 @@ const DataSchema = new Schema({
     type: [Number],
     required: true,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
   locationid: {
     type: String,
     required: true,
     unique: true,
   },
+  // Comments : [{userid: String, comment: String}}]
+  comments: {
+    type: [commentSchema],
+    required: false,
+  },
+  // Rating : [{userid: String, rating: Number}}]
+  // ratings: {
+  //   type: Array,
+  //   required: false,
+  // },
 });
 
 export default mongoose.model("data", DataSchema);
