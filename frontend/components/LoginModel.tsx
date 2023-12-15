@@ -32,7 +32,7 @@ const LoginModal = () => {
     toggleForgotPasswordModalOn,
     toggleLoggedInOn,
     toggleIsAdminOn,
-    setLoginUser,
+    setUser,
   } = useUserSystem();
 
   const login = () => {
@@ -59,22 +59,20 @@ const LoginModal = () => {
             Cookies.set("isAdmin", "false");
           }
 
-          setTimeout(() => {
+          // Update Data Database
+          updateData().then(() => {
             toggleLoggedInOn();
             toggleLoadingOff();
-            setLoginUser(res.data.username);
-          }, 1000);
+            setUser({ username: res.data.username, userId: res.data.userId });
 
-          const welcomemsg = "Login Success! Welcom, " + res.data.username;
-          toast.success(welcomemsg, {
-            position: "bottom-right",
-            autoClose: 900,
-            hideProgressBar: false,
-            theme: theme == "light" ? "light" : "dark",
+            const welcomemsg = "Login Success! Welcome, " + res.data.username;
+            toast.success(welcomemsg, {
+              position: "bottom-right",
+              autoClose: 900,
+              hideProgressBar: false,
+              theme: theme == "light" ? "light" : "dark",
+            });
           });
-
-          // Update Data Database
-          updateData();
         }
         return "result from success";
       })

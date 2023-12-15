@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import axios from "axios";
-
+import { v4 as uuidv4 } from "uuid";
 const router = express.Router();
 import Data from "../model/data";
 
@@ -37,7 +37,6 @@ router.post("/", async (req: Request, res: Response) => {
     if (req.query["parking-no"]) query["parking-no"] = req.body["parking-no"];
     if (req.query["provider"]) query["provider"] = req.body.provider;
     if (req.query["type"]) query["type"] = req.body.type;
-    if (req.query["price"]) query["price"] = req.body.price;
     if (req.query["locationid"]) query["locationid"] = req.body.locationid;
     const data = await Data.find(query);
     res.status(200).json(data);
@@ -75,15 +74,14 @@ router.post("/", async (req: Request, res: Response) => {
       "district-s-en": req.body["district-s-en"],
       "location-en": req.body["location-en"],
       img: req.body.img,
-      no: req.body.no,
+      no: "M" + req.body.no,
       "district-l-en": req.body["district-l-en"],
       "parking-no": req.body["parking-no"],
       "address-en": req.body["address-en"],
       provider: req.body.provider,
       type: req.body.type,
       "lat-long": req.body["lat-long"],
-      price: req.body["price"],
-      locationid: req.body["locationid"],
+      locationid: uuidv4(),
     });
     const newData = await Data.create(data);
     console.log(newData);
@@ -194,23 +192,31 @@ router.patch("/", async (req: Request, res: Response) => {
           provider: item.provider,
           type: item.type,
           "lat-long": item["lat-long"],
-          price: item["price"],
-          locationid: item["locationid"],
+          locationid: uuidv4(),
         });
 
-        const { no, ...itemWithoutNo } = item;
-
-        const dataNoNum = new Data({
-          ...itemWithoutNo,
-        });
-
+        const { _id, locationid, ...dataWithout_idAndLocationid } =
+          data.toObject();
         // if data is not in the database, save it
 
-        const existedData = await Data.find(dataNoNum.toObject());
-        if (existedData.length === 0) {
+        const existedData = await Data.findOne({ no: item.no });
+        if (existedData) {
+          // If data already exists, update it
+          try {
+            const updatedData = await Data.findOneAndUpdate(
+              { no: item.no },
+              dataWithout_idAndLocationid,
+              { new: true }
+            );
+            // console.log(updatedData);
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          // If data does not exist, create it
           try {
             const newData = await Data.create(data);
-            console.log(newData);
+            // console.log(newData);
           } catch (error) {
             console.error(error);
           }
@@ -226,7 +232,7 @@ router.patch("/", async (req: Request, res: Response) => {
 ////////////
 router.use(express.json());
 //{"newLocat": "North Point", "newCoor": ["22.2855988576","114.18833258"], "newProvider": "CLP"}
-router.post("/api/createNewData", async (req: Request, res: Response) => {
+router.post("/createNewData", async (req: Request, res: Response) => {
   console.log("this is the req", req.body);
 
   let inputData = req.body;
@@ -295,20 +301,18 @@ router.post("/api/createNewData", async (req: Request, res: Response) => {
   res.send(returnValue);
 });
 
-router.post("/api/deleteData", async (req: Request, res: Response) => {
-  let info = req.body.number;
-  console.log("infor: ", info);
-  const result = await Data.deleteOne({ no: info });
-
-  console.log("infor: ", result.deletedCount);
-  if (result.deletedCount == 1) {
-    console.log("send 200");
-    res.send(200);
-  } else {
-    console.log("send 500");
-
-    res.send(500);
-  }
+router.delete("/deleteData/:deleteID", async (req: Request, res: Response) => {
+  let info = req.params.deleteID;
+  console.log("info: ", info);
+  await Data.deleteOne({ no: info })
+    .then((result) => {
+      console.log("result: ", result);
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      console.log("err: ", err);
+      res.status(400).send(err);
+    });
 });
 
 //get comments by chargerId

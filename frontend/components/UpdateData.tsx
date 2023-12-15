@@ -31,7 +31,15 @@ export const LOCATIONS = [
 ]; // 18 locations
 
 const updateData = async () => {
-  for (const location of LOCATIONS) {
+  const updatePoints = [
+    { lat: 22.441397973458077, lng: 114.00971068617784 },
+    { lat: 22.361374001958698, lng: 114.12607101646108 },
+    { lat: 22.269591831281872, lng: 114.18731329555753 },
+    { lat: 22.3825535876255, lng: 114.2107534885335 },
+    { lat: 22.268495072778617, lng: 113.94986137958266 },
+  ];
+
+  for (const location of updatePoints) {
     try {
       const res = await axios.patch(
         process.env.NEXT_PUBLIC_DEV_API_PATH + "data",
