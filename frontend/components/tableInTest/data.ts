@@ -19,7 +19,7 @@ import React from "react";
 //   ];
 
 
-const columns = [
+const columnsInfo = [
   {name: "number", uid: "number", sortable: true},
   {name: "location", uid: "location", sortable: true},
   {name: "districtSmall", uid: "districtSmall", sortable: true},
@@ -27,6 +27,7 @@ const columns = [
   {name: "parkingNumber", uid: "parkingNumber",sortable: true},
   {name: "provider", uid: "provider"},
   {name: "latLong", uid: "latLong"},
+  {name: "type", uid: "type"},
   {name: "ACTIONS", uid: "actions"},
 ];
 // const columns = [
@@ -67,4 +68,4 @@ const data = [
 
 
 
-export {columns, statusOptions, data};
+export {columnsInfo, statusOptions, data};

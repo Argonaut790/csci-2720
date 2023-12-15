@@ -198,8 +198,15 @@ router.patch("/", async (req: Request, res: Response) => {
           locationid: item["locationid"],
         });
 
+        const { no, ...itemWithoutNo } = item;
+
+        const dataNoNum = new Data({
+          ...itemWithoutNo,
+        });
+
         // if data is not in the database, save it
-        const existedData = await Data.find({ no: item.no });
+
+        const existedData = await Data.find(dataNoNum.toObject());
         if (existedData.length === 0) {
           try {
             const newData = await Data.create(data);
@@ -214,6 +221,94 @@ router.patch("/", async (req: Request, res: Response) => {
     .catch((err: Error) => {
       console.log(err);
     });
+});
+
+////////////
+router.use(express.json());
+//{"newLocat": "North Point", "newCoor": ["22.2855988576","114.18833258"], "newProvider": "CLP"}
+router.post("/api/createNewData", async (req: Request, res: Response) => {
+  console.log("this is the req", req.body);
+
+  let inputData = req.body;
+
+  const largestNoDocument = await Data.aggregate([
+    {
+      $addFields: {
+        noInt: { $toInt: "$no" },
+      },
+    },
+    {
+      $sort: { noInt: -1 },
+    },
+    {
+      $limit: 1,
+    },
+  ]);
+
+  let largestNo = largestNoDocument[0].no;
+  largestNo = Number(largestNo) + 1;
+  console.log("the largest no is", largestNo);
+
+  let distSmall = inputData.newDistSmall;
+  let distLarge = inputData.newDistLarge;
+  let address = inputData.newDistAddress;
+  let location = inputData.newLocat;
+  let type = inputData.newUpdatedType;
+  let [lat, long] = inputData.newCoor;
+  let provider = inputData.newProvider;
+  let parkingNum = inputData.newParkingNum;
+
+  console.log("latitude", lat);
+  console.log("longitude", long);
+
+  let data = {
+    "district-s-en": `${distSmall}`,
+    "location-en": `${location}`,
+    img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
+    no: `${largestNo.toString()}`,
+    "district-l-en": `${distLarge}`,
+    "parking-no": `${parkingNum}`,
+    "address-en": `${address}`,
+    provider: `${provider}`,
+    type: `${type}`,
+    "lat-long": [parseFloat(lat), parseFloat(long)],
+    __v: 0,
+  };
+
+  // Check if the data already exists in the database
+  const existingData = await Data.findOne({
+    "lat-long": data["lat-long"],
+    "parking-no": data["parking-no"],
+  });
+
+  if (existingData) {
+    console.log("Data already exists in the database.");
+  } else {
+    console.log(
+      "Data does not exist in the database. Creating new document..."
+    );
+    const result = await Data.create(data);
+    console.log(`New document inserted with the following id: ${result._id}`);
+  }
+
+  let returnValue = req.body;
+  res.send(returnValue);
+});
+
+router.post("/api/deleteData", async (req: Request, res: Response) => {
+  let info = req.body.number;
+  console.log("infor: ", info);
+  const result = await Data.deleteOne({ no: info });
+
+  console.log("infor: ", result.deletedCount);
+  if (result.deletedCount == 1) {
+    console.log("send 200");
+    res.send(200);
+  } else {
+    console.log("send 500");
+
+    res.send(500);
+  }
 });
 
 //get comments by chargerId

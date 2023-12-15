@@ -17,6 +17,7 @@ import TableInTest from "@/components/tableInTest/table";
 import TableOri from "@/components/ortable/table";
 import LandingBanner from "@/components/LandingBanner";
 
+import MapView from "@/components/tableInTest/mapView";
 export default function IndexPage() {
   const { loading, loggedIn, isadmin } = useUserSystem();
 
