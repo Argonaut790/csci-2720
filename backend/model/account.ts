@@ -34,6 +34,10 @@ const AccountSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
+  favourite: {
+    type: [String],
+    default: [],
+  },
 });
 
-module.exports = mongoose.model("accounts", AccountSchema);
+export default mongoose.model("accounts", AccountSchema);

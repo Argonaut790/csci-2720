@@ -9,21 +9,25 @@ import LoginModal from "@/components/LoginModel";
 import { Button } from "@nextui-org/react";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 
-const UserSystem = () => {
-  const { showSignUpModal, showLoginModal, showForgotPasswordModal } =
-    useUserSystem();
-  // const onGoogleSignInFailure = (response) => {
-  //   console.log("Google sign in failed.");
-  //   console.log(response);
-  // };
+// External UI libraries to upgrade user experience
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-  return (
-    <div
-      id="signUp"
-      className="h-full flex items-center justify-center gap-4"
-      key="signUp"
-    >
-      {/* <div>
+const UserSystem = () => {
+	const { showSignUpModal, showLoginModal, showForgotPasswordModal } =
+		useUserSystem();
+	// const onGoogleSignInFailure = (response) => {
+	//   console.log("Google sign in failed.");
+	//   console.log(response);
+	// };
+
+	return (
+		<div
+			id="signUp"
+			className="h-full flex items-center justify-center gap-4"
+			key="signUp"
+		>
+			{/* <div>
         <GoogleOAuthProvider clientId={clientId}>
           <GoogleLogin
             theme="outline"
@@ -39,22 +43,22 @@ const UserSystem = () => {
         </GoogleOAuthProvider>
       </div> */}
 
-      <span id="errorMessage"></span>
-      {showSignUpModal ? <SignUpModal /> : null}
-      {showLoginModal ? <LoginModal /> : null}
-      {/* {showForgotPasswordModal ? (
+			{showSignUpModal ? <SignUpModal /> : null}
+			{showLoginModal ? <LoginModal /> : null}
+			{/* {showForgotPasswordModal ? (
         <ForgotPasswordModal setShowModal={setShowForgotPasswordModal} />
       ) : null} */}
 
-      {/* <button type="button" className="btn btn-light" onClick={handleLogIn}>
+			{/* <button type="button" className="btn btn-light" onClick={handleLogIn}>
         Already have an account?
       </button>
 
       <button type="button" className="btn btn-light" onClick={handleSignUp}>
         Sign Up with Email
       </button> */}
-    </div>
-  );
+			<ToastContainer />
+		</div>
+	);
 };
 
 export default UserSystem;
