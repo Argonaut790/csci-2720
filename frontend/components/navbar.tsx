@@ -18,6 +18,7 @@ import { siteConfig } from "@/config/site";
 import NextLink from "next/link";
 import clsx from "clsx";
 
+import { useState } from "react";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
   TwitterIcon,
@@ -28,9 +29,14 @@ import {
 } from "@/components/icons";
 import { useUserSystem } from "@contexts/UserSystemContext";
 import { Logo } from "@/components/icons";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
+import axios from "axios";
+import { Cookie } from "next/font/google";
 
 export const Navbar = () => {
-  const { loggedIn, logout } = useUserSystem();
+  const { user, loggedIn, logout, getLoginUser } = useUserSystem();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const searchInput = (
     <Input
@@ -54,108 +60,66 @@ export const Navbar = () => {
   );
 
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">CSCI 2720</p>
-          </NextLink>
+    <NextUINavbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
+      <NavbarContent className="hidden sm:flex gap-4" justify="start">
+        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+        <NavbarBrand>
+          <Logo />
+          <p className="font-bold text-inherit">CSCI 2720</p>
         </NavbarBrand>
-        {/* <div className="hidden lg:flex gap-4 justify-start ml-2">
-					{siteConfig.navItems.map((item) => (
-						<NavbarItem key={item.href}>
-							<NextLink
-								className={clsx(
-									linkStyles({ color: "foreground" }),
-									"data-[active=true]:text-primary data-[active=true]:font-medium"
-								)}
-								color="foreground"
-								href={item.href}
-							>
-								{item.label}
-							</NextLink>
-						</NavbarItem>
-					))}
-				</div> */}
       </NavbarContent>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
-        <NavbarItem className="hidden sm:flex gap-2">
-          {/* <Link isExternal href={siteConfig.links.twitter}>
-            <TwitterIcon className="text-default-500" />
+      <NavbarContent className="sm:hidden" justify="start">
+        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+      </NavbarContent>
+
+      <NavbarContent className="sm:hidden" justify="center">
+        <NavbarBrand>
+          <Logo />
+          <p className="font-bold text-inherit">CSCI 2720</p>
+        </NavbarBrand>
+      </NavbarContent>
+
+      <NavbarContent justify="end">
+        <NavbarItem className="hidden sm:flex">
+          {user.name && <p className="font-bold text-inherit">Welcome! {user.name}</p>}
+        </NavbarItem>
+        <NavbarItem className="sm:hidden">
+          {user.name && <p className="font-bold text-inherit">Hey! {user.name}</p>}
+        </NavbarItem>
+
+        <ThemeSwitch />
+      </NavbarContent>
+
+      <NavbarMenu className="gap-10">
+        <NavbarMenuItem>
+          <Link
+            isExternal
+            className="w-full flex justify-center items-center gap-2"
+            color="foreground"
+            href={siteConfig.links.github}
+            size="lg"
+          >
+            <GithubIcon className="text-default-500 m-1" />
+            <p>GitHub Documentation</p>
           </Link>
-          <Link isExternal href={siteConfig.links.discord}>
-            <DiscordIcon className="text-default-500" />
-          </Link> */}
-          {loggedIn ? (
-            <Button className=" h-8" onClick={logout}>
+        </NavbarMenuItem>
+        {loggedIn && (
+          <NavbarMenuItem>
+            <Button
+              className="w-full flex justify-center items-center"
+              color="danger"
+              size="lg"
+              onClick={() => {
+                logout();
+                setIsMenuOpen(!isMenuOpen);
+              }}
+            >
               Sign Out
             </Button>
-          ) : (
-            ""
-          )}
-
-          <Link isExternal href={siteConfig.links.github}>
-            <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
-        </NavbarItem>
-        {/* <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
-          >
-            Sponsor
-          </Button>
-        </NavbarItem> */}
-      </NavbarContent>
-
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        {loggedIn ? (
-          <Button className=" h-8" onClick={logout}>
-            Sign Out
-          </Button>
-        ) : (
-          ""
+          </NavbarMenuItem>
         )}
-        <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        {/* <NavbarMenuToggle /> */}
-      </NavbarContent>
-
-      {/* <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                    ? "danger"
-                    : "foreground"
-                }
-                href="#"
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu> */}
+      </NavbarMenu>
     </NextUINavbar>
   );
 };

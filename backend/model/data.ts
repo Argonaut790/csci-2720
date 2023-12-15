@@ -1,22 +1,6 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
-// {
-//     "district-s-en": "Shatin",
-//     "location-en": "Royal Park Hotel",
-//     "img": null,
-//     "no": "223",
-//     "district-l-en": "New Territories",
-//     "parking-no": "Tesla only",
-//     "address-en": "8 Pak Hok Ting Street, Shatin",
-//     "provider": "Others",
-//     "type": "SemiQuick",
-//     "lat-long": [
-//         22.3795566558838,
-//         114.188835144043
-//     ],
-// },
-
 const DataSchema = new Schema({
   "district-s-en": {
     type: String,
@@ -59,10 +43,15 @@ const DataSchema = new Schema({
     type: [Number],
     required: true,
   },
+  price: {
+    type: Number,
+    required: true,
+  },
+  locationid: {
+    type: String,
+    required: true,
+    unique: true,
+  },
 });
 
-
-
-
-
-module.exports = mongoose.model("data", DataSchema);
+export default mongoose.model("data", DataSchema);

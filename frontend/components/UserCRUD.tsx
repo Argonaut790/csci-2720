@@ -252,7 +252,6 @@ const UserCRUD = () => {
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       const username = updatedUserNameRef.current!.value;
       const password = updatedPasswordRef.current!.value;
-      console.log("Hello");
       e.preventDefault();
 
       // Check for the username and password for not empty
