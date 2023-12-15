@@ -539,6 +539,8 @@ export default function TableInTest() {
 
 
     const [mapData, setMapData] = useState("");
+
+
     const CreateMask = () => {
 
         const resultRef = useRef<HTMLSpanElement>(null);
