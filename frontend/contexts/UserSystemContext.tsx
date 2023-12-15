@@ -72,7 +72,6 @@ export const UserSystemProvider = ({ children }: Props) => {
 
   // Get cookies and set loggedIn to true if cookie exists
   // Get cookies and set loggedIn to true if cookie exists
-  // console.log(Cookies.get(user.name));
 
   useEffect(() => {
     console.log(Cookies.get("userId"));

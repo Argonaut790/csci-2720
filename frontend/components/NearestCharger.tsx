@@ -188,6 +188,7 @@ const GoogleMaps = ({ className }: GoogleMapsProps) => {
     if (
       map &&
       curCoordinate.length > 0 &&
+      nearestCoordinate["lat-long"] != undefined &&
       nearestCoordinate["lat-long"].length > 0
     ) {
       console.log("Rendder Counter: " + renderCounter);
@@ -476,7 +477,7 @@ const NearestCharger = () => {
             </Button>
           </div>
         </div>
-        <div className=" grid grid-cols-3 gap-6 h-[250px]">
+        <div className=" grid grid-cols-3 gap-6 h-[260px]">
           <Card className="py-4">
             <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
               <h4 className="font-bold text-large">User's Location</h4>
@@ -499,11 +500,11 @@ const NearestCharger = () => {
             <Divider />
             <CardBody className="overflow-visible py-2 opacity-70">
               Latitude:{" "}
-              {nearestCoordinate["lat-long"].length != 0 &&
+              {nearestCoordinate["lat-long"] != undefined &&
                 nearestCoordinate["lat-long"][0]}
               <br />
               Longtitude:{" "}
-              {nearestCoordinate["lat-long"].length != 0 &&
+              {nearestCoordinate["lat-long"] != undefined &&
                 nearestCoordinate["lat-long"][1]}
             </CardBody>
           </Card>

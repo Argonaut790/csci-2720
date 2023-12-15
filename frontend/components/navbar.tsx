@@ -40,7 +40,7 @@ import { useTheme } from "next-themes";
 
 export const Navbar = () => {
   const { theme, setTheme } = useTheme();
-  const { user, loggedIn, isadmin, logout, getLoginUser } = useUserSystem();
+  const { user, loggedIn, isadmin, logout } = useUserSystem();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   console.log("navbar", user);
@@ -156,7 +156,7 @@ export const Navbar = () => {
             </ReactScrollLink>
           </NavbarItem>
         )}
-        {loggedIn && (
+        {/* {loggedIn && (
           <NavbarItem
             className={`hidden lg:flex cursor-pointer font-bold ${
               theme == "dark"
@@ -174,8 +174,8 @@ export const Navbar = () => {
               Data CRUD
             </ReactScrollLink>
           </NavbarItem>
-        )}
-        {isadmin && (
+        )} */}
+        {isadmin && loggedIn && (
           <NavbarItem
             className={`hidden lg:flex cursor-pointer font-bold ${
               theme == "dark"
@@ -279,7 +279,7 @@ export const Navbar = () => {
             </ReactScrollLink>
           </NavbarMenuItem>
         )}
-        {loggedIn && (
+        {/* {loggedIn && (
           <NavbarMenuItem
             className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >
@@ -296,8 +296,8 @@ export const Navbar = () => {
               Data CRUD
             </ReactScrollLink>
           </NavbarMenuItem>
-        )}
-        {isadmin && (
+        )} */}
+        {isadmin && loggedIn && (
           <NavbarMenuItem
             className={`cursor-pointer font-bold hover:text-slate-400 duration-200 w-full flex justify-center items-center gap-2`}
           >

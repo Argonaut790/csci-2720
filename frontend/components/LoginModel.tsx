@@ -51,20 +51,24 @@ const LoginModal = () => {
           } else {
             Cookies.set("isAdmin", "false");
           }
+          Cookies.set("loggedIn", "true");
+          Cookies.set("userId", res.data.userId);
+          Cookies.set("userName", res.data.username);
 
           // Update Data Database
           updateData().then(() => {
-            toggleLoggedInOn();
-            toggleLoadingOff();
-            setUser({ username: res.data.username, userId: res.data.userId });
-
-            const welcomemsg = "Login Success! Welcome, " + res.data.username;
-            toast.success(welcomemsg, {
-              position: "bottom-right",
-              autoClose: 900,
-              hideProgressBar: false,
-              theme: theme == "light" ? "light" : "dark",
-            });
+            setTimeout(() => {
+              toggleLoggedInOn();
+              toggleLoadingOff();
+              setUser({ username: res.data.username, userId: res.data.userId });
+              const welcomemsg = "Login Success! Welcome, " + res.data.username;
+              toast.success(welcomemsg, {
+                position: "bottom-right",
+                autoClose: 900,
+                hideProgressBar: false,
+                theme: theme == "light" ? "light" : "dark",
+              });
+            }, 2400);
           });
         }
         return "result from success";

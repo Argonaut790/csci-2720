@@ -43,6 +43,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 // import MapContent from "../MapContent"
 import MapView from "./mapView";
+import { useAllDataPoints } from "@/contexts/AllDataPointsContext";
 interface dataShape {
   _id: { $oid: string };
   "district-s-en": string;
@@ -169,6 +170,8 @@ export default function TableInTest() {
     );
   }, [visibleColumns]);
 
+  const { setCenterPoint, setZoomRate } = useAllDataPoints();
+
   const filteredItems = React.useMemo(() => {
     let filteredUsers = [...data];
 
@@ -259,6 +262,11 @@ export default function TableInTest() {
 
     return sortedItems.slice(start, end);
   }, [page, filteredItems, sortedItems, rowsPerPage]);
+
+  const viewLoca = async (latlng: number[]) => {
+    setCenterPoint(latlng);
+    setZoomRate(16);
+  };
 
   const deleteLoca = async (no: string) => {
     // console.log("deleting here", no)
@@ -363,8 +371,8 @@ export default function TableInTest() {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu>
-                    <DropdownItem onClick={() => editLoca(data.no)}>
-                      Edit
+                    <DropdownItem onClick={() => viewLoca(data["lat-long"])}>
+                      View
                     </DropdownItem>
                     <DropdownItem onClick={() => deleteLoca(data.no)}>
                       Delete
@@ -597,6 +605,10 @@ export default function TableInTest() {
 
   const CreateMask = () => {
     const resultRef = useRef<HTMLSpanElement>(null);
+    const [coordinates, setCoordinates] = useState({
+      lat: 22.419373049191574,
+      lng: 114.20637130715477,
+    });
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -604,8 +616,8 @@ export default function TableInTest() {
       const updatedDistLargeName = updatedDistLargeNameRef.current?.value;
       const updatedAddressName = updatedAddressNameRef.current?.value;
       const updatedLocationName = updatedLocationNameRef.current?.value;
-      const updatedLatitude = updatedLatitudeRef.current?.value;
-      const updatedLongitude = updatedLongitudeRef.current?.value;
+      const updatedLatitude = coordinates["lat"];
+      const updatedLongitude = coordinates["lng"];
       const updatedProvider = updatedProviderRef.current?.value;
       const updatedType = updatedTypeRef.current?.value;
       const updatedParkingNumber = updatedParkingNumberRef.current?.value;
@@ -626,14 +638,15 @@ export default function TableInTest() {
         data
       );
 
-      if (res.status == 200) {
-        setNewCreate(true);
-        setsubmitState(true);
-      }
+      // if (res.status == 200) {
+      //   setNewCreate(true);
+      //   setsubmitState(true);
+      // }
 
       console.log("this is the result", res.data);
 
       setReloadData((prevState) => !prevState);
+      onClose();
     };
 
     const handleMapData = (lat: number, lng: number) => {
@@ -724,7 +737,7 @@ export default function TableInTest() {
                     ref={updatedAddressNameRef}
                   />
                   <div>Coordinate:</div>
-                  {mapData ? (
+                  {/* {mapData ? (
                     <div className="flex flex-row">
                       <input
                         type="text"
@@ -760,23 +773,20 @@ export default function TableInTest() {
                         ref={updatedLongitudeRef}
                       />
                     </div>
-                  ) : null}
+                  ) : null} */}
 
-                  <Button
+                  {/* <Button
                     color="success"
                     variant="light"
                     onClick={() => setMapView(true)}
                   >
                     Select coordinate by Map
-                  </Button>
-                  <div>
-                    {mapView ? (
-                      <MapView
-                        className="w-full h-64"
-                        onMapData={handleMapData}
-                      />
-                    ) : null}
-                  </div>
+                  </Button> */}
+                  <MapView
+                    onMapData={handleMapData}
+                    coordinates={coordinates}
+                    setCoordinates={setCoordinates}
+                  />
 
                   <Input
                     type="text"
@@ -802,7 +812,7 @@ export default function TableInTest() {
                     ref={updatedProviderRef}
                   />
 
-                  {submitState ? (
+                  {/* {submitState ? (
                     <span ref={resultRef}>result here</span>
                   ) : null}
                   {submitState ? (
@@ -813,7 +823,7 @@ export default function TableInTest() {
                     )
                   ) : (
                     <div></div>
-                  )}
+                  )} */}
                 </ModalBody>
 
                 <ModalFooter>
@@ -1222,7 +1232,7 @@ export default function TableInTest() {
           )}
         </TableHeader>
 
-        <TableBody emptyContent={"No users found"} items={items}>
+        <TableBody emptyContent={"No data found"} items={items}>
           {(item) => (
             <TableRow key={item["no"]}>
               {(columnKey) => (

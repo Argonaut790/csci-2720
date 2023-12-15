@@ -22,12 +22,12 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { useState, useEffect, useMemo, useCallback, useRef, Key } from "react";
 import { toast } from "react-toastify";
 import { useUserSystem } from "@/contexts/UserSystemContext";
 import { EditIcon, DeleteIcon } from "@components/icons";
 import { useTheme } from "next-themes";
+import Cookies from "js-cookie";
 
 interface data {
   username: string;
@@ -46,7 +46,7 @@ const UserCRUD = () => {
   const [targetAccount, setTargetAccount] = useState<data | null>(null);
   const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure();
 
-  const { user, setLoginUser } = useUserSystem();
+  const { user, setUser } = useUserSystem();
   const { theme } = useTheme();
 
   const items = useMemo(() => {
@@ -197,7 +197,12 @@ const UserCRUD = () => {
             ) {
               console.log("Update sign in user info");
               console.log(username);
-              setLoginUser(targetAccount.userId, username);
+              // setLoginUser(targetAccount.userId, username);
+              setUser({
+                username: username ?? "",
+                userId: Cookies.get("userId") ?? "",
+              });
+              Cookies.set("userName", username);
             }
           })
           .then(() => {

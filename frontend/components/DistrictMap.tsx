@@ -329,7 +329,7 @@ const DistrictMap = () => {
               </SelectItem>
             ))}
           </Select>
-          {selectedCharger ? (
+          {/* {selectedCharger ? (
             <div className="px-10 pt-8 flex flex-col gap-4 w-11/12 justify-center items-center">
               <Input
                 className=""
@@ -368,7 +368,7 @@ const DistrictMap = () => {
             </div>
           ) : (
             <div></div>
-          )}
+          )} */}
         </div>
         <div className=" w-2/3">
           <GoogleMapsWrapper>
@@ -380,7 +380,7 @@ const DistrictMap = () => {
           </GoogleMapsWrapper>
         </div>
       </div>
-      <div className=" grid grid-cols-3 gap-6 h-[250px]">
+      <div className=" grid grid-cols-3 gap-6 h-[260px]">
         <Card className="py-4 pb-0">
           <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
             <h4 className="font-bold text-large">Favourited Charger</h4>
@@ -390,6 +390,9 @@ const DistrictMap = () => {
             {/* Latitude: {selectedCharger?.["lat-long"][0] || "None"}
             <br />
             Longtitude: {selectedCharger?.["lat-long"][1] || "None"} */}
+            Latitude: {selectedCharger?.["lat-long"][0].toString() || "None"}
+            <br />
+            Longtitude: {selectedCharger?.["lat-long"][1].toString() || "None"}
           </CardBody>
         </Card>
         <Card className="py-4 pb-0">

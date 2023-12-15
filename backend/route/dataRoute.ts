@@ -229,10 +229,9 @@ router.patch("/", async (req: Request, res: Response) => {
     });
 });
 
-////////////
 router.use(express.json());
 //{"newLocat": "North Point", "newCoor": ["22.2855988576","114.18833258"], "newProvider": "CLP"}
-router.post("/createNewData", async (req: Request, res: Response) => {
+router.post("/api/createNewData", async (req: Request, res: Response) => {
   console.log("this is the req", req.body);
 
   let inputData = req.body;
@@ -270,7 +269,7 @@ router.post("/createNewData", async (req: Request, res: Response) => {
   let data = {
     "district-s-en": `${distSmall}`,
     "location-en": `${location}`,
-    // img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
+    img: "/EV/PublishingImages/common/map/map_thumb/Entrance_HK%20Science%20Park_large.jpg",
     no: `${largestNo.toString()}`,
     "district-l-en": `${distLarge}`,
     "parking-no": `${parkingNum}`,
@@ -301,18 +300,20 @@ router.post("/createNewData", async (req: Request, res: Response) => {
   res.send(returnValue);
 });
 
-router.delete("/deleteData/:deleteID", async (req: Request, res: Response) => {
-  let info = req.params.deleteID;
-  console.log("info: ", info);
-  await Data.deleteOne({ no: info })
-    .then((result) => {
-      console.log("result: ", result);
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      console.log("err: ", err);
-      res.status(400).send(err);
-    });
+router.post("/api/deleteData", async (req: Request, res: Response) => {
+  let info = req.body.number;
+  console.log("infor: ", info);
+  const result = await Data.deleteOne({ no: info });
+
+  console.log("infor: ", result.deletedCount);
+  if (result.deletedCount == 1) {
+    console.log("send 200");
+    res.send(200);
+  } else {
+    console.log("send 500");
+
+    res.send(500);
+  }
 });
 
 //get comments by chargerId
