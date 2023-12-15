@@ -19,14 +19,15 @@ import React from "react";
 //   ];
 
 
-const columns = [
+const columnsInfo = [
   {name: "number", uid: "number", sortable: true},
   {name: "location", uid: "location", sortable: true},
   {name: "districtSmall", uid: "districtSmall", sortable: true},
   {name: "districtLarge", uid: "districtLarge", sortable: true},
   {name: "parkingNumber", uid: "parkingNumber",sortable: true},
-  {name: "provider", uid: "provider"},
+  {name: "provider", uid: "provider" },
   {name: "latLong", uid: "latLong"},
+  {name: "type", uid: "type"},
   {name: "ACTIONS", uid: "actions"},
 ];
 // const columns = [
@@ -44,9 +45,9 @@ const columns = [
 
 
 const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  {name: "Standard", uid: "Standard"},
+  {name: "Quick", uid: "Quick"},
+  {name: "SemiQuick", uid: "SemiQuick"},
 ];
 
 
@@ -67,4 +68,4 @@ const data = [
 
 
 
-export {columns, statusOptions, data};
+export {columnsInfo, statusOptions, data};
