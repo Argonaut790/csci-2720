@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
     Table,
     TableHeader,
@@ -42,6 +42,8 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
     vacation: "warning",
 };
 
+// import MapContent from "../MapContent"
+import MapView from "./mapView";
 interface dataShape {
     _id: { $oid: string };
     "district-s-en": string;
@@ -83,12 +85,16 @@ export default function TableInTest() {
     const [useSorting, setSorting] = React.useState(false)
     const { loggedIn, isadmin } = useUserSystem();
 
+    //open map view
+    const [mapView, setMapView] = React.useState(false);
 
     //for popup edit button
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
-
+    //delete function
+    const [deleteLoc, setDeleteLoc] = React.useState(false);
+    const [reloadData, setReloadData] = React.useState(false);
 
     //set cases for admin and user
     let columns = {}
@@ -103,7 +109,7 @@ export default function TableInTest() {
             { name: "parkingNumber", uid: "parkingNumber", sortable: true },
             { name: "provider", uid: "provider" },
             { name: "latLong", uid: "latLong" },
-
+            { name: "ACTIONS", uid: "actions" },
         ];
     }
 
@@ -123,7 +129,7 @@ export default function TableInTest() {
         fetchData()
         console.log("i am fetch data")
         // console.log("rows", rows)
-    }, []);
+    }, [reloadData]);
 
     const [page, setPage] = React.useState(1);
 
@@ -222,7 +228,39 @@ export default function TableInTest() {
         return sortedItems.slice(start, end);
     }, [page, filteredItems, sortedItems, rowsPerPage]);
 
+    const deleteLoca = async (no: string) => {
+        // console.log("deleting here", no)
 
+        let number = { "number": no }
+        let response = await axios.post("http://localhost:5500/data/api/deleteData", number)
+        // console.log("repsonse", response.status)
+        if (response.status == 200) {
+
+            setReloadData(prevState => !prevState)
+            console.log("delete sucess")
+        }
+        else {
+            prompt("Some problem with delete")
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    const editLoca = async (no: string) => {
+        console.log("number to edit is ", no)
+
+
+        setIsOpenModal1(true)
+
+
+    }
 
 
 
@@ -290,9 +328,9 @@ export default function TableInTest() {
                                     </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu>
-                                    <DropdownItem>View</DropdownItem>
-                                    <DropdownItem>Edit</DropdownItem>
-                                    <DropdownItem>Delete</DropdownItem>
+                                    <DropdownItem>Viewinging</DropdownItem>
+                                    <DropdownItem onClick={() => editLoca(data.no)}>Edit</DropdownItem>
+                                    <DropdownItem onClick={() => deleteLoca(data.no)}>Delete</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
@@ -338,6 +376,11 @@ export default function TableInTest() {
         setPage(1)
     }, [])
 
+
+    const createButton = () => {
+        onOpen()
+
+    }
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
@@ -395,7 +438,7 @@ export default function TableInTest() {
                             </DropdownMenu>
                         </Dropdown>
 
-                        {isadmin ? <Button color="primary" endContent={<PlusIcon />} onPress={onOpen}>
+                        {isadmin ? <Button color="primary" endContent={<PlusIcon />} onClick={createButton}>
                             Create New
                         </Button> : <></>}
 
@@ -455,49 +498,105 @@ export default function TableInTest() {
             </div>
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-
+    const updatedDistSmallNameRef = useRef<HTMLInputElement>(null);
+    const updatedDistLargeNameRef = useRef<HTMLInputElement>(null);
     const updatedLocationNameRef = useRef<HTMLInputElement>(null);
+    const updatedAddressNameRef = useRef<HTMLInputElement>(null);
+
     const updatedLatitudeRef = useRef<HTMLInputElement>(null);
     const updatedLongitudeRef = useRef<HTMLInputElement>(null);
     const updatedProviderRef = useRef<HTMLInputElement>(null);
 
-    const EditMask = () => {
+    const updatedTypeRef = useRef<HTMLInputElement>(null);
+
+
+    const updatedParkingNumberRef = useRef<HTMLInputElement>(null);
+
+
+    const [newCreate, setNewCreate] = useState(false)
+    const [submitState, setsubmitState] = useState(false)
+    // const [incorrectForm, setincorrectForm] = useState(false)
+
+
+    const [mapData, setMapData] = useState("");
+    const CreateMask = () => {
         const updatedUserNameRef = useRef<HTMLInputElement>(null);
         const updatedPasswordRef = useRef<HTMLInputElement>(null);
         const resultRef = useRef<HTMLSpanElement>(null);
 
+
         const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-
-
             e.preventDefault();
+            const updatedDistSmallName = updatedDistSmallNameRef.current?.value;
+            const updatedDistLargeName = updatedDistLargeNameRef.current?.value;
+            const updatedAddressName = updatedAddressNameRef.current?.value;
             const updatedLocationName = updatedLocationNameRef.current?.value;
             const updatedLatitude = updatedLatitudeRef.current?.value;
             const updatedLongitude = updatedLongitudeRef.current?.value;
             const updatedProvider = updatedProviderRef.current?.value;
+            const updatedType = updatedTypeRef.current?.value;
+            const updatedParkingNumber = updatedParkingNumberRef.current?.value;
+
             let data = {
+                newDistSmall: updatedDistSmallName,
+                newDistLarge: updatedDistLargeName,
+                newDistAddress: updatedAddressName,
+                newUpdatedType: updatedType,
                 newLocat: updatedLocationName,
                 newCoor: [updatedLatitude, updatedLongitude],
-                newProvider: updatedProvider
+                newProvider: updatedProvider,
+                newParkingNum: updatedParkingNumber
+
             }
+            // for (let key in data) {
+            //     if (data[key] === undefined || data[key] === null || data[key] === '') {
+
+            //         setincorrectForm(true)
+
+            //         console.log("wrongg!!!!!")
+
+            //         return;
+
+            //     }
+            // }
 
             // axios.post(process.env.NEXT_PUBLIC_DEV_API_PATH + "api/createNewData", data).then((res) => {
             //     console.log("this is the result", res)
             // })
 
+
             const res = await axios.post("http://localhost:5500/data/api/createNewData", data)
+
+            if (res.status == 200) {
+                setNewCreate(true)
+                setsubmitState(true)
+
+            }
 
             console.log("this is the result", res.data)
 
-
-
+            setReloadData(prevState => !prevState)
         };
+
+        const handleMapData = (lat: number, lng: number) => {
+
+            setMapData({ lat, lng });
+            // const [mapView, setMapView] = React.useState(false);
+            setMapView(false)
+
+            console.log(`Data received from MapView: latitude: ${lat}, longitude: ${lng}`);
+        };
+        const handleClose = () => {
+            onClose();
+            setsubmitState(false);
+        };
+
 
         return (
             <>
                 <Modal
                     isOpen={isOpen}
                     onOpenChange={onOpenChange}
-                    isDismissable={false}
                     placement="center"
                     motionProps={{
                         variants: {
@@ -519,10 +618,11 @@ export default function TableInTest() {
                             },
                         },
                     }}
+                    onClose={onClose}
                 >
                     <ModalContent>
                         {(onClose) => (
-                            <form onSubmit={onSubmit}>
+                            <form onSubmit={onSubmit} className="overflwo">
                                 <ModalHeader className="flex flex-col gap-1">
                                     New Location
                                 </ModalHeader>
@@ -530,50 +630,109 @@ export default function TableInTest() {
                                     <Input
                                         type="text"
                                         variant={"underlined"}
+                                        label="District Small"
+                                        // defaultValue={editingData?.username}
+                                        // value="North Point"
+                                        placeholder="eg. shatin"
+                                        isRequired
+                                        ref={updatedDistSmallNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Large"
+                                        // defaultValue={editingData?.username}
+                                        value="New Territories"
+                                        placeholder="eg.New Territories"
+                                        isRequired
+                                        ref={updatedDistLargeNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
                                         label="Location Name"
                                         // defaultValue={editingData?.username}
-                                        value="North Point"
+                                        value="Hong Kong Science Park"
+                                        placeholder="eg. Hong Kong Science Park"
                                         isRequired
                                         ref={updatedLocationNameRef}
                                     />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Address Name"
+                                        placeholder="eg. Hong Kong Science Park Carpark P2, B/F,"
+                                        value="Hong Kong Science Park Carpark P2, B/F,"
+                                        isRequired
+                                        ref={updatedAddressNameRef}
+                                    />
 
-                                    <div className="flex flex-row m-1">
+
+
+
+
+                                    <div>Coordinate:</div>
+
+                                    {mapData ? <div className="flex flex-row">
+                                        <input type="text" className="m-1"
+                                            value={mapData.lat} ref={updatedLatitudeRef} isRequired />
+                                        <input type="text" className="m-1"
+                                            value={mapData.lng} ref={updatedLongitudeRef} isRequired />
+                                    </div> : null}
+
+                                    {!mapData ? <div className="flex flex-row">
                                         <Input
-                                            label="Latitude"
-                                            placeholder="0.00"
-                                            labelPlacement="outside"
-                                            className="p-1"
-                                            value="22.2855988576"
-                                            endContent={
-                                                <div className="flex items-center">
-
-                                                    <div className="pointer-events-none flex items-center">
-                                                        <span className="text-default-400 text-small">°</span>
-                                                    </div>
-                                                </div>
-                                            }
-                                            type="number"
-                                            step="0.001"
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="lat"
+                                            isRequired
                                             ref={updatedLatitudeRef}
                                         />
                                         <Input
-                                            label="Longitude"
-                                            placeholder="0.00"
-                                            labelPlacement="outside"
-                                            className="p-1"
-                                            value="114.18833258"
-                                            endContent={
-                                                <div className="flex items-center">
-                                                    <div className="pointer-events-none flex items-center">
-                                                        <span className="text-default-400 text-small">° </span>
-                                                    </div>
-                                                </div>
-                                            }
-                                            type="number"
-                                            step="0.001"
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="long"
+                                            isRequired
                                             ref={updatedLongitudeRef}
                                         />
+
+                                    </div> : null}
+
+
+                                    <Button color="success" variant="light" onClick={() => setMapView(true)}>
+                                        Select coordinate by Map
+                                    </Button>
+
+
+
+                                    <div>
+
+                                        {mapView ? <MapView className="w-full h-64" onMapData={handleMapData} /> : null}
                                     </div>
+
+
+
+
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="parking number"
+                                        value="D104"
+                                        isRequired
+                                        ref={updatedParkingNumberRef}
+
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Type"
+                                        value="Quick"
+                                        placeholder="eg. Quick"
+                                        isRequired
+                                        ref={updatedTypeRef}
+
+                                    />
 
                                     <Input
                                         type="text"
@@ -585,11 +744,12 @@ export default function TableInTest() {
 
                                     />
 
-                                    <span ref={resultRef}>result here</span>
-
+                                    {submitState ? <span ref={resultRef}>result here</span> : null}
+                                    {submitState ? (newCreate ? <div className="success">success</div> : <div>fail</div>) : <div></div>}
                                 </ModalBody>
+
                                 <ModalFooter>
-                                    <Button color="danger" variant="light" onPress={onClose}>
+                                    <Button color="danger" variant="light" onClick={handleClose}>
                                         Discard
                                     </Button>
                                     <Button type="submit" color="primary">
@@ -604,15 +764,272 @@ export default function TableInTest() {
 
                         )}
                     </ModalContent>
-                </Modal>
+                </Modal >
             </>
         );
     };
 
 
+
+    const [isOpenModal1, setIsOpenModal1] = useState(false);
+    const [editNum, setEditNum] = useState()
+
+
+    const EditMask = () => {
+        // const { isOpen, onOpen, onClose } = useDisclosure();
+        const [backdrop, setBackdrop] = React.useState('opaque')
+
+        const backdrops = ["opaque", "blur", "transparent"];
+
+        const handleOpen = (backdrop) => {
+            setBackdrop(backdrop)
+
+            onOpen();
+        }
+
+
+        const updatedUserNameRef = useRef<HTMLInputElement>(null);
+        const updatedPasswordRef = useRef<HTMLInputElement>(null);
+        const resultRef = useRef<HTMLSpanElement>(null);
+
+
+        const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            const updatedDistSmallName = updatedDistSmallNameRef.current?.value;
+            const updatedDistLargeName = updatedDistLargeNameRef.current?.value;
+            const updatedAddressName = updatedAddressNameRef.current?.value;
+            const updatedLocationName = updatedLocationNameRef.current?.value;
+            const updatedLatitude = updatedLatitudeRef.current?.value;
+            const updatedLongitude = updatedLongitudeRef.current?.value;
+            const updatedProvider = updatedProviderRef.current?.value;
+            const updatedType = updatedTypeRef.current?.value;
+            const updatedParkingNumber = updatedParkingNumberRef.current?.value;
+
+            let data = {
+                newDistSmall: updatedDistSmallName,
+                newDistLarge: updatedDistLargeName,
+                newDistAddress: updatedAddressName,
+                newUpdatedType: updatedType,
+                newLocat: updatedLocationName,
+                newCoor: [updatedLatitude, updatedLongitude],
+                newProvider: updatedProvider,
+                newParkingNum: updatedParkingNumber
+
+            }
+            // for (let key in data) {
+            //     if (data[key] === undefined || data[key] === null || data[key] === '') {
+
+            //         setincorrectForm(true)
+
+            //         console.log("wrongg!!!!!")
+
+            //         return;
+
+            //     }
+            // }
+
+            // axios.post(process.env.NEXT_PUBLIC_DEV_API_PATH + "api/createNewData", data).then((res) => {
+            //     console.log("this is the result", res)
+            // })
+
+
+            const res = await axios.post("http://localhost:5500/data/api/createNewData", data)
+
+            if (res.status == 200) {
+                setNewCreate(true)
+                setsubmitState(true)
+
+            }
+
+            console.log("this is the result", res.data)
+
+            setReloadData(prevState => !prevState)
+        };
+
+        const handleMapData = (lat: number, lng: number) => {
+
+            setMapData({ lat, lng });
+            // const [mapView, setMapView] = React.useState(false);
+            setMapView(false)
+
+            console.log(`Data received from MapView: latitude: ${lat}, longitude: ${lng}`);
+        };
+        const handleClose = () => {
+            onClose();
+            setsubmitState(false);
+            setIsOpenModal1(false);
+
+        };
+        return (
+            <>
+                <div className="flex flex-wrap gap-3">
+
+                    {/* <Button
+                        key={"opaque"}
+                        onPress={() => handleOpen("opaque")}
+                        className="capitalize"
+                    >
+                        Edit
+                    </Button> */}
+
+                </div>
+                <Modal backdrop="opaque" isOpen={isOpenModal1} onClose={onClose}>
+                    <ModalContent>
+                        {(onClose) => (
+                            <form onSubmit={onSubmit} className="overflwo">
+                                <ModalHeader className="flex flex-col gap-1">
+                                    New Location
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Small"
+                                        // defaultValue={editingData?.username}
+                                        // value="North Point"
+                                        placeholder="eg. shatin"
+                                        isRequired
+                                        ref={updatedDistSmallNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="District Large"
+                                        // defaultValue={editingData?.username}
+                                        value="New Territories"
+                                        placeholder="eg.New Territories"
+                                        isRequired
+                                        ref={updatedDistLargeNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Location Name"
+                                        // defaultValue={editingData?.username}
+                                        value="Hong Kong Science Park"
+                                        placeholder="eg. Hong Kong Science Park"
+                                        isRequired
+                                        ref={updatedLocationNameRef}
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Address Name"
+                                        placeholder="eg. Hong Kong Science Park Carpark P2, B/F,"
+                                        value="Hong Kong Science Park Carpark P2, B/F,"
+                                        isRequired
+                                        ref={updatedAddressNameRef}
+                                    />
+
+
+
+
+
+                                    <div>Coordinate:</div>
+
+                                    {mapData ? <div className="flex flex-row">
+                                        <input type="text" className="m-1"
+                                            value={mapData.lat} ref={updatedLatitudeRef} isRequired />
+                                        <input type="text" className="m-1"
+                                            value={mapData.lng} ref={updatedLongitudeRef} isRequired />
+                                    </div> : null}
+
+                                    {!mapData ? <div className="flex flex-row">
+                                        <Input
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="lat"
+                                            isRequired
+                                            ref={updatedLatitudeRef}
+                                        />
+                                        <Input
+                                            type="text"
+                                            variant={"underlined"}
+                                            label="long"
+                                            isRequired
+                                            ref={updatedLongitudeRef}
+                                        />
+
+                                    </div> : null}
+
+
+                                    <Button color="success" variant="light" onClick={() => setMapView(true)}>
+                                        Select coordinate by Map
+                                    </Button>
+
+
+
+                                    <div>
+
+                                        {mapView ? <MapView className="w-full h-64" onMapData={handleMapData} /> : null}
+                                    </div>
+
+
+
+
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="parking number"
+                                        value="D104"
+                                        isRequired
+                                        ref={updatedParkingNumberRef}
+
+                                    />
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="Type"
+                                        value="Quick"
+                                        placeholder="eg. Quick"
+                                        isRequired
+                                        ref={updatedTypeRef}
+
+                                    />
+
+                                    <Input
+                                        type="text"
+                                        variant={"underlined"}
+                                        label="provider"
+                                        value="CLP"
+                                        isRequired
+                                        ref={updatedProviderRef}
+
+                                    />
+
+                                    {submitState ? <span ref={resultRef}>result here</span> : null}
+                                    {submitState ? (newCreate ? <div className="success">success</div> : <div>fail</div>) : <div></div>}
+                                </ModalBody>
+
+                                <ModalFooter>
+                                    <Button color="danger" variant="light" onClick={handleClose}>
+                                        Discard
+                                    </Button>
+                                    <Button type="submit" color="primary">
+                                        Submit Change
+                                    </Button>
+
+
+
+                                </ModalFooter>
+
+                            </form>
+
+                        )}
+                    </ModalContent>
+                </Modal >
+            </>
+        );
+    }
+
+
+
+
     return (<>
 
 
+        <CreateMask />
         <EditMask />
         <Table
             aria-label="Example table with custom cells, pagination and sorting"
@@ -623,7 +1040,7 @@ export default function TableInTest() {
                 wrapper: "max-h-[382px]",
             }}
             selectedKeys={selectedKeys}
-            selectionMode="multiple"
+            // selectionMode="multiple"
             sortDescriptor={sortDescriptor}
             topContent={topContent}
             topContentPlacement="outside"
@@ -641,6 +1058,7 @@ export default function TableInTest() {
                     </TableColumn>
                 )}
             </TableHeader>
+
             <TableBody emptyContent={"No users found"} items={items}>
                 {(item) => (
                     <TableRow key={item["no"]}>
